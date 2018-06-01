@@ -30,11 +30,11 @@ GecodeTSPRegretBrancher::GecodeTSPRegretBrancher(
     home.notice(*this, AP_DISPOSE);
 }
 
-GecodeTSPRegretBrancher::GecodeTSPRegretBrancher(Space& home, bool share, GecodeTSPRegretBrancher& b) :
-    GecodeTSPBrancher(home, share, b) { }
+GecodeTSPRegretBrancher::GecodeTSPRegretBrancher(Space& home, GecodeTSPRegretBrancher& b) :
+    GecodeTSPBrancher(home, b) { }
 
-Actor* GecodeTSPRegretBrancher::copy(Space& home, bool share) {
-    return new (home) GecodeTSPRegretBrancher(home, share, *this);
+Actor* GecodeTSPRegretBrancher::copy(Space& home) {
+    return new (home) GecodeTSPRegretBrancher(home, *this);
 }
 
 size_t GecodeTSPRegretBrancher::dispose(Gecode::Space& home) {

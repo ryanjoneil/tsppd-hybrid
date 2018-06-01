@@ -34,8 +34,8 @@ namespace TSPPD {
             GecodeTSPSpace(const TSPPD::Data::TSPPDProblem& problem);
 
             // Search & optimization support
-            GecodeTSPSpace(bool share, GecodeTSPSpace& rs);
-            virtual Gecode::Space* copy(bool share);
+            GecodeTSPSpace(GecodeTSPSpace& rs);
+            virtual Gecode::Space* copy();
             virtual Gecode::IntVar cost() const;
             virtual Gecode::IntVar dual() const;
             virtual void constrain(const Gecode::Space& _best);

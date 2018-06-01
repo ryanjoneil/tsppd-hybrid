@@ -33,8 +33,8 @@ namespace TSPPD {
             GecodeTSPPDSpace(const TSPPD::Data::TSPPDProblem& problem);
 
             // Search & optimization support
-            GecodeTSPPDSpace(bool share, GecodeTSPPDSpace& rs);
-            virtual Gecode::Space* copy(bool share);
+            GecodeTSPPDSpace(GecodeTSPPDSpace& rs);
+            virtual Gecode::Space* copy();
 
             virtual void initialize_constraints();
             void initialize_precedence_propagators(const GecodeTSPPDPrecedePropagatorType precede_type);

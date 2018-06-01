@@ -32,9 +32,9 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            GecodeTSPPDOMCPropagator(Gecode::Space& home, bool share, GecodeTSPPDOMCPropagator& p);
+            GecodeTSPPDOMCPropagator(Gecode::Space& home, GecodeTSPPDOMCPropagator& p);
 
-            virtual Gecode::Propagator* copy(Gecode::Space& home, bool share);
+            virtual Gecode::Propagator* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);
 
             virtual Gecode::PropCost cost(const Gecode::Space& home, const Gecode::ModEventDelta& med) const;

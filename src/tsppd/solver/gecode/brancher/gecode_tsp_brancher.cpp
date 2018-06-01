@@ -30,13 +30,13 @@ GecodeTSPBrancher::GecodeTSPBrancher(
     problem(problem),
     indexes(vector<unsigned int>(next.size(), 0)) { }
 
-GecodeTSPBrancher::GecodeTSPBrancher(Space& home, bool share, GecodeTSPBrancher& b) :
-    Brancher(home, share, b),
+GecodeTSPBrancher::GecodeTSPBrancher(Space& home, GecodeTSPBrancher& b) :
+    Brancher(home, b),
     next(b.next),
     problem(b.problem),
     indexes(b.indexes) {
 
-    next.update(home, share, b.next);
+    next.update(home, b.next);
 }
 
 size_t GecodeTSPBrancher::dispose(Gecode::Space& home) {

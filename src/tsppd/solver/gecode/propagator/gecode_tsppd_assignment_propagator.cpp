@@ -62,20 +62,20 @@ GecodeTSPPDAssignmentPropagator::GecodeTSPPDAssignmentPropagator(
     home.notice(*this, AP_DISPOSE);
 }
 
-GecodeTSPPDAssignmentPropagator::GecodeTSPPDAssignmentPropagator(Space& home, bool share, GecodeTSPPDAssignmentPropagator& p) :
-    Propagator(home, share, p),
+GecodeTSPPDAssignmentPropagator::GecodeTSPPDAssignmentPropagator(Space& home, GecodeTSPPDAssignmentPropagator& p) :
+    Propagator(home, p),
     next(p.next),
     primal(p.primal),
     problem(p.problem),
     ap(p.ap),
     unassigned(p.unassigned) {
 
-    next.update(home, share, p.next);
-    primal.update(home, share, p.primal);
+    next.update(home, p.next);
+    primal.update(home, p.primal);
 }
 
-Propagator* GecodeTSPPDAssignmentPropagator::copy(Space& home, bool share) {
-    return new (home) GecodeTSPPDAssignmentPropagator(home, share, *this);
+Propagator* GecodeTSPPDAssignmentPropagator::copy(Space& home) {
+    return new (home) GecodeTSPPDAssignmentPropagator(home, *this);
 }
 
 size_t GecodeTSPPDAssignmentPropagator::dispose(Space& home) {

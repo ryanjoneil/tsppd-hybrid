@@ -39,8 +39,8 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            GecodeTSPBrancher(Gecode::Space& home, bool share, GecodeTSPBrancher& b);
-            virtual Gecode::Actor* copy(Gecode::Space& home, bool share) = 0;
+            GecodeTSPBrancher(Gecode::Space& home, GecodeTSPBrancher& b);
+            virtual Gecode::Actor* copy(Gecode::Space& home) = 0;
             virtual size_t dispose(Gecode::Space& home);
 
             virtual bool status(const Gecode::Space& home) const;

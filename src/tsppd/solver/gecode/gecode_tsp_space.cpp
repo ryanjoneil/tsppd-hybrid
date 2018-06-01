@@ -35,20 +35,20 @@ GecodeTSPSpace::GecodeTSPSpace(const TSPPDProblem& problem) :
     length(IntVar(*this, 0, Int::Limits::max)),
     dual_bound(IntVar(*this, 0, Int::Limits::max)) { }
 
-GecodeTSPSpace::GecodeTSPSpace(bool share, GecodeTSPSpace& s) :
-    IntMinimizeSpace(share, s),
+GecodeTSPSpace::GecodeTSPSpace(GecodeTSPSpace& s) :
+    IntMinimizeSpace(s),
     problem(s.problem),
     next(s.next),
     length(s.length),
     dual_bound(s.dual_bound) {
 
-    next.update(*this, share, s.next);
-    length.update(*this, share, s.length);
-    dual_bound.update(*this, share, s.dual_bound);
+    next.update(*this, s.next);
+    length.update(*this, s.length);
+    dual_bound.update(*this, s.dual_bound);
 }
 
-Gecode::Space* GecodeTSPSpace::copy(bool share) {
-    return new GecodeTSPSpace(share, *this);
+Gecode::Space* GecodeTSPSpace::copy() {
+    return new GecodeTSPSpace(*this);
 }
 
 Gecode::IntVar GecodeTSPSpace::cost() const {
