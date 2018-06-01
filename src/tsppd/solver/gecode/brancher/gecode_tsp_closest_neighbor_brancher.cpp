@@ -34,12 +34,11 @@ GecodeTSPClosestNeighborBrancher::GecodeTSPClosestNeighborBrancher(
 
 GecodeTSPClosestNeighborBrancher::GecodeTSPClosestNeighborBrancher(
     Space& home,
-    bool share,
     GecodeTSPClosestNeighborBrancher& b) :
-    GecodeTSPBrancher(home, share, b) { }
+    GecodeTSPBrancher(home, b) { }
 
-Actor* GecodeTSPClosestNeighborBrancher::copy(Space& home, bool share) {
-    return new (home) GecodeTSPClosestNeighborBrancher(home, share, *this);
+Actor* GecodeTSPClosestNeighborBrancher::copy(Space& home) {
+    return new (home) GecodeTSPClosestNeighborBrancher(home, *this);
 }
 
 size_t GecodeTSPClosestNeighborBrancher::dispose(Gecode::Space& home) {

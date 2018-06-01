@@ -29,8 +29,8 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            GecodeTSPClosestNeighborBrancher(Gecode::Space& home, bool share, GecodeTSPClosestNeighborBrancher& b);
-            virtual Gecode::Actor* copy(Gecode::Space& home, bool share);
+            GecodeTSPClosestNeighborBrancher(Gecode::Space& home, GecodeTSPClosestNeighborBrancher& b);
+            virtual Gecode::Actor* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);
 
             virtual Gecode::Choice* choice(Gecode::Space& home);

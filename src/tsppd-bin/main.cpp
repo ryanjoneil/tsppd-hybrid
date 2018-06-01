@@ -171,21 +171,22 @@ int main(int argc, char** argv) {
 
     try {
         // Instantiate the solver.
-        unique_ptr<TSPPD::Solver::TSPSolver> solver;
+        shared_ptr<TSPPD::Solver::TSPSolver> solver;
+
         if (solver_abbrev == "tsp-mip")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::GurobiTSPSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::GurobiTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsp-cp")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::GecodeTSPSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::GecodeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsp-enum")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::EnumerativeTSPSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::EnumerativeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-mip")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::GurobiTSPPDSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::GurobiTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-mip+")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::GurobiTSPPDPlusSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::GurobiTSPPDPlusSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-cp")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::GecodeTSPPDSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::GecodeTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
-            solver = unique_ptr<TSPPD::Solver::TSPSolver>(new TSPPD::Solver::EnumerativeTSPPDSolver(problem, solver_options, writer));
+            solver = make_shared<TSPPD::Solver::EnumerativeTSPPDSolver>(problem, solver_options, writer);
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;
             return 1;
@@ -204,6 +205,10 @@ int main(int argc, char** argv) {
             writer.write_header();
 
         solver->solve();
+
+    } catch (GRBException e) {
+        cerr << "gurobi error: " << e.getMessage() << endl;
+        return 1;
 
     } catch (TSPPD::Util::TSPPDException e) {
         cerr << "error: " << e.what() << endl;

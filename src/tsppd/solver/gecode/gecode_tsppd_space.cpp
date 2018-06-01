@@ -28,11 +28,11 @@ using namespace std;
 GecodeTSPPDSpace::GecodeTSPPDSpace(const TSPPDProblem& problem) :
     GecodeTSPSpace(problem) { }
 
-GecodeTSPPDSpace::GecodeTSPPDSpace(bool share, GecodeTSPPDSpace& s) :
-    GecodeTSPSpace(share, s) { }
+GecodeTSPPDSpace::GecodeTSPPDSpace(GecodeTSPPDSpace& s) :
+    GecodeTSPSpace(s) { }
 
-Gecode::Space* GecodeTSPPDSpace::copy(bool share) {
-    return new GecodeTSPPDSpace(share, *this);
+Gecode::Space* GecodeTSPPDSpace::copy() {
+    return new GecodeTSPPDSpace(*this);
 }
 
 void GecodeTSPPDSpace::initialize_constraints() {

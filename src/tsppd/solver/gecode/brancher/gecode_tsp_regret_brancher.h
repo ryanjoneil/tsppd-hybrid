@@ -29,8 +29,8 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            GecodeTSPRegretBrancher(Gecode::Space& home, bool share, GecodeTSPRegretBrancher& b);
-            virtual Gecode::Actor* copy(Gecode::Space& home, bool share);
+            GecodeTSPRegretBrancher(Gecode::Space& home, GecodeTSPRegretBrancher& b);
+            virtual Gecode::Actor* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);
 
             virtual Gecode::Choice* choice(Gecode::Space& home);

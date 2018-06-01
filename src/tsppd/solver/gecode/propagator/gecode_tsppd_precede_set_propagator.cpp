@@ -40,8 +40,8 @@ GecodeTSPPDPrecedeSetPropagator::GecodeTSPPDPrecedeSetPropagator(
     next[index].subscribe(home, *this, Int::PC_INT_VAL);
 }
 
-GecodeTSPPDPrecedeSetPropagator::GecodeTSPPDPrecedeSetPropagator(Space& home, bool share, GecodeTSPPDPrecedeSetPropagator& p) :
-    Propagator(home, share, p),
+GecodeTSPPDPrecedeSetPropagator::GecodeTSPPDPrecedeSetPropagator(Space& home, GecodeTSPPDPrecedeSetPropagator& p) :
+    Propagator(home, p),
     next(p.next),
     pred(p.pred),
     succ(p.succ),
@@ -50,13 +50,13 @@ GecodeTSPPDPrecedeSetPropagator::GecodeTSPPDPrecedeSetPropagator(Space& home, bo
     start_index(p.start_index),
     end_index(p.end_index) {
 
-    next.update(home, share, p.next);
-    pred.update(home, share, p.pred);
-    succ.update(home, share, p.succ);
+    next.update(home, p.next);
+    pred.update(home, p.pred);
+    succ.update(home, p.succ);
 }
 
-Propagator* GecodeTSPPDPrecedeSetPropagator::copy(Space& home, bool share) {
-    return new (home) GecodeTSPPDPrecedeSetPropagator(home, share, *this);
+Propagator* GecodeTSPPDPrecedeSetPropagator::copy(Space& home) {
+    return new (home) GecodeTSPPDPrecedeSetPropagator(home, *this);
 }
 
 size_t GecodeTSPPDPrecedeSetPropagator::dispose(Space& home) {

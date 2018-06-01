@@ -18,13 +18,13 @@ set(CMAKE_CXX_FLAGS
 include_directories(src/)
 if(APPLE)
     include_directories(/usr/local/include/)
-    include_directories(/Library/gurobi702/mac64/include/)
+    include_directories(/Library/gurobi800/mac64/include/)
 endif(APPLE)
 
 # Where to look for libraries
 if(APPLE)
     link_directories(/usr/local/lib/)
-    link_directories(/Library/gurobi702/mac64/lib/)
+    link_directories(/Library/gurobi800/mac64/lib/)
 endif(APPLE)
 
 # Libraries we link against
@@ -34,7 +34,7 @@ if(${GIST})
 else(${GIST})
     set(GECODE_LIBRARIES gecodefloat gecodeint gecodekernel gecodeminimodel gecodesearch gecodeset gecodesupport)
 endif(${GIST})
-set(GUROBI_LIBRARIES gurobi_c++ gurobi70 m)
+set(GUROBI_LIBRARIES gurobi_c++ gurobi80 m)
 set(ALL_LIBRARIES ${BOOST_LIBRARIES} ${GECODE_LIBRARIES} ${GUROBI_LIBRARIES})
 
 # This allows "make install" to put all the headers in the right place.
