@@ -39,8 +39,8 @@ GecodeTSPPDPrecedeCostPropagator::GecodeTSPPDPrecedeCostPropagator(
     node_cost[index].subscribe(home, *this, Int::PC_INT_DOM);
 }
 
-GecodeTSPPDPrecedeCostPropagator::GecodeTSPPDPrecedeCostPropagator(Space& home, bool share, GecodeTSPPDPrecedeCostPropagator& p) :
-    Propagator(home, share, p),
+GecodeTSPPDPrecedeCostPropagator::GecodeTSPPDPrecedeCostPropagator(Space& home, GecodeTSPPDPrecedeCostPropagator& p) :
+    Propagator(home, p),
     next(p.next),
     node_cost(p.node_cost),
     index(p.index),
@@ -48,12 +48,12 @@ GecodeTSPPDPrecedeCostPropagator::GecodeTSPPDPrecedeCostPropagator(Space& home, 
     start_index(p.start_index),
     end_index(p.end_index) {
 
-    next.update(home, share, p.next);
-    node_cost.update(home, share, p.node_cost);
+    next.update(home, p.next);
+    node_cost.update(home, p.node_cost);
 }
 
-Propagator* GecodeTSPPDPrecedeCostPropagator::copy(Space& home, bool share) {
-    return new (home) GecodeTSPPDPrecedeCostPropagator(home, share, *this);
+Propagator* GecodeTSPPDPrecedeCostPropagator::copy(Space& home) {
+    return new (home) GecodeTSPPDPrecedeCostPropagator(home, *this);
 }
 
 size_t GecodeTSPPDPrecedeCostPropagator::dispose(Space& home) {

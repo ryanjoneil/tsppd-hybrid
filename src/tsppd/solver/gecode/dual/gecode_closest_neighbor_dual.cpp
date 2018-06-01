@@ -39,21 +39,20 @@ GecodeClosestNeighborDual::GecodeClosestNeighborDual(
 
 GecodeClosestNeighborDual::GecodeClosestNeighborDual(
     Space& home,
-    bool share,
     GecodeClosestNeighborDual& p) :
-    Propagator(home, share, p),
+    Propagator(home, p),
     next(p.next),
     closest_cost(p.closest_cost),
     node_index(p.node_index),
     problem(p.problem),
     arc_index(p.arc_index) {
 
-    next.update(home, share, p.next);
-    closest_cost.update(home, share, p.closest_cost);
+    next.update(home, p.next);
+    closest_cost.update(home, p.closest_cost);
 }
 
-Propagator* GecodeClosestNeighborDual::copy(Space& home, bool share) {
-    return new (home) GecodeClosestNeighborDual(home, share, *this);
+Propagator* GecodeClosestNeighborDual::copy(Space& home) {
+    return new (home) GecodeClosestNeighborDual(home, *this);
 }
 
 size_t GecodeClosestNeighborDual::dispose(Space& home) {

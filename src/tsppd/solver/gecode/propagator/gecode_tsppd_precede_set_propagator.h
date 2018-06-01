@@ -35,9 +35,9 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            GecodeTSPPDPrecedeSetPropagator(Gecode::Space& home, bool share, GecodeTSPPDPrecedeSetPropagator& p);
+            GecodeTSPPDPrecedeSetPropagator(Gecode::Space& home, GecodeTSPPDPrecedeSetPropagator& p);
 
-            virtual Gecode::Propagator* copy(Gecode::Space& home, bool share);
+            virtual Gecode::Propagator* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);
 
             virtual Gecode::PropCost cost(const Gecode::Space& home, const Gecode::ModEventDelta& med) const;

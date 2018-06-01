@@ -36,19 +36,19 @@ GecodeTSPPDOMCPropagator::GecodeTSPPDOMCPropagator(
     next[index].subscribe(home, *this, Int::PC_INT_VAL);
 }
 
-GecodeTSPPDOMCPropagator::GecodeTSPPDOMCPropagator(Space& home, bool share, GecodeTSPPDOMCPropagator& p) :
-    Propagator(home, share, p),
+GecodeTSPPDOMCPropagator::GecodeTSPPDOMCPropagator(Space& home, GecodeTSPPDOMCPropagator& p) :
+    Propagator(home, p),
     next(p.next),
     index(p.index),
     problem(p.problem),
     start_index(p.start_index),
     end_index(p.end_index) {
 
-    next.update(home, share, p.next);
+    next.update(home, p.next);
 }
 
-Propagator* GecodeTSPPDOMCPropagator::copy(Space& home, bool share) {
-    return new (home) GecodeTSPPDOMCPropagator(home, share, *this);
+Propagator* GecodeTSPPDOMCPropagator::copy(Space& home) {
+    return new (home) GecodeTSPPDOMCPropagator(home, *this);
 }
 
 size_t GecodeTSPPDOMCPropagator::dispose(Space& home) {
