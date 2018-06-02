@@ -82,10 +82,12 @@ void SarinTSPSolver::initialize_variables() {
             auto tostr = problem.nodes[to];
 
             auto ub = (from == to || from == end_index || to == start_index) ? 0 : 1;
-            x_i.push_back(model.addVar(0, ub, problem.cost(from, to), GRB_BINARY));
+            x_i.push_back(model.addVar(0, ub, problem.cost(from, to), GRB_BINARY,
+                string("x[" + problem.nodes[from] + " " + problem.nodes[to] + "]")));
 
             auto lb = (from != to && (from == start_index || to == end_index)) ? 1 : 0;
-            y_i.push_back(model.addVar(lb, ub, 0, GRB_BINARY));
+            y_i.push_back(model.addVar(lb, ub, 0, GRB_BINARY,
+                string("y[" + problem.nodes[from] + " " + problem.nodes[to] + "]")));
         }
 
         x.push_back(x_i);

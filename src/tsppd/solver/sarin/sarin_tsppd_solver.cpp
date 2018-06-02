@@ -31,11 +31,22 @@ SarinTSPPDSolver::SarinTSPPDSolver(
 }
 
 void SarinTSPPDSolver::initialize_tsppd_constraints() {
+    // +i < -i for all i
     for (auto p : problem.pickup_indices()) {
         auto d = problem.successor_index(p);
         y[p][d].set(GRB_DoubleAttr_LB, 1);
     }
 
+    // +0 directly precedes +i for some i
+    GRBLinExpr expr = 0;
+    for (auto p : problem.pickup_indices())
+        expr += x[start_index][p];
+    model.addConstr(expr == 1);
 
+    // -0 is directly preceded by -i for some i
+    expr = 0;
+    for (auto d : problem.delivery_indices())
+        expr += x[d][end_index];
+    model.addConstr(expr == 1);
 }
 
