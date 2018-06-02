@@ -157,6 +157,7 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
         }
     }
 
+    // y_ij + y_jk + y_ki <= 2 for all i,j,k = 2,...,n, i != j != k
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
         if (i == start_index)
             continue;
