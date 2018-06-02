@@ -44,7 +44,7 @@ void GurobiTSPPDPlusSolver::initialize_tsppd_plus_options() {
     if (wl_pair != options.end())
         try {
             wl = stoi(wl_pair->second);
-         } catch (exception e) {
+         } catch (exception &e) {
             throw TSPPDException("warm-time must be an integer");
          }
 
@@ -55,7 +55,7 @@ void GurobiTSPPDPlusSolver::initialize_tsppd_plus_options() {
     if (sl_pair != options.end())
         try {
             sl = stoi(sl_pair->second);
-         } catch (exception e) {
+         } catch (exception &e) {
             throw TSPPDException("warm-soln must be an integer");
          }
 

@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
     if (varmap.count("save") == 1) {
         try {
             TSPPD::IO::TSPProblemWriter::write(varmap["save"].as<string>(), problem);
-        } catch (TSPPD::Util::TSPPDException e) {
+        } catch (TSPPD::Util::TSPPDException &e) {
             cerr << "error: " << e.what() << endl;
             return 1;
         }
@@ -212,11 +212,11 @@ int main(int argc, char** argv) {
 
         solver->solve();
 
-    } catch (GRBException e) {
+    } catch (GRBException &e) {
         cerr << "gurobi error: " << e.getMessage() << endl;
         return 1;
 
-    } catch (TSPPD::Util::TSPPDException e) {
+    } catch (TSPPD::Util::TSPPDException &e) {
         cerr << "error: " << e.what() << endl;
         return 1;
     }

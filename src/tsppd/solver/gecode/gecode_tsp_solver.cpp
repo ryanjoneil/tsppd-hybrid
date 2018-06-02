@@ -149,7 +149,7 @@ void GecodeTSPSolver::initialize_option_discrepancy_limit() {
     if (discrepancy_limit_pair != options.end()) {
         try {
             discrepancy_limit = stoi(discrepancy_limit_pair->second);
-         } catch (exception e) {
+         } catch (exception &e) {
             throw TSPPDException("discrepancy limit must be an integer");
          }
         if (discrepancy_limit < 1)
@@ -191,7 +191,7 @@ void GecodeTSPSolver::initialize_option_threads() {
     if (threads_pair != options.end())
         try {
             threads = stoi(threads_pair->second);
-         } catch (exception e) {
+         } catch (exception &e) {
             throw TSPPDException("threads must be an integer");
          }
     if (threads < 1)
