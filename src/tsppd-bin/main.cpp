@@ -36,6 +36,7 @@
 #include <tsppd/solver/gurobi/gurobi_tsp_solver.h>
 #include <tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h>
 #include <tsppd/solver/gurobi/gurobi_tsppd_solver.h>
+#include <tsppd/solver/sarin/sarin_tsp_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
@@ -50,7 +51,7 @@ int main(int argc, char** argv) {
     desc.add_options()
         ("help,h", "produce help message")
         ("no-header,H", "do not print csv header line")
-        ("solver,s", po::value<string>(), "{tsp|tsppd}-{cp|enum|mip}")
+        ("solver,s", po::value<string>(), "{tsp|tsppd}-{cp|enum|mip|sarin}")
         ("input,i", po::value<string>(), "input tsplib file")
         ("format,f", po::value<string>(), "output format: {human|csv} (default=human)")
         ("random-seed,r", po::value<unsigned int>(), "random seed (default=0)")
@@ -179,6 +180,8 @@ int main(int argc, char** argv) {
             solver = make_shared<TSPPD::Solver::GecodeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsp-enum")
             solver = make_shared<TSPPD::Solver::EnumerativeTSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsp-sarin")
+            solver = make_shared<TSPPD::Solver::SarinTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-mip")
             solver = make_shared<TSPPD::Solver::GurobiTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-mip+")

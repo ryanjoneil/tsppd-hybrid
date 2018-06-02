@@ -86,9 +86,13 @@ void GurobiTSPSolver::initialize_tsp_options() {
 }
 
 void GurobiTSPSolver::initialize_variables() {
+    auto start_index = problem.index("+0");
+    auto end_index = problem.index("-0");
+
     for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
         for (unsigned int to = from + 1; to < problem.nodes.size(); ++to) {
-            auto var = model.addVar(0, 1, problem.cost(from, to), GRB_BINARY);
+            auto lb = (from == start_index && to == end_index) ? 1 : 0;
+            auto var = model.addVar(lb, 1, problem.cost(from, to), GRB_BINARY);
 
             // Arc costs are symmetric. Recording them in both directions as the same
             // variable keeps us from having to do complicated transformations later.

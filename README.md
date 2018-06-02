@@ -24,8 +24,8 @@ cmake ..
 make
 ```
 
-If you are using OSX or otherwise don't have GIST support in your copy of
-Gecode, append "-DGIST=off" to the cmake invocation.
+If you don't have GIST support in your copy of Gecode, append "-DGIST=off" to
+the cmake invocation.
 
 In the build succeeds, you should have a tsppd binary in your tsppd/build/
 directory. You can run it against the problem instances using the -i flag
