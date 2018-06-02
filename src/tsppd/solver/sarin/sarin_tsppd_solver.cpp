@@ -35,5 +35,40 @@ void SarinTSPPDSolver::initialize_tsppd_constraints() {
         auto d = problem.successor_index(p);
         y[p][d].set(GRB_DoubleAttr_LB, 1);
     }
+
+    // +i < +j -> +i < -j
+    for (auto p_i : problem.pickup_indices()) {
+        // auto d_i = problem.successor_index(p_i);
+        for (auto p_j : problem.pickup_indices()) {
+            if (p_i == p_j)
+                continue;
+            auto d_j = problem.successor_index(p_j);
+            model.addConstr(y[p_i][d_j] >= y[p_i][p_j]);
+        }
+    }
+
+    // -i < -j -> +i < -j
+    for (auto d_i : problem.delivery_indices()) {
+        auto p_i = problem.predecessor_index(d_i);
+        for (auto d_j : problem.delivery_indices()) {
+            if (d_i == d_j)
+                continue;
+            model.addConstr(y[p_i][d_j] >= y[d_i][d_j]);
+        }
+    }
+
+    // -i < +j -> +i < -j /\ -i < -j /\ +i < +j
+    for (auto d_i : problem.delivery_indices()) {
+        auto p_i = problem.predecessor_index(d_i);
+        for (auto d_j : problem.delivery_indices()) {
+            if (d_i == d_j)
+                continue;
+            auto p_j = problem.predecessor_index(d_j);
+            
+            model.addConstr(y[p_i][d_j] >= y[d_i][p_j]);
+            model.addConstr(y[d_i][d_j] >= y[d_i][p_j]);
+            model.addConstr(y[p_i][d_j] >= y[d_i][p_j]);
+        }
+    }
 }
 

@@ -19,6 +19,7 @@
 
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/solver/tsp_solver.h>
+#include <tsppd/solver/sarin/sarin_tsp_callback.h>
 #include <tsppd/solver/sarin/sarin_tsp_solver.h>
 
 using namespace TSPPD::Data;
@@ -33,15 +34,13 @@ SarinTSPSolver::SarinTSPSolver(
     TSPSolver(problem, options, writer), env(), model(env), x(), y() {
 
     // Silence output.
-    // model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+    model.getEnv().set(GRB_IntParam_OutputFlag, 0);
 
     initialize_variables();
     initialize_constraints();
 }
 
 TSPPDSolution SarinTSPSolver::solve() {
-    // auto solver = static_cast<SarinTSPSolver*>(this);
-
     // Set time limit.
     if (time_limit > 0)
         model.set(GRB_DoubleParam_TimeLimit, time_limit / 1000.0);
@@ -49,6 +48,9 @@ TSPPDSolution SarinTSPSolver::solve() {
     // Set solution limit.
     if (solution_limit > 0)
         model.set(GRB_IntParam_SolutionLimit, solution_limit);
+
+    SarinTSPCallback callback(problem, x, writer);
+    model.setCallback(&callback);
 
     model.optimize();
 
