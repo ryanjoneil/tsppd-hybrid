@@ -78,6 +78,7 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h
     src/tsppd/solver/gurobi/gurobi_tsppd_solver.h
     src/tsppd/solver/sarin/sarin_tsp_solver.h
+    src/tsppd/solver/sarin/sarin_tsppd_solver.h
     src/tsppd/solver/tsp_solver.h
     src/tsppd/util/exception.h
     src/tsppd/util/stacktrace.h
@@ -117,6 +118,7 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/gurobi/gurobi_tsppd_plus_solver.cpp
     src/tsppd/solver/gurobi/gurobi_tsppd_solver.cpp
     src/tsppd/solver/sarin/sarin_tsp_solver.cpp
+    src/tsppd/solver/sarin/sarin_tsppd_solver.cpp
     src/tsppd/util/stacktrace.cpp)
 
 # tsppd library

@@ -14,44 +14,32 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSP_SOLVER_H
-#define TSPPD_SOLVER_SARIN_TSP_SOLVER_H
+#ifndef TSPPD_SOLVER_SARIN_TSPPD_SOLVER_H
+#define TSPPD_SOLVER_SARIN_TSPPD_SOLVER_H
 
 #include <map>
-#include <memory>
-#include <utility>
 
-#include <gurobi_c++.h>
-
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/solver/sarin/sarin_tsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP TSP Solver based on:
+        // MIP TSPPD Solver based on:
         //
         // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra. "New tighter polynomial length formulations for
         // the asymmetric traveling salesman problem with and without precedence constraints." Operations research
         // letters 33, no. 1 (2005): 62-70.
-        class SarinTSPSolver : public TSPSolver {
+        class SarinTSPPDSolver : public SarinTSPSolver {
         public:
-            SarinTSPSolver(
+            SarinTSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsp-sarin"; }
-            virtual TSPPD::Data::TSPPDSolution solve();
+            std::string name() const { return "tsppd-sarin"; }
 
         protected:
-            void initialize_variables();
-            void initialize_constraints();
-            std::vector<unsigned int> get_path();
-
-            GRBEnv env;
-            GRBModel model;
-            std::vector<std::vector<GRBVar>> x;
-            std::vector<std::vector<GRBVar>> y;
+            void initialize_tsppd_constraints();
        };
     }
 }

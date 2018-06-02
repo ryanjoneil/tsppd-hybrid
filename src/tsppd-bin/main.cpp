@@ -37,6 +37,7 @@
 #include <tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h>
 #include <tsppd/solver/gurobi/gurobi_tsppd_solver.h>
 #include <tsppd/solver/sarin/sarin_tsp_solver.h>
+#include <tsppd/solver/sarin/sarin_tsppd_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
@@ -190,6 +191,8 @@ int main(int argc, char** argv) {
             solver = make_shared<TSPPD::Solver::GecodeTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
             solver = make_shared<TSPPD::Solver::EnumerativeTSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-sarin")
+            solver = make_shared<TSPPD::Solver::SarinTSPPDSolver>(problem, solver_options, writer);
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;
             return 1;

@@ -77,7 +77,9 @@ void SarinTSPSolver::initialize_variables() {
 
             auto ub = (from == to || from == end_index || to == start_index) ? 0 : 1;
             x_i.push_back(model.addVar(0, ub, problem.cost(from, to), GRB_BINARY));
-            y_i.push_back(model.addVar(0, ub, 0, GRB_BINARY));
+
+            auto lb = (from != to && to == end_index) ? 1 : 0;
+            y_i.push_back(model.addVar(lb, ub, 0, GRB_BINARY));
 
             // TODO: BINARY? CONTINUOUS?
         }
