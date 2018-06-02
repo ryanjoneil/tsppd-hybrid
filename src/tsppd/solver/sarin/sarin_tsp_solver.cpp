@@ -31,13 +31,20 @@ SarinTSPSolver::SarinTSPSolver(
     const TSPPDProblem& problem,
     const map<string, string> options,
     TSPSolutionWriter& writer) :
-    TSPSolver(problem, options, writer), env(), model(env), x(), y() {
+    TSPSolver(problem, options, writer), 
+    env(), 
+    model(env), 
+    x(), 
+    y(),
+    start_index(problem.index("+0")),
+    end_index(problem.index("-0")) {
 
     // Silence output.
     model.getEnv().set(GRB_IntParam_OutputFlag, 0);
 
     initialize_variables();
-    initialize_constraints();
+    initialize_assignment_problem_constraints();
+    initialize_subtour_and_precedence_constraints();
 }
 
 TSPPDSolution SarinTSPSolver::solve() {
@@ -66,9 +73,6 @@ TSPPDSolution SarinTSPSolver::solve() {
 }
 
 void SarinTSPSolver::initialize_variables() {
-    auto start_index = problem.index("+0");
-    auto end_index = problem.index("-0");
-
     for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
         vector<GRBVar> x_i;
         vector<GRBVar> y_i;
@@ -80,10 +84,8 @@ void SarinTSPSolver::initialize_variables() {
             auto ub = (from == to || from == end_index || to == start_index) ? 0 : 1;
             x_i.push_back(model.addVar(0, ub, problem.cost(from, to), GRB_BINARY));
 
-            auto lb = (from != to && to == end_index) ? 1 : 0;
+            auto lb = (from != to && (from == start_index || to == end_index)) ? 1 : 0;
             y_i.push_back(model.addVar(lb, ub, 0, GRB_BINARY));
-
-            // TODO: BINARY? CONTINUOUS?
         }
 
         x.push_back(x_i);
@@ -91,34 +93,12 @@ void SarinTSPSolver::initialize_variables() {
     }
 }
 
-void SarinTSPSolver::initialize_constraints() {
-    auto start_index = problem.index("+0");
-    auto end_index = problem.index("-0");
-
-    // x_ij <= y_ij
-    for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
-        for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
-            if (from == to)
-                continue;
-            model.addConstr(x[from][to] <= y[from][to]);
-        }
-    }
-
-    // sum {i != j} x_ij = 1 for all j
-    for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
-        GRBLinExpr expr = 0;
-        for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
-            if (from == to)
-                continue;
-            expr += x[from][to];
-        }
-
-        auto rhs = from == end_index ? 0 : 1;
-        model.addConstr(expr == rhs);
-    }
-
-    // sum {j != i} x_ij = 1 for all i
+void SarinTSPSolver::initialize_assignment_problem_constraints() {
+    // sum {j != i} x_ij = 1 for all i = 2,...,n
     for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
+        if (to == start_index)
+            continue;
+
         GRBLinExpr expr = 0;
         for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
             if (from == to)
@@ -126,30 +106,73 @@ void SarinTSPSolver::initialize_constraints() {
             expr += x[from][to];
         }
 
+        // +0 is preceded by nothing
         auto rhs = to == start_index ? 0 : 1;
         model.addConstr(expr == rhs);
     }
 
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
-        for (unsigned int j = i + 1; j < problem.nodes.size(); ++j)
+    // sum {i != j} x_ij = 1 for all j = 2,...,n
+    for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
+        if (from == start_index)
+            continue;
+
+        GRBLinExpr expr = 0;
+        for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
+            if (from == to)
+                continue;
+
+            expr += x[from][to];
+        }
+
+        // -0 precedes nothing
+        auto rhs = from == end_index ? 0 : 1;
+        model.addConstr(expr == rhs);
+    }
+}
+
+void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
+    // x_ij <= y_ij for all i,j = 2,...,n, i != j
+    for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
+        if (from == start_index)
+            continue;
+
+        for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
+            if (to == from || to == start_index)
+                continue;
+
+            model.addConstr(x[from][to] <= y[from][to]);
+        }
+    }
+
+    // y_ij + y_ji = 1 for all i,j = 2,...,n, i != j
+    for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+        if (i == start_index)
+            continue;
+
+        for (unsigned int j = i + 1; j < problem.nodes.size(); ++j) {
+            if (j == start_index)
+                continue;
+            
             model.addConstr(y[i][j] + y[j][i] == 1);
+        }
+    }
 
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+        if (i == start_index)
+            continue;
+        
         for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
-            if (i == j)
+            if (i == j || j == start_index)
                 continue;
 
             for (unsigned int k = 0; k < problem.nodes.size(); ++k) {
-                if (i == k || j == k)
+                if (i == k || j == k || k == start_index)
                     continue;
 
                 model.addConstr(y[i][j] + y[j][k] + y[k][i] <= 2);
             }
         }
     }
-
-    // TODO: constraints and bounds to start with +0
-    // TODO: lifted constraints
 }
 
 vector<unsigned int> SarinTSPSolver::get_path() {

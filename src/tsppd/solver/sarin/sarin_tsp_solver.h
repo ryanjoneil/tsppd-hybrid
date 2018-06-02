@@ -45,13 +45,18 @@ namespace TSPPD {
 
         protected:
             void initialize_variables();
-            void initialize_constraints();
+            void initialize_assignment_problem_constraints();
+            void initialize_subtour_and_precedence_constraints();
+
             std::vector<unsigned int> get_path();
 
             GRBEnv env;
             GRBModel model;
             std::vector<std::vector<GRBVar>> x;
             std::vector<std::vector<GRBVar>> y;
+
+            const unsigned int start_index;
+            const unsigned int end_index;
        };
     }
 }
