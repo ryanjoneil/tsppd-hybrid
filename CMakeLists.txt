@@ -14,11 +14,11 @@ include(cotire)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -Wextra -Wno-c++98-compat -Wno-unused-parameter -pedantic-errors")
 
-# Where to look for header files
+# Where to look for header filess
 include_directories(src/)
 if(APPLE)
     include_directories(/usr/local/include/)
-    include_directories(/Library/gurobi800/mac64/include/)
+    include_directories(/Library/gurobi800/smac64/include/)
 endif(APPLE)
 
 # Where to look for libraries
@@ -69,14 +69,14 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/gecode/gecode_tsp_space.h
     src/tsppd/solver/gecode/gecode_tsppd_solver.h
     src/tsppd/solver/gecode/gecode_tsppd_space.h
-    src/tsppd/solver/gurobi/callback/gurobi_precedence_callback.h
-    src/tsppd/solver/gurobi/callback/gurobi_subtour_elimination_callback.h
-    src/tsppd/solver/gurobi/callback/gurobi_tsp_callback.h
-    src/tsppd/solver/gurobi/callback/gurobi_tsp_callback_handler.h
-    src/tsppd/solver/gurobi/gurobi_subtour_finder.h
-    src/tsppd/solver/gurobi/gurobi_tsp_solver.h
-    src/tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h
-    src/tsppd/solver/gurobi/gurobi_tsppd_solver.h
+    src/tsppd/solver/ruland/callback/ruland_precedence_callback.h
+    src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.h
+    src/tsppd/solver/ruland/callback/ruland_tsp_callback.h
+    src/tsppd/solver/ruland/callback/ruland_tsp_callback_handler.h
+    src/tsppd/solver/ruland/ruland_subtour_finder.h
+    src/tsppd/solver/ruland/ruland_tsp_solver.h
+    src/tsppd/solver/ruland/ruland_tsppd_plus_solver.h
+    src/tsppd/solver/ruland/ruland_tsppd_solver.h
     src/tsppd/solver/sarin/sarin_tsp_callback.h
     src/tsppd/solver/sarin/sarin_tsp_solver.h
     src/tsppd/solver/sarin/sarin_tsppd_solver.h
@@ -111,13 +111,13 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/gecode/gecode_tsp_space.cpp
     src/tsppd/solver/gecode/gecode_tsppd_solver.cpp
     src/tsppd/solver/gecode/gecode_tsppd_space.cpp
-    src/tsppd/solver/gurobi/callback/gurobi_precedence_callback.cpp
-    src/tsppd/solver/gurobi/callback/gurobi_subtour_elimination_callback.cpp
-    src/tsppd/solver/gurobi/callback/gurobi_tsp_callback_handler.cpp
-    src/tsppd/solver/gurobi/gurobi_subtour_finder.cpp
-    src/tsppd/solver/gurobi/gurobi_tsp_solver.cpp
-    src/tsppd/solver/gurobi/gurobi_tsppd_plus_solver.cpp
-    src/tsppd/solver/gurobi/gurobi_tsppd_solver.cpp
+    src/tsppd/solver/ruland/callback/ruland_precedence_callback.cpp
+    src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.cpp
+    src/tsppd/solver/ruland/callback/ruland_tsp_callback_handler.cpp
+    src/tsppd/solver/ruland/ruland_subtour_finder.cpp
+    src/tsppd/solver/ruland/ruland_tsp_solver.cpp
+    src/tsppd/solver/ruland/ruland_tsppd_plus_solver.cpp
+    src/tsppd/solver/ruland/ruland_tsppd_solver.cpp
     src/tsppd/solver/sarin/sarin_tsp_callback.cpp
     src/tsppd/solver/sarin/sarin_tsp_solver.cpp
     src/tsppd/solver/sarin/sarin_tsppd_solver.cpp
