@@ -34,6 +34,8 @@ void SarinTSPPDSolver::initialize_tsppd_constraints() {
     // +i < -i for all i
     for (auto p : problem.pickup_indices()) {
         auto d = problem.successor_index(p);
+        x[d][p].set(GRB_DoubleAttr_UB, 0);
+        x[d][p].set(GRB_DoubleAttr_UB, 0);
         y[p][d].set(GRB_DoubleAttr_LB, 1);
     }
 
@@ -49,4 +51,3 @@ void SarinTSPPDSolver::initialize_tsppd_constraints() {
         expr += x[d][end_index];
     model.addConstr(expr == 1);
 }
-

@@ -159,7 +159,7 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
         }
     }
 
-    // y_ij + y_jk + y_ki <= 2 for all i,j,k = 2,...,n, i != j != k
+    // (y_ij + x_ji) + y_jk + y_ki <= 2 for all i,j,k = 2,...,n, i != j != k
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
         if (i == start_index)
             continue;
@@ -172,7 +172,7 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
                 if (i == k || j == k || k == start_index)
                     continue;
 
-                model.addConstr(y[i][j] + y[j][k] + y[k][i] <= 2);
+                model.addConstr(y[i][j] + x[j][i] + y[j][k] + y[k][i] <= 2);
             }
         }
     }
