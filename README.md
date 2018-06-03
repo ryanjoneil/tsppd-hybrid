@@ -47,7 +47,7 @@ Help is available by using the `-h` flag.
 tsppd command line interface:
   -h [ --help ]              produce help message
   -H [ --no-header ]         do not print csv header line
-  -s [ --solver ] arg        {tsp|tsppd}-{cp|enum|mip}
+  -s [ --solver ] arg        {tsp|tsppd}-{enum|focacci|ruland|sarin}
   -i [ --input ] arg         input tsplib file
   -f [ --format ] arg        output format: {human|csv} (default=human)
   -r [ --random-seed ] arg   random seed (default=0)
@@ -64,22 +64,22 @@ specified by using more than one -o flag (e.g. -o foo=bar -o baz=qux).
 Solver-specific options used in the paper follow.
 
 ```
-tsppd-cp solver options:
+tsppd-focacci solver options:
     brancher: branching scheme {cn, regret, seq-cn} (default=regret)
     precede:  precedence propagator type {set, cost, all} (default=set)
     ap:       assignment problem reduced cost propagator {on, off}
               (default=off)
     threads:  number of threads to use in Gecode (default=1)
 
-tsppd-mip solver options:
+tsppd-ruland solver options:
     sec: subtour elimination constraint type
         - cutset:      x(delta(S)) >= 2
         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
         - hybrid:      subtour if |S| <= (N + 1) / 3, else cutset
 
-tsppd-mip+ solver options:
+tsppd-ruland+ solver options:
     warm-time: milliseconds spent in tsppd-cp warm start
 ```
 
-When warm starting MIP using the CP solver, as in `tsppd-mip+`, `tsppd-cp`
+When warm starting MIP using the CP solver, as in `tsppd-ruland+`, `tsppd-focacci`
 solver options are passed on to the CP solver.

@@ -14,41 +14,31 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_RULAND_TSPPD_PLUS_SOLVER_H
-#define TSPPD_SOLVER_RULAND_TSPPD_PLUS_SOLVER_H
+#ifndef TSPPD_SOLVER_GECODE_BRANCH_CHOICE_H
+#define TSPPD_SOLVER_GECODE_BRANCH_CHOICE_H
 
-#include <map>
-#include <utility>
+#include <gecode/int.hh>
 
-#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
-#include <tsppd/solver/ruland/ruland_tsppd_solver.h>
+#include <tsppd/data/tsppd_problem.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP+CP TSPPD Solver: Ruland MIP TSPPD solver with time-boxed CP warm-start.
-        //
-        // Solver Options:
-        //     warm-time:  time limit for warm start, in milliseconds
-        //     warm-soln:  solution limit for warm start
-        class RulandTSPPDPlusSolver : public RulandTSPPDSolver {
+        class FocacciTSPBranchChoice : public Gecode::Choice {
         public:
-            RulandTSPPDPlusSolver(
-                const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
-                TSPPD::IO::TSPSolutionWriter& writer
-            );
+            FocacciTSPBranchChoice(const Gecode::Brancher& b, int index, int value) :
+                Gecode::Choice(b, 2), next_index(index), next_value(value) { }
 
-            virtual std::string name() const override { return "tsppd-ruland+"; }
-            virtual TSPPD::Data::TSPPDSolution solve() override;
+            virtual size_t size(void) const {
+                return sizeof(*this);
+            }
 
-        protected:
-            void initialize_tsppd_plus_options();
-            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
+            virtual void archive(Gecode::Archive& e) const {
+                Gecode::Choice::archive(e);
+                e << next_index << next_value;
+            }
 
-            FocacciTSPPDSolver warm_start_solver;
-
-            unsigned int warm_time_limit;
-            unsigned int warm_solution_limit;
+            const int next_index;
+            const int next_value;
         };
     }
 }

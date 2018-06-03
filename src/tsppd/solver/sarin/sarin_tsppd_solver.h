@@ -25,9 +25,10 @@ namespace TSPPD {
     namespace Solver {
         // MIP TSPPD Solver based on:
         //
-        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra. "New tighter polynomial length formulations for
-        // the asymmetric traveling salesman problem with and without precedence constraints." Operations research
-        // letters 33, no. 1 (2005): 62-70.
+        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra. 
+        // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with 
+        // and without precedence constraints."
+        // Operations Research Letters 33, no. 1 (2005): 62-70.
         class SarinTSPPDSolver : public SarinTSPSolver {
         public:
             SarinTSPPDSolver(

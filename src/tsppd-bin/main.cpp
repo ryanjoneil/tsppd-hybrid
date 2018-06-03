@@ -31,8 +31,8 @@
 #include <tsppd/io/tsp_problem_writer.h>
 #include <tsppd/solver/enumerative/enumerative_tsp_solver.h>
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
-#include <tsppd/solver/gecode/gecode_tsp_solver.h>
-#include <tsppd/solver/gecode/gecode_tsppd_solver.h>
+#include <tsppd/solver/focacci/focacci_tsp_solver.h>
+#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
 #include <tsppd/solver/ruland/ruland_tsp_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     desc.add_options()
         ("help,h", "produce help message")
         ("no-header,H", "do not print csv header line")
-        ("solver,s", po::value<string>(), "{tsp|tsppd}-{cp|enum|ruland|sarin}")
+        ("solver,s", po::value<string>(), "{tsp|tsppd}-{enum|focacci|ruland|sarin}")
         ("input,i", po::value<string>(), "input tsplib file")
         ("format,f", po::value<string>(), "output format: {human|csv} (default=human)")
         ("random-seed,r", po::value<unsigned int>(), "random seed (default=0)")
@@ -176,15 +176,15 @@ int main(int argc, char** argv) {
         // Instantiate the solver.
         shared_ptr<TSPSolver> solver;
 
-        if (solver_abbrev == "tsp-cp") 
-            solver = make_shared<GecodeTSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-cp")
-            solver = make_shared<GecodeTSPPDSolver>(problem, solver_options, writer);
-
-        else if (solver_abbrev == "tsp-enum")
+        if (solver_abbrev == "tsp-enum")
             solver = make_shared<EnumerativeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
             solver = make_shared<EnumerativeTSPPDSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsp-focacci") 
+            solver = make_shared<FocacciTSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-focacci")
+            solver = make_shared<FocacciTSPPDSolver>(problem, solver_options, writer);
 
         else if (solver_abbrev == "tsp-ruland")
             solver = make_shared<RulandTSPSolver>(problem, solver_options, writer);

@@ -14,42 +14,12 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_RULAND_TSPPD_PLUS_SOLVER_H
-#define TSPPD_SOLVER_RULAND_TSPPD_PLUS_SOLVER_H
-
-#include <map>
-#include <utility>
-
-#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
-#include <tsppd/solver/ruland/ruland_tsppd_solver.h>
+#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_PRECEDE_PROPAGATOR_TYPE_H
+#define TSPPD_SOLVER_FOCACCI_TSPPD_PRECEDE_PROPAGATOR_TYPE_H
 
 namespace TSPPD {
     namespace Solver {
-        // MIP+CP TSPPD Solver: Ruland MIP TSPPD solver with time-boxed CP warm-start.
-        //
-        // Solver Options:
-        //     warm-time:  time limit for warm start, in milliseconds
-        //     warm-soln:  solution limit for warm start
-        class RulandTSPPDPlusSolver : public RulandTSPPDSolver {
-        public:
-            RulandTSPPDPlusSolver(
-                const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
-                TSPPD::IO::TSPSolutionWriter& writer
-            );
-
-            virtual std::string name() const override { return "tsppd-ruland+"; }
-            virtual TSPPD::Data::TSPPDSolution solve() override;
-
-        protected:
-            void initialize_tsppd_plus_options();
-            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
-
-            FocacciTSPPDSolver warm_start_solver;
-
-            unsigned int warm_time_limit;
-            unsigned int warm_solution_limit;
-        };
+        enum FocacciTSPPDPrecedePropagatorType { PRECEDE_ALL, PRECEDE_COST, PRECEDE_SET };
     }
 }
 

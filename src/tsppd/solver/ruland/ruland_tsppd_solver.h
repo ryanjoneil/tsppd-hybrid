@@ -28,8 +28,9 @@ namespace TSPPD {
     namespace Solver {
         // MIP TSPPD Solver based on:
         //
-        // Ruland, K. S., and E. Y. Rodin. "The pickup and delivery problem: Faces and branch-and-cut algorithm." 
-        // Computers & mathematics with applications 33, no. 12 (1997): 1-13.
+        // K. S. Ruland, and E. Y. Rodin. 
+        // "The pickup and delivery problem: Faces and branch-and-cut algorithm." 
+        // Computers & Mathematics with Applications 33, no. 12 (1997): 1-13.
         //
         // Solver Options:
         //     omc:  order matching contraints {on|off} (default=off)

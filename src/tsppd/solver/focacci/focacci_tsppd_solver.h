@@ -14,54 +14,52 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_RULAND_TSP_SOLVER_H
-#define TSPPD_SOLVER_RULAND_TSP_SOLVER_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_SOLVER_H
+#define TSPPD_SOLVER_FOCACCI_TSPPD_SOLVER_H
 
-#include <map>
 #include <memory>
-#include <utility>
 
-#include <gurobi_c++.h>
+#include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_propagator.h>
+#include <tsppd/solver/focacci/focacci_tsp_solver.h>
+#include <tsppd/solver/focacci/focacci_tsp_space.h>
 
-#include <tsppd/solver/tsp_solver.h>
-#include <tsppd/solver/ruland/ruland_subtour_finder.h>
-#include <tsppd/solver/ruland/callback/ruland_tsp_callback.h>
-
+// CP TSPPD Solver based on:
+//
+// Filippo Focacci, Andrea Lodi, and Michela Milano. 
+// "A hybrid exact algorithm for the TSPTW." 
+// INFORMS Journal on Computing 14, no. 4 (2002): 403-417.
+//
+// Solver Options:
+//     brancher: branching scheme {cn, regret, seq-cn} (default=regret)
+//     precede:  precedence propagator type {set, cost, all} (default=set)
+//     ap:       assignment problem reduced cost propagator {on, off} (default=off)
+//     dual:     dual bounder {none, cn} (default=none)
+//     omc:      order matching constraints (default=off)
+//
+//     search:   search engine {bab, dfs, lds} (default=bab)
+//     dl:       discrepancy limit (lds only)
+//
+//     gist:     enables interactive search tool
+//     threads:  number of threads to use in Gecode (default=1)
 namespace TSPPD {
     namespace Solver {
-        // MIP TSP Solver based on:
-        //
-        // George Dantzig, Ray Fulkerson, and Selmer Johnson. 
-        // "Solution of a large-scale traveling-salesman problem." 
-        // Journal of the Operations Research Society of America 2, no. 4 (1954): 393-410.
-        //
-        // Solver Options:
-        //     sec: subtour elimination constraint type
-        //         - cutset:      x(delta(S)) >= 2
-        //         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
-        //         - hybrid:      subtour if |S| <= (N + 1) / 3, else cutset
-        class RulandTSPSolver : public TSPSolver {
+        class FocacciTSPPDSolver : public FocacciTSPSolver {
         public:
-            RulandTSPSolver(
+            FocacciTSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsp-ruland"; }
-            virtual TSPPD::Data::TSPPDSolution solve();
+            virtual std::string name() const override { return "tsppd-cp"; }
 
         protected:
-            void initialize_tsp_options();
-            void initialize_variables();
-            void initialize_two_matching_relaxation();
-            virtual void initialize_callbacks();
+            void initialize_tsppd_options();
+            virtual std::shared_ptr<FocacciTSPSpace> build_space() override;
 
-            GRBEnv env;
-            GRBModel model;
-            std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs;
-            TSPPD::Solver::RulandSubtourFinder subtour_finder;
-            std::vector<std::shared_ptr<RulandTSPCallback>> callbacks;
+            FocacciTSPPDPrecedePropagatorType precede_type;
+            bool ap;
+            bool omc;
        };
     }
 }

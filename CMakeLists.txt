@@ -53,22 +53,22 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/io/tsp_solution_writer.h
     src/tsppd/solver/enumerative/enumerative_tsp_solver.h
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.h
-    src/tsppd/solver/gecode/brancher/gecode_tsp_branch_choice.h
-    src/tsppd/solver/gecode/brancher/gecode_tsp_brancher.cpp
-    src/tsppd/solver/gecode/brancher/gecode_tsp_closest_neighbor_brancher.h
-    src/tsppd/solver/gecode/brancher/gecode_tsp_regret_brancher.h
-    src/tsppd/solver/gecode/brancher/gecode_tsp_sequential_closest_neighbor_brancher.h
-    src/tsppd/solver/gecode/dual/gecode_closest_neighbor_dual.h
-    src/tsppd/solver/gecode/dual/gecode_tsp_dual.h
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_assignment_propagator.h
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_omc_propagator.h
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_precede_cost_propagator.h
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_precede_propagator.h
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_precede_set_propagator.h
-    src/tsppd/solver/gecode/gecode_tsp_solver.h
-    src/tsppd/solver/gecode/gecode_tsp_space.h
-    src/tsppd/solver/gecode/gecode_tsppd_solver.h
-    src/tsppd/solver/gecode/gecode_tsppd_space.h
+    src/tsppd/solver/focacci/brancher/focacci_tsp_branch_choice.h
+    src/tsppd/solver/focacci/brancher/focacci_tsp_brancher.cpp
+    src/tsppd/solver/focacci/brancher/focacci_tsp_closest_neighbor_brancher.h
+    src/tsppd/solver/focacci/brancher/focacci_tsp_regret_brancher.h
+    src/tsppd/solver/focacci/brancher/focacci_tsp_sequential_closest_neighbor_brancher.h
+    src/tsppd/solver/focacci/dual/focacci_closest_neighbor_dual.h
+    src/tsppd/solver/focacci/dual/focacci_tsp_dual.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_propagator.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_set_propagator.h
+    src/tsppd/solver/focacci/focacci_tsp_solver.h
+    src/tsppd/solver/focacci/focacci_tsp_space.h
+    src/tsppd/solver/focacci/focacci_tsppd_solver.h
+    src/tsppd/solver/focacci/focacci_tsppd_space.h
     src/tsppd/solver/ruland/callback/ruland_precedence_callback.h
     src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.h
     src/tsppd/solver/ruland/callback/ruland_tsp_callback.h
@@ -98,19 +98,19 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/io/tsp_solution_writer.cpp
     src/tsppd/solver/enumerative/enumerative_tsp_solver.cpp
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.cpp
-    src/tsppd/solver/gecode/brancher/gecode_tsp_brancher.cpp
-    src/tsppd/solver/gecode/brancher/gecode_tsp_closest_neighbor_brancher.cpp
-    src/tsppd/solver/gecode/brancher/gecode_tsp_regret_brancher.cpp
-    src/tsppd/solver/gecode/brancher/gecode_tsp_sequential_closest_neighbor_brancher.cpp
-    src/tsppd/solver/gecode/dual/gecode_closest_neighbor_dual.cpp
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_assignment_propagator.cpp
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_omc_propagator.cpp
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_precede_cost_propagator.cpp
-    src/tsppd/solver/gecode/propagator/gecode_tsppd_precede_set_propagator.cpp
-    src/tsppd/solver/gecode/gecode_tsp_solver.cpp
-    src/tsppd/solver/gecode/gecode_tsp_space.cpp
-    src/tsppd/solver/gecode/gecode_tsppd_solver.cpp
-    src/tsppd/solver/gecode/gecode_tsppd_space.cpp
+    src/tsppd/solver/focacci/brancher/focacci_tsp_brancher.cpp
+    src/tsppd/solver/focacci/brancher/focacci_tsp_closest_neighbor_brancher.cpp
+    src/tsppd/solver/focacci/brancher/focacci_tsp_regret_brancher.cpp
+    src/tsppd/solver/focacci/brancher/focacci_tsp_sequential_closest_neighbor_brancher.cpp
+    src/tsppd/solver/focacci/dual/focacci_closest_neighbor_dual.cpp
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.cpp
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.cpp
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.cpp
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_set_propagator.cpp
+    src/tsppd/solver/focacci/focacci_tsp_solver.cpp
+    src/tsppd/solver/focacci/focacci_tsp_space.cpp
+    src/tsppd/solver/focacci/focacci_tsppd_solver.cpp
+    src/tsppd/solver/focacci/focacci_tsppd_space.cpp
     src/tsppd/solver/ruland/callback/ruland_precedence_callback.cpp
     src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.cpp
     src/tsppd/solver/ruland/callback/ruland_tsp_callback_handler.cpp
