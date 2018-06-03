@@ -31,15 +31,18 @@
 #include <tsppd/io/tsp_problem_writer.h>
 #include <tsppd/solver/enumerative/enumerative_tsp_solver.h>
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
-#include <tsppd/solver/gecode/gecode_tsp_solver.h>
-#include <tsppd/solver/gecode/gecode_tsppd_solver.h>
-#include <tsppd/solver/gurobi/gurobi_tsp_solver.h>
-#include <tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h>
-#include <tsppd/solver/gurobi/gurobi_tsppd_solver.h>
+#include <tsppd/solver/focacci/focacci_tsp_solver.h>
+#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
+#include <tsppd/solver/ruland/ruland_tsp_solver.h>
+#include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
+#include <tsppd/solver/ruland/ruland_tsppd_solver.h>
+#include <tsppd/solver/sarin/sarin_tsp_solver.h>
+#include <tsppd/solver/sarin/sarin_tsppd_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
 
+using namespace TSPPD::Solver;
 using namespace std;
 namespace po = boost::program_options;
 
@@ -50,7 +53,7 @@ int main(int argc, char** argv) {
     desc.add_options()
         ("help,h", "produce help message")
         ("no-header,H", "do not print csv header line")
-        ("solver,s", po::value<string>(), "{tsp|tsppd}-{cp|enum|mip}")
+        ("solver,s", po::value<string>(), "{tsp|tsppd}-{enum|focacci|ruland|sarin}")
         ("input,i", po::value<string>(), "input tsplib file")
         ("format,f", po::value<string>(), "output format: {human|csv} (default=human)")
         ("random-seed,r", po::value<unsigned int>(), "random seed (default=0)")
@@ -143,7 +146,7 @@ int main(int argc, char** argv) {
     if (varmap.count("save") == 1) {
         try {
             TSPPD::IO::TSPProblemWriter::write(varmap["save"].as<string>(), problem);
-        } catch (TSPPD::Util::TSPPDException e) {
+        } catch (TSPPD::Util::TSPPDException &e) {
             cerr << "error: " << e.what() << endl;
             return 1;
         }
@@ -171,22 +174,30 @@ int main(int argc, char** argv) {
 
     try {
         // Instantiate the solver.
-        shared_ptr<TSPPD::Solver::TSPSolver> solver;
+        shared_ptr<TSPSolver> solver;
 
-        if (solver_abbrev == "tsp-mip")
-            solver = make_shared<TSPPD::Solver::GurobiTSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsp-cp")
-            solver = make_shared<TSPPD::Solver::GecodeTSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsp-enum")
-            solver = make_shared<TSPPD::Solver::EnumerativeTSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-mip")
-            solver = make_shared<TSPPD::Solver::GurobiTSPPDSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-mip+")
-            solver = make_shared<TSPPD::Solver::GurobiTSPPDPlusSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-cp")
-            solver = make_shared<TSPPD::Solver::GecodeTSPPDSolver>(problem, solver_options, writer);
+        if (solver_abbrev == "tsp-enum")
+            solver = make_shared<EnumerativeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
-            solver = make_shared<TSPPD::Solver::EnumerativeTSPPDSolver>(problem, solver_options, writer);
+            solver = make_shared<EnumerativeTSPPDSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsp-focacci") 
+            solver = make_shared<FocacciTSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-focacci")
+            solver = make_shared<FocacciTSPPDSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsp-ruland")
+            solver = make_shared<RulandTSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-ruland")
+            solver = make_shared<RulandTSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-ruland+")
+            solver = make_shared<RulandTSPPDPlusSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsp-sarin")
+            solver = make_shared<SarinTSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-sarin")
+            solver = make_shared<SarinTSPPDSolver>(problem, solver_options, writer);
+
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;
             return 1;
@@ -206,11 +217,11 @@ int main(int argc, char** argv) {
 
         solver->solve();
 
-    } catch (GRBException e) {
+    } catch (GRBException &e) {
         cerr << "gurobi error: " << e.getMessage() << endl;
         return 1;
 
-    } catch (TSPPD::Util::TSPPDException e) {
+    } catch (TSPPD::Util::TSPPDException &e) {
         cerr << "error: " << e.what() << endl;
         return 1;
     }
