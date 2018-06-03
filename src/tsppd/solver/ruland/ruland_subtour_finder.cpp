@@ -14,16 +14,16 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/gurobi/gurobi_subtour_finder.h>
+#include <tsppd/solver/ruland/ruland_subtour_finder.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::IO;
 using namespace TSPPD::Solver;
 using namespace std;
 
-GurobiSubtourFinder::GurobiSubtourFinder(const TSPPDProblem& problem) : problem(problem) { }
+RulandSubtourFinder::RulandSubtourFinder(const TSPPDProblem& problem) : problem(problem) { }
 
-vector<vector<unsigned int>> GurobiSubtourFinder::subtours(
+vector<vector<unsigned int>> RulandSubtourFinder::subtours(
     const map<pair<unsigned int, unsigned int>, bool>& arcs) {
 
     vector<vector<unsigned int>> subtours{};
@@ -79,7 +79,7 @@ vector<vector<unsigned int>> GurobiSubtourFinder::subtours(
     return subtours;
 }
 
-map<unsigned int, set<unsigned int>> GurobiSubtourFinder::connections(
+map<unsigned int, set<unsigned int>> RulandSubtourFinder::connections(
     const map<pair<unsigned int, unsigned int>, bool>& arcs) {
 
     // Create an empty set for each node's connections.

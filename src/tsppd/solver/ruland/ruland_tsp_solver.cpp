@@ -18,16 +18,16 @@
 
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/solver/tsp_solver.h>
-#include <tsppd/solver/gurobi/gurobi_tsp_solver.h>
-#include <tsppd/solver/gurobi/callback/gurobi_subtour_elimination_callback.h>
-#include <tsppd/solver/gurobi/callback/gurobi_tsp_callback_handler.h>
+#include <tsppd/solver/ruland/ruland_tsp_solver.h>
+#include <tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback_handler.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::IO;
 using namespace TSPPD::Solver;
 using namespace std;
 
-GurobiTSPSolver::GurobiTSPSolver(
+RulandTSPSolver::RulandTSPSolver(
     const TSPPDProblem& problem,
     const map<string, string> options,
     TSPSolutionWriter& writer) :
@@ -44,8 +44,8 @@ GurobiTSPSolver::GurobiTSPSolver(
     initialize_two_matching_relaxation();
 }
 
-TSPPDSolution GurobiTSPSolver::solve() {
-    auto solver = static_cast<GurobiTSPSolver*>(this);
+TSPPDSolution RulandTSPSolver::solve() {
+    auto solver = static_cast<RulandTSPSolver*>(this);
     solver->initialize_callbacks();
 
     // Set time limit.
@@ -56,7 +56,7 @@ TSPPDSolution GurobiTSPSolver::solve() {
     if (solution_limit > 0)
         model.set(GRB_IntParam_SolutionLimit, solution_limit);
 
-    GurobiTSPCallbackHandler callback(solver, problem, arcs, callbacks, writer);
+    RulandTSPCallbackHandler callback(solver, problem, arcs, callbacks, writer);
     model.setCallback(&callback);
 
     model.optimize();
@@ -80,12 +80,12 @@ TSPPDSolution GurobiTSPSolver::solve() {
     return {problem, problem.nodes};
 }
 
-void GurobiTSPSolver::initialize_tsp_options() {
+void RulandTSPSolver::initialize_tsp_options() {
     if (options["sec"] == "")
         options["sec"] = "subtour";
 }
 
-void GurobiTSPSolver::initialize_variables() {
+void RulandTSPSolver::initialize_variables() {
     auto start_index = problem.index("+0");
     auto end_index = problem.index("-0");
 
@@ -102,7 +102,7 @@ void GurobiTSPSolver::initialize_variables() {
     }
 }
 
-void GurobiTSPSolver::initialize_two_matching_relaxation() {
+void RulandTSPSolver::initialize_two_matching_relaxation() {
     for (unsigned int node1 = 0; node1 < problem.nodes.size(); ++node1) {
         GRBLinExpr expr = 0;
         for (unsigned int node2 = 0; node2 < problem.nodes.size(); ++node2) {
@@ -116,10 +116,10 @@ void GurobiTSPSolver::initialize_two_matching_relaxation() {
     }
 }
 
-void GurobiTSPSolver::initialize_callbacks() {
+void RulandTSPSolver::initialize_callbacks() {
     callbacks.push_back(
-        static_cast<shared_ptr<GurobiTSPCallback>>(
-            make_shared<GurobiSubtourEliminationCallback>(options["sec"], problem, arcs)
+        static_cast<shared_ptr<RulandTSPCallback>>(
+            make_shared<RulandSubtourEliminationCallback>(options["sec"], problem, arcs)
         )
     );
 }

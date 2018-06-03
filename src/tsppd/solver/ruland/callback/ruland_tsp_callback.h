@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_TSP_CALLBACK_H
-#define TSPPD_SOLVER_GUROBI_TSP_CALLBACK_H
+#ifndef TSPPD_SOLVER_RULAND_TSP_CALLBACK_H
+#define TSPPD_SOLVER_RULAND_TSP_CALLBACK_H
 
 #include <map>
 #include <utility>
@@ -27,9 +27,9 @@
 
 namespace TSPPD {
     namespace Solver {
-        class GurobiTSPCallback {
+        class RulandTSPCallback {
         public:
-            GurobiTSPCallback(
+            RulandTSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs
             ) : problem(problem), arcs(arcs) { }

@@ -14,42 +14,45 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_TSPPD_PLUS_SOLVER_H
-#define TSPPD_SOLVER_GUROBI_TSPPD_PLUS_SOLVER_H
+#ifndef TSPPD_SOLVER_RULAND_SUBTOUR_ELIMINATION_CALLBACK_H
+#define TSPPD_SOLVER_RULAND_SUBTOUR_ELIMINATION_CALLBACK_H
 
 #include <map>
+#include <vector>
 #include <utility>
 
-#include <tsppd/solver/gecode/gecode_tsppd_solver.h>
-#include <tsppd/solver/gurobi/gurobi_tsppd_solver.h>
+#include <gurobi_c++.h>
+
+#include <tsppd/data/tsppd_problem.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP+CP TSPPD Solver: MIP TSPPD solver with time-boxed CP warm-start.
-        //
-        // Solver Options:
-        //     warm-time:  time limit for warm start, in milliseconds
-        //     warm-soln:  solution limit for warm start
-        class GurobiTSPPDPlusSolver : public GurobiTSPPDSolver {
+        enum SECType { SEC_CUTSET, SEC_SUBTOUR, SEC_HYBRID };
+
+        class RulandSubtourEliminationCallback : public RulandTSPCallback {
         public:
-            GurobiTSPPDPlusSolver(
+            RulandSubtourEliminationCallback(
+                const std::string sec_type_string,
                 const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
-                TSPPD::IO::TSPSolutionWriter& writer
+                std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs
             );
 
-            virtual std::string name() const override { return "tsppd-mip+"; }
-            virtual TSPPD::Data::TSPPDSolution solve() override;
+            void callback(
+                GRBCallback* model,
+                const std::vector<std::vector<unsigned int>>& subtours
+            );
 
         protected:
-            void initialize_tsppd_plus_options();
-            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
+            SECType parse_sec_type(std::string sec_type_string);
+            void cut_tour(GRBCallback* model, const std::vector<unsigned int>& tour);
+            void cut_tour_cutset(GRBCallback* model, const std::vector<unsigned int>& tour);
+            void cut_tour_subtour(GRBCallback* model, const std::vector<unsigned int>& tour);
+            void cut_tour_hybrid(GRBCallback* model, const std::vector<unsigned int>& tour);
 
-            GecodeTSPPDSolver warm_start_solver;
-
-            unsigned int warm_time_limit;
-            unsigned int warm_solution_limit;
-        };
+            const SECType sec_type;
+            std::set<unsigned int> all_nodes;
+       };
     }
 }
 

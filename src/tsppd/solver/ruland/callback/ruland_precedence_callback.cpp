@@ -16,22 +16,22 @@
 
 #include <set>
 
-#include <tsppd/solver/gurobi/callback/gurobi_precedence_callback.h>
-#include <tsppd/solver/gurobi/callback/gurobi_tsp_callback_handler.h>
+#include <tsppd/solver/ruland/callback/ruland_precedence_callback.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback_handler.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-GurobiPrecedenceCallback::GurobiPrecedenceCallback(
+RulandPrecedenceCallback::RulandPrecedenceCallback(
     const string sec_type_string,
     const TSPPDProblem& problem,
     std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs,
     const bool omc) :
-    GurobiSubtourEliminationCallback(sec_type_string, problem, arcs), omc(omc) { }
+    RulandSubtourEliminationCallback(sec_type_string, problem, arcs), omc(omc) { }
 
 
-void GurobiPrecedenceCallback::callback(GRBCallback* model, const vector<vector<unsigned int>>& subtours) {
+void RulandPrecedenceCallback::callback(GRBCallback* model, const vector<vector<unsigned int>>& subtours) {
     if (subtours.size() <= 1) {
         precedence_cut(model, subtours[0]);
         return;
@@ -44,8 +44,8 @@ void GurobiPrecedenceCallback::callback(GRBCallback* model, const vector<vector<
     }
 }
 
-void GurobiPrecedenceCallback::order_matching_cut(GRBCallback* model, const std::vector<unsigned int>& tour) {
-    GurobiTSPCallbackHandler* handler = static_cast<GurobiTSPCallbackHandler*>(model);
+void RulandPrecedenceCallback::order_matching_cut(GRBCallback* model, const std::vector<unsigned int>& tour) {
+    RulandTSPCallbackHandler* handler = static_cast<RulandTSPCallbackHandler*>(model);
 
     vector<int> index_pickups(problem.nodes.size(), -1);
     vector<int> index_deliveries(problem.nodes.size(), -1);
@@ -92,8 +92,8 @@ void GurobiPrecedenceCallback::order_matching_cut(GRBCallback* model, const std:
     }
 }
 
-void GurobiPrecedenceCallback::precedence_cut(GRBCallback* model, const vector<unsigned int>& tour) {
-    GurobiTSPCallbackHandler* handler = static_cast<GurobiTSPCallbackHandler*>(model);
+void RulandPrecedenceCallback::precedence_cut(GRBCallback* model, const vector<unsigned int>& tour) {
+    RulandTSPCallbackHandler* handler = static_cast<RulandTSPCallbackHandler*>(model);
 
     // +0 is always first based on how we pull out the route.
     vector<unsigned int> seen_pickups(problem.nodes.size(), false);

@@ -14,7 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/gurobi/gurobi_tsppd_plus_solver.h>
+#include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/util/exception.h>
 
 using namespace TSPPD::Data;
@@ -23,11 +23,11 @@ using namespace TSPPD::Solver;
 using namespace TSPPD::Util;
 using namespace std;
 
-GurobiTSPPDPlusSolver::GurobiTSPPDPlusSolver(
+RulandTSPPDPlusSolver::RulandTSPPDPlusSolver(
     const TSPPDProblem& problem,
     const std::map<std::string, std::string> options,
     TSPSolutionWriter& writer) :
-    GurobiTSPPDSolver(problem, options, writer),
+    RulandTSPPDSolver(problem, options, writer),
     warm_start_solver(problem, options, writer) {
 
     initialize_tsppd_plus_options();
@@ -38,7 +38,7 @@ GurobiTSPPDPlusSolver::GurobiTSPPDPlusSolver(
     time_limit -= warm_time_limit;
 }
 
-void GurobiTSPPDPlusSolver::initialize_tsppd_plus_options() {
+void RulandTSPPDPlusSolver::initialize_tsppd_plus_options() {
     unsigned int wl = 0;
     auto wl_pair = options.find("warm-time");
     if (wl_pair != options.end())
@@ -62,7 +62,7 @@ void GurobiTSPPDPlusSolver::initialize_tsppd_plus_options() {
     warm_solution_limit = sl;
 }
 
-void GurobiTSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
+void RulandTSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
     for (unsigned int i = 0; i < solution.order.size() - 1; ++i) {
         auto n1 = problem.index(solution.order[i]);
         auto n2 = problem.index(solution.order[i + 1]);
@@ -70,7 +70,7 @@ void GurobiTSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
     }
 }
 
-TSPPDSolution GurobiTSPPDPlusSolver::solve() {
+TSPPDSolution RulandTSPPDPlusSolver::solve() {
     warm_start(warm_start_solver.solve());
-    return GurobiTSPPDSolver::solve();
+    return RulandTSPPDSolver::solve();
 }

@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_SUBTOUR_FINDER_H
-#define TSPPD_SOLVER_GUROBI_SUBTOUR_FINDER_H
+#ifndef TSPPD_SOLVER_RULAND_SUBTOUR_FINDER_H
+#define TSPPD_SOLVER_RULAND_SUBTOUR_FINDER_H
 
 #include <map>
 #include <set>
@@ -24,13 +24,13 @@
 
 #include <tsppd/data/tsppd_problem.h>
 #include <tsppd/io/tsp_solution_writer.h>
-#include <tsppd/solver/gurobi/gurobi_subtour_finder.h>
+#include <tsppd/solver/ruland/ruland_subtour_finder.h>
 
 namespace TSPPD {
     namespace Solver {
-        class GurobiSubtourFinder {
+        class RulandSubtourFinder {
         public:
-            GurobiSubtourFinder(const TSPPD::Data::TSPPDProblem& problem);
+            RulandSubtourFinder(const TSPPD::Data::TSPPDProblem& problem);
 
             std::vector<std::vector<unsigned int>> subtours(
                 const std::map<std::pair<unsigned int, unsigned int>, bool>& arcs

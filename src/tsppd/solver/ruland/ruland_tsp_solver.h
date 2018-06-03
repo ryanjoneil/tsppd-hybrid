@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_TSP_SOLVER_H
-#define TSPPD_SOLVER_GUROBI_TSP_SOLVER_H
+#ifndef TSPPD_SOLVER_RULAND_TSP_SOLVER_H
+#define TSPPD_SOLVER_RULAND_TSP_SOLVER_H
 
 #include <map>
 #include <memory>
@@ -24,28 +24,30 @@
 #include <gurobi_c++.h>
 
 #include <tsppd/solver/tsp_solver.h>
-#include <tsppd/solver/gurobi/gurobi_subtour_finder.h>
-#include <tsppd/solver/gurobi/callback/gurobi_tsp_callback.h>
+#include <tsppd/solver/ruland/ruland_subtour_finder.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback.h>
 
 namespace TSPPD {
     namespace Solver {
-        // Pure MIP TSP Solver: Adds subtour elimination cuts to two-matching relaxations of
-        // TSP instances using Gurobi lazy constraints.
+        // MIP TSP Solver based on:
+        //
+        // Dantzig, George, Ray Fulkerson, and Selmer Johnson. "Solution of a large-scale traveling-salesman problem." 
+        // Journal of the operations research society of America 2, no. 4 (1954): 393-410.
         //
         // Solver Options:
         //     sec: subtour elimination constraint type
         //         - cutset:      x(delta(S)) >= 2
         //         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
         //         - hybrid:      subtour if |S| <= (N + 1) / 3, else cutset
-        class GurobiTSPSolver : public TSPSolver {
+        class RulandTSPSolver : public TSPSolver {
         public:
-            GurobiTSPSolver(
+            RulandTSPSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsp-mip"; }
+            std::string name() const { return "tsp-ruland"; }
             virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
@@ -57,8 +59,8 @@ namespace TSPPD {
             GRBEnv env;
             GRBModel model;
             std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs;
-            TSPPD::Solver::GurobiSubtourFinder subtour_finder;
-            std::vector<std::shared_ptr<GurobiTSPCallback>> callbacks;
+            TSPPD::Solver::RulandSubtourFinder subtour_finder;
+            std::vector<std::shared_ptr<RulandTSPCallback>> callbacks;
        };
     }
 }

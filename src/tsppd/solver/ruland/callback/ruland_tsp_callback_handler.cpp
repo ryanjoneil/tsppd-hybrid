@@ -18,38 +18,38 @@
 
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/data/tsppd_solution.h>
-#include <tsppd/solver/gurobi/callback/gurobi_tsp_callback_handler.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback_handler.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::IO;
 using namespace TSPPD::Solver;
 using namespace std;
 
-GurobiTSPCallbackHandler::GurobiTSPCallbackHandler(
+RulandTSPCallbackHandler::RulandTSPCallbackHandler(
     const TSPSolver* solver,
     const TSPPDProblem& problem,
     std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs,
-    vector<shared_ptr<GurobiTSPCallback>> callbacks,
+    vector<shared_ptr<RulandTSPCallback>> callbacks,
     TSPSolutionWriter& writer) :
     solver(solver), problem(problem), arcs(arcs), callbacks(callbacks), writer(writer), subtour_finder(problem) { }
 
-double GurobiTSPCallbackHandler::get_solution(GRBVar v) {
+double RulandTSPCallbackHandler::get_solution(GRBVar v) {
     return getSolution(v);
 }
 
-double* GurobiTSPCallbackHandler::get_solution(const GRBVar* xvars, int len) {
+double* RulandTSPCallbackHandler::get_solution(const GRBVar* xvars, int len) {
     return getSolution(xvars, len);
 }
 
-void GurobiTSPCallbackHandler::add_lazy(const GRBTempConstr& tc) {
+void RulandTSPCallbackHandler::add_lazy(const GRBTempConstr& tc) {
     addLazy(tc);
 }
 
-void GurobiTSPCallbackHandler::add_lazy(const GRBLinExpr& expr, char sense, double rhs) {
+void RulandTSPCallbackHandler::add_lazy(const GRBLinExpr& expr, char sense, double rhs) {
     addLazy(expr, sense, rhs);
 }
 
-void GurobiTSPCallbackHandler::callback() {
+void RulandTSPCallbackHandler::callback() {
     if (where == GRB_CB_MIP) {
         TSPPDSearchStatistics stats;
         stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);

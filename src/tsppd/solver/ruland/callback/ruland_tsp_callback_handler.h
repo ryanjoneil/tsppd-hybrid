@@ -14,46 +14,48 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_GUROBI_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_RULAND_TSP_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_RULAND_TSP_CALLBACK_HANDLER_H
 
 #include <map>
 #include <utility>
+#include <vector>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/solver/gurobi/gurobi_tsp_solver.h>
+#include <tsppd/data/tsppd_problem.h>
+#include <tsppd/io/tsp_solution_writer.h>
+#include <tsppd/solver/ruland/callback/ruland_tsp_callback.h>
+#include <tsppd/solver/ruland/ruland_subtour_finder.h>
+#include <tsppd/solver/tsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // Pure MIP TSPPD Solver: Adds precedence constraints to the MIP TSP solver.
-        //
-        // Solver Options:
-        //     omc:  order matching contraints {on|off} (default=off)
-        //     sec:  subtour elimination constraint type
-        //         - cutset:    x(delta(S)) >= 2  (default)
-        //         - subtour:   sum { i,j in S } in x_{i,j} <= |S| - 1
-        //         - hybrid:    subtour if |S| <= (N + 1) / 3, else cutset
-        //     omc-lazy: omc lazy constraints during search {on|off} (default=off)
-        class GurobiTSPPDSolver : public GurobiTSPSolver {
+        class RulandTSPCallbackHandler : public GRBCallback {
         public:
-            GurobiTSPPDSolver(
+            RulandTSPCallbackHandler(
+                const TSPPD::Solver::TSPSolver* solver,
                 const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
+                std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs,
+                std::vector<std::shared_ptr<RulandTSPCallback>> callbacks,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            virtual std::string name() const override { return "tsppd-mip"; }
+            // These wrap callback methods so we can break our callbacks into multiple classes.
+            double get_solution(GRBVar v);
+            double* get_solution(const GRBVar* xvars, int len);
+            void add_lazy(const GRBTempConstr& tc);
+            void add_lazy(const GRBLinExpr& expr, char sense, double rhs);
 
         protected:
-            void initialize_tsppd_options();
-            void initialize_tsppd_constraints();
-            void initialize_omc_constraints();
-            void initialize_omc3_constraints();
-            virtual void initialize_callbacks() override;
+            void callback();
 
-            bool omc;
-            bool omc_lazy;
+            const TSPPD::Solver::TSPSolver* solver;
+            const TSPPD::Data::TSPPDProblem& problem;
+            std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs;
+            std::vector<std::shared_ptr<RulandTSPCallback>> callbacks;
+            TSPPD::IO::TSPSolutionWriter writer;
+            TSPPD::Solver::RulandSubtourFinder subtour_finder;
        };
     }
 }

@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_PRECEDENCE_CALLBACK_H
-#define TSPPD_SOLVER_GUROBI_PRECEDENCE_CALLBACK_H
+#ifndef TSPPD_SOLVER_RULAND_PRECEDENCE_CALLBACK_H
+#define TSPPD_SOLVER_RULAND_PRECEDENCE_CALLBACK_H
 
 #include <map>
 #include <vector>
@@ -24,13 +24,13 @@
 #include <gurobi_c++.h>
 
 #include <tsppd/data/tsppd_problem.h>
-#include <tsppd/solver/gurobi/callback/gurobi_subtour_elimination_callback.h>
+#include <tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.h>
 
 namespace TSPPD {
     namespace Solver {
-        class GurobiPrecedenceCallback : public GurobiSubtourEliminationCallback {
+        class RulandPrecedenceCallback : public RulandSubtourEliminationCallback {
         public:
-            GurobiPrecedenceCallback(
+            RulandPrecedenceCallback(
                 const std::string sec_type_string,
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs,

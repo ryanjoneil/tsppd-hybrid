@@ -14,48 +14,49 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_GUROBI_TSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_GUROBI_TSP_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_RULAND_TSPPD_SOLVER_H
+#define TSPPD_SOLVER_RULAND_TSPPD_SOLVER_H
 
 #include <map>
 #include <utility>
-#include <vector>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/data/tsppd_problem.h>
-#include <tsppd/io/tsp_solution_writer.h>
-#include <tsppd/solver/gurobi/callback/gurobi_tsp_callback.h>
-#include <tsppd/solver/gurobi/gurobi_subtour_finder.h>
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/solver/ruland/ruland_tsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        class GurobiTSPCallbackHandler : public GRBCallback {
+        // MIP TSPPD Solver based on:
+        //
+        // Ruland, K. S., and E. Y. Rodin. "The pickup and delivery problem: Faces and branch-and-cut algorithm." 
+        // Computers & mathematics with applications 33, no. 12 (1997): 1-13.
+        //
+        // Solver Options:
+        //     omc:  order matching contraints {on|off} (default=off)
+        //     sec:  substour elimination constraint type
+        //         - cutset:    x(delta(S)) >= 2  (default)
+        //         - subtour:   sum { i,j in S } in x_{i,j} <= |S| - 1
+        //         - hybrid:    subtour if |S| <= (N + 1) / 3, else cutset
+        //     omc-lazy: omc lazy constraints during search {on|off} (default=off)
+        class RulandTSPPDSolver : public RulandTSPSolver {
         public:
-            GurobiTSPCallbackHandler(
-                const TSPPD::Solver::TSPSolver* solver,
+            RulandTSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
-                std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs,
-                std::vector<std::shared_ptr<GurobiTSPCallback>> callbacks,
+                const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            // These wrap callback methods so we can break our callbacks into multiple classes.
-            double get_solution(GRBVar v);
-            double* get_solution(const GRBVar* xvars, int len);
-            void add_lazy(const GRBTempConstr& tc);
-            void add_lazy(const GRBLinExpr& expr, char sense, double rhs);
+            virtual std::string name() const override { return "tsppd-ruland"; }
 
         protected:
-            void callback();
+            void initialize_tsppd_options();
+            void initialize_tsppd_constraints();
+            void initialize_omc_constraints();
+            void initialize_omc3_constraints();
+            virtual void initialize_callbacks() override;
 
-            const TSPPD::Solver::TSPSolver* solver;
-            const TSPPD::Data::TSPPDProblem& problem;
-            std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs;
-            std::vector<std::shared_ptr<GurobiTSPCallback>> callbacks;
-            TSPPD::IO::TSPSolutionWriter writer;
-            TSPPD::Solver::GurobiSubtourFinder subtour_finder;
+            bool omc;
+            bool omc_lazy;
        };
     }
 }

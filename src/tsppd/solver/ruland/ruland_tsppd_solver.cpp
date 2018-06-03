@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/gurobi/gurobi_tsppd_solver.h>
-#include <tsppd/solver/gurobi/callback/gurobi_precedence_callback.h>
+#include <tsppd/solver/ruland/ruland_tsppd_solver.h>
+#include <tsppd/solver/ruland/callback/ruland_precedence_callback.h>
 #include <tsppd/util/exception.h>
 
 using namespace TSPPD::Data;
@@ -24,11 +24,11 @@ using namespace TSPPD::Solver;
 using namespace TSPPD::Util;
 using namespace std;
 
-GurobiTSPPDSolver::GurobiTSPPDSolver(
+RulandTSPPDSolver::RulandTSPPDSolver(
     const TSPPDProblem& problem,
     const std::map<std::string, std::string> options,
     TSPSolutionWriter& writer) :
-    GurobiTSPSolver(problem, options, writer) {
+    RulandTSPSolver(problem, options, writer) {
 
     initialize_tsppd_options();
     initialize_tsppd_constraints();
@@ -36,7 +36,7 @@ GurobiTSPPDSolver::GurobiTSPPDSolver(
         initialize_omc_constraints();
 }
 
-void GurobiTSPPDSolver::initialize_tsppd_options() {
+void RulandTSPPDSolver::initialize_tsppd_options() {
     if (options["omc"] == "" || options["omc"] == "off")
         omc = false;
     else if (options["omc"] == "on")
@@ -52,7 +52,7 @@ void GurobiTSPPDSolver::initialize_tsppd_options() {
         throw TSPPDException("omc-lazy can be either on or off");
 }
 
-void GurobiTSPPDSolver::initialize_tsppd_constraints() {
+void RulandTSPPDSolver::initialize_tsppd_constraints() {
     // +0 and -0 are connected.
     unsigned int start = 0;
     auto end = problem.successor_index(start);
@@ -80,7 +80,7 @@ void GurobiTSPPDSolver::initialize_tsppd_constraints() {
     model.addConstr(expr_delivery_end == 1);
 }
 
-void GurobiTSPPDSolver::initialize_omc_constraints() {
+void RulandTSPPDSolver::initialize_omc_constraints() {
     auto pickups = problem.pickup_indices();
 
     for (size_t p1_idx = 0; p1_idx < pickups.size(); ++p1_idx) {
@@ -106,10 +106,10 @@ void GurobiTSPPDSolver::initialize_omc_constraints() {
     }
 }
 
-void GurobiTSPPDSolver::initialize_callbacks() {
+void RulandTSPPDSolver::initialize_callbacks() {
     callbacks.push_back(
-        static_cast<shared_ptr<GurobiTSPCallback>>(
-            make_shared<GurobiPrecedenceCallback>(
+        static_cast<shared_ptr<RulandTSPCallback>>(
+            make_shared<RulandPrecedenceCallback>(
                 options["sec"],
                 problem,
                 arcs,
