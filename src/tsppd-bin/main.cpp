@@ -33,6 +33,7 @@
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
 #include <tsppd/solver/focacci/focacci_tsp_solver.h>
 #include <tsppd/solver/focacci/focacci_tsppd_solver.h>
+#include <tsppd/solver/oneil/oneil_tsppd_solver.h>
 #include <tsppd/solver/ruland/ruland_tsp_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
@@ -185,6 +186,9 @@ int main(int argc, char** argv) {
             solver = make_shared<FocacciTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-focacci")
             solver = make_shared<FocacciTSPPDSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsppd-oneil")
+            solver = make_shared<ONeilTSPPDSolver>(problem, solver_options, writer);
 
         else if (solver_abbrev == "tsp-ruland")
             solver = make_shared<RulandTSPSolver>(problem, solver_options, writer);
