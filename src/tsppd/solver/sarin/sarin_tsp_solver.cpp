@@ -40,7 +40,7 @@ SarinTSPSolver::SarinTSPSolver(
     end_index(problem.index("-0")) {
 
     // Silence output.
-    model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+    // model.getEnv().set(GRB_IntParam_OutputFlag, 0);
 
     initialize_variables();
     initialize_assignment_problem_constraints();
@@ -56,8 +56,8 @@ TSPPDSolution SarinTSPSolver::solve() {
     if (solution_limit > 0)
         model.set(GRB_IntParam_SolutionLimit, solution_limit);
 
-    SarinTSPCallback callback(problem, x, writer);
-    model.setCallback(&callback);
+    // SarinTSPCallback callback(problem, x, writer);
+    // model.setCallback(&callback);
 
     model.optimize();
 
@@ -133,6 +133,21 @@ void SarinTSPSolver::initialize_assignment_problem_constraints() {
 }
 
 void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
+    // TODO: include x?
+    // y(+i,+j) + y(+j,+k) + y(+k,+i) <= 2
+    for (auto pi : problem.pickup_indices()) {
+        for (auto pj : problem.pickup_indices()) {
+            if (pi == pj)
+                continue;
+            for (auto pk : problem.pickup_indices()) {
+                if (pi == pk || pj == pk)
+                    continue;
+
+                model.addConstr(y[pi][pj] + y[pj][pk] + y[pk][pi] <= 2);
+            }
+        }
+    }
+
     // x_ij <= y_ij for all i,j = 2,...,n, i != j
     for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
         if (from == start_index)
