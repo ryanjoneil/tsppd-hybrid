@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
         ("random-size,n", po::value<unsigned int>(), "randomly generated instance with n pairs")
         ("save,w", po::value<string>(), "save problem instance to (modifed) tsplib format file")
         ("solver-option,o", po::value<vector<string>>(), "solver option (e.g. foo=bar)")
+        ("threads,p", po::value<unsigned int>(), "threads (default=1)")
         ("time-limit,t", po::value<unsigned int>(), "time limit in millis")
         ("soln-limit,l", po::value<unsigned int>(), "stop after n solutions are found")
         ;
@@ -156,6 +157,14 @@ int main(int argc, char** argv) {
     // Name of the solver.
     auto solver_abbrev = varmap["solver"].as<string>();
 
+    // Number of solver threads (MIP & CP only).
+    unsigned int threads = 1;
+    if (varmap.count("threads") == 1) {
+        threads = varmap["threads"].as<unsigned int>();
+        if (threads < 1)
+            threads = 1;
+    }
+
     // What is our output format?
     auto format = TSPPD::IO::HUMAN;
     if (varmap.count("format") == 1) {
@@ -171,7 +180,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    TSPPD::IO::TSPSolutionWriter writer(problem, solver_abbrev, solver_options, format);
+    TSPPD::IO::TSPSolutionWriter writer(problem, solver_abbrev, threads, solver_options, format);
 
     try {
         // Instantiate the solver.
@@ -182,7 +191,7 @@ int main(int argc, char** argv) {
         else if (solver_abbrev == "tsppd-enum")
             solver = make_shared<EnumerativeTSPPDSolver>(problem, solver_options, writer);
 
-        else if (solver_abbrev == "tsp-focacci") 
+        else if (solver_abbrev == "tsp-focacci")
             solver = make_shared<FocacciTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-focacci")
             solver = make_shared<FocacciTSPPDSolver>(problem, solver_options, writer);
@@ -214,6 +223,9 @@ int main(int argc, char** argv) {
         // Set a solution limit if there is one
         if (varmap.count("soln-limit") == 1)
             solver->solution_limit = varmap["soln-limit"].as<unsigned int>();
+
+        // Set a thread count
+        solver->threads = threads;
 
         // Write a CSV output header.
         if (varmap.count("no-header") < 1)

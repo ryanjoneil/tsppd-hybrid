@@ -127,7 +127,6 @@ void FocacciTSPSolver::initialize_tsp_options() {
     initialize_option_dual_bound();
     initialize_option_gist();
     initialize_option_search();
-    initialize_option_threads();
 }
 
 void FocacciTSPSolver::initialize_option_brancher() {
@@ -183,19 +182,6 @@ void FocacciTSPSolver::initialize_option_search() {
         else if (search_pair->second != "bab")
             throw TSPPDException("invalid search engine '" + search_pair->second + "'");
     }
-}
-
-void FocacciTSPSolver::initialize_option_threads() {
-    threads = 1;
-    auto threads_pair = options.find("threads");
-    if (threads_pair != options.end())
-        try {
-            threads = stoi(threads_pair->second);
-         } catch (exception &e) {
-            throw TSPPDException("threads must be an integer");
-         }
-    if (threads < 1)
-        throw TSPPDException("threads must be >= 1");
 }
 
 shared_ptr<FocacciTSPSpace> FocacciTSPSolver::build_space() {

@@ -31,10 +31,10 @@ SarinTSPSolver::SarinTSPSolver(
     const TSPPDProblem& problem,
     const map<string, string> options,
     TSPSolutionWriter& writer) :
-    TSPSolver(problem, options, writer), 
-    env(), 
-    model(env), 
-    x(), 
+    TSPSolver(problem, options, writer),
+    env(),
+    model(env),
+    x(),
     y(),
     start_index(problem.index("+0")),
     end_index(problem.index("-0")) {
@@ -56,8 +56,11 @@ TSPPDSolution SarinTSPSolver::solve() {
     if (solution_limit > 0)
         model.set(GRB_IntParam_SolutionLimit, solution_limit);
 
-    // SarinTSPCallback callback(problem, x, writer);
-    // model.setCallback(&callback);
+    // Set thread count.
+    model.set(GRB_IntParam_Threads, threads);
+
+    SarinTSPCallback callback(problem, x, writer);
+    model.setCallback(&callback);
 
     model.optimize();
 
@@ -169,7 +172,7 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
         for (unsigned int j = i + 1; j < problem.nodes.size(); ++j) {
             if (j == start_index)
                 continue;
-            
+
             model.addConstr(y[i][j] + y[j][i] == 1);
         }
     }
@@ -178,7 +181,7 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
         if (i == start_index)
             continue;
-        
+
         for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
             if (i == j || j == start_index)
                 continue;

@@ -31,8 +31,8 @@ namespace TSPPD {
     namespace Solver {
         // MIP TSP Solver based on:
         //
-        // George Dantzig, Ray Fulkerson, and Selmer Johnson. 
-        // "Solution of a large-scale traveling-salesman problem." 
+        // George Dantzig, Ray Fulkerson, and Selmer Johnson.
+        // "Solution of a large-scale traveling-salesman problem."
         // Journal of the Operations Research Society of America 2, no. 4 (1954): 393-410.
         //
         // Solver Options:

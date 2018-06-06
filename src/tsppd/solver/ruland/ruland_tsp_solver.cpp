@@ -56,6 +56,9 @@ TSPPDSolution RulandTSPSolver::solve() {
     if (solution_limit > 0)
         model.set(GRB_IntParam_SolutionLimit, solution_limit);
 
+    // Set thread count.
+    model.set(GRB_IntParam_Threads, threads);
+
     RulandTSPCallbackHandler callback(solver, problem, arcs, callbacks, writer);
     model.setCallback(&callback);
 

@@ -29,10 +29,10 @@ ONeilTSPPDSolver::ONeilTSPPDSolver(
     const TSPPDProblem& problem,
     const map<string, string> options,
     TSPSolutionWriter& writer) :
-    TSPSolver(problem, options, writer), 
-    env(), 
-    model(env), 
-    x(), 
+    TSPSolver(problem, options, writer),
+    env(),
+    model(env),
+    x(),
     y(),
     start_index(problem.index("+0")),
     end_index(problem.index("-0")) {
@@ -77,7 +77,7 @@ TSPPDSolution ONeilTSPPDSolver::solve() {
                 cout << problem.nodes[j] << " ";
         cout << endl;
     }
-    
+
     cout << endl;
 
 
@@ -105,7 +105,7 @@ void ONeilTSPPDSolver::initialize_variables() {
             auto lb_y = (from != to && (from == start_index || to == end_index)) ? 1 : 0;
             y_i.push_back(model.addVar(lb_y, ub_y, 0, GRB_BINARY,
                 string("y[" + problem.nodes[from] + " " + problem.nodes[to] + "]")));
-            
+
             // +0 can only connect to a pickup, only deliveries can connect to -0
             auto ub_x = ub_y;
             if (from == start_index && !problem.has_successor(to))
@@ -187,20 +187,20 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
                 // y(+i,+j) >= x(+i,+j) + x(-i,+j)
                 auto di = problem.successor_index(i);
                 model.addConstr(y[i][j] >= x[i][j] + x[di][j]);
-    
+
             } else if (problem.has_successor(i) && problem.has_predecessor(j)) {
                 // y(+i,-j) >= x(+i,-j) + x(-i,-j)
                 auto di = problem.successor_index(i);
                 model.addConstr(y[i][j] >= x[i][j] + x[di][j]);
-            
+
             } else if (problem.has_predecessor(i) && problem.has_successor(j)) {
                 // y(-i,+j) >= x(-i,+j)
-                model.addConstr(y[i][j] >= x[i][j]); 
+                model.addConstr(y[i][j] >= x[i][j]);
 
             } else if (problem.has_successor(i) && problem.has_successor(j)) {
-                // y(-i,-j) >= x(-i,-j) 
-                model.addConstr(y[i][j] >= x[i][j]); 
-            }        
+                // y(-i,-j) >= x(-i,-j)
+                model.addConstr(y[i][j] >= x[i][j]);
+            }
         }
     }
 
@@ -220,7 +220,7 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
         for (unsigned int j = i + 1; j < problem.nodes.size(); ++j) {
             if (j == start_index)
                 continue;
-            
+
             model.addConstr(y[i][j] + y[j][i] == 1);
         }
     }
@@ -250,7 +250,7 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
         for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
             if (i == start_index || i == end_index || j == i)
                 continue;
-            
+
             for (unsigned int k = 0; k < problem.nodes.size(); ++k) {
                 if (i == start_index || i == end_index || k == i || k == j)
                     continue;
@@ -264,7 +264,7 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
     // for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
     //     if (i == start_index)
     //         continue;
-        
+
     //     for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
     //         if (i == j || j == start_index)
     //             continue;
@@ -315,7 +315,7 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
     //     for (auto pj : problem.pickup_indices()) {
     //         if (pi == pj)
     //             continue;
-            
+
     //         auto dj = problem.successor_index(pj);
     //         model.addConstr(y[pi][pj] >= y[di][pj]);
     //         model.addConstr(y[pi][dj] >= y[di][dj]);

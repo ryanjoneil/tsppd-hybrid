@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS
 include_directories(src/)
 if(APPLE)
     include_directories(/usr/local/include/)
-    include_directories(/Library/gurobi800/smac64/include/)
+    include_directories(/Library/gurobi800/mac64/include/)
 endif(APPLE)
 
 # Where to look for libraries

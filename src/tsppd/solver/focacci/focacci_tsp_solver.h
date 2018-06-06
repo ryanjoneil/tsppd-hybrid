@@ -26,8 +26,8 @@
 
 // CP TSP Solver based on:
 //
-// Yves Caseau and Francois Laburthe. 
-// "Solving Small TSPs with Constraints." 
+// Yves Caseau and Francois Laburthe.
+// "Solving Small TSPs with Constraints."
 // In ICLP, vol. 97, p. 104. 1997.
 //
 // Solver Options:
@@ -36,7 +36,6 @@
 //     dual:     dual bounder {none, cn} (default=none)
 //     gist:     enables interactive search tool (implies search=bab)
 //     search:   search engine {bab, dfs, lds} (default=bab)
-//     threads:  number of threads to use in Gecode (default=1)
 namespace TSPPD {
     namespace Solver {
         enum FocacciTSPSearchEngine { SEARCH_BAB, SEARCH_DFS, SEARCH_LDS };
@@ -59,7 +58,6 @@ namespace TSPPD {
             void initialize_option_dual_bound();
             void initialize_option_gist();
             void initialize_option_search();
-            void initialize_option_threads();
 
             virtual std::shared_ptr<FocacciTSPSpace> build_space();
 
@@ -68,8 +66,6 @@ namespace TSPPD {
             FocacciTSPSearchEngine search_engine;
 
             int discrepancy_limit;
-            int threads;
-
             bool gist;
        };
     }
