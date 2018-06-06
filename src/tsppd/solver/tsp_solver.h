@@ -41,6 +41,7 @@ namespace TSPPD {
 
             unsigned int time_limit = 0;
             unsigned int solution_limit = 0;
+            unsigned int threads = 1;
 
         protected:
             const TSPPD::Data::TSPPDProblem& problem;

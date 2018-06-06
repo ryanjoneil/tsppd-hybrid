@@ -35,6 +35,7 @@ namespace TSPPD {
             TSPSolutionWriter(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::string solver,
+                const unsigned int threads,
                 const std::map<std::string, std::string> options,
                 const TSPSolutionFormat format
             );
@@ -45,9 +46,12 @@ namespace TSPPD {
        protected:
             const TSPPD::Data::TSPPDProblem problem;
             const std::string solver;
+            const unsigned int threads;
             const std::map<std::string, std::string> options;
             const TSPSolutionFormat format;
-            const clock_t start;
+
+            struct timespec start_wall;
+            const clock_t start_cpu;
 
             // For avoiding duplicate output in human mode.
             std::string last_dual_str = "";

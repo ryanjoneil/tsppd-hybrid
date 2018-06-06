@@ -1,4 +1,4 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                           */
 /*  This file is part of the tsppd program and library for solving           */
 /*  Traveling Salesman Problems with Pickup and Delivery. tsppd requires     */
@@ -31,17 +31,22 @@ using namespace std;
 TSPSolutionWriter::TSPSolutionWriter(
     const TSPPDProblem& problem,
     const string solver,
+    const unsigned int threads,
     const map<string, string> options,
     const TSPSolutionFormat format) :
     problem(problem),
     solver(solver),
+    threads(threads),
     options(options),
     format(format),
-    start(clock()) { }
+    start_cpu(clock()) {
+
+    clock_gettime(CLOCK_MONOTONIC, &start_wall);
+}
 
 void TSPSolutionWriter::write_header() {
     if (format == HUMAN) {
-        cout << "instance         size   solver        elapsed   dual      primal    nodes     fails     depth     ";
+        cout << "instance         size   solver        threads   clock     cpu       dual      primal    nodes     fails     depth     ";
         for (auto opt : options)
             cout << setfill(' ') << setw(10) << left << opt.first;
         cout << endl;
@@ -51,7 +56,7 @@ void TSPSolutionWriter::write_header() {
         cout << endl;
 
     } else if (format == CSV) {
-        cout << "instance,size,solver,elapsed,dual,primal,nodes,fails,depth";
+        cout << "instance,size,solver,threads,clock,cpu,dual,primal,nodes,fails,depth";
         for (auto opt : options)
             cout << "," << opt.first;
         cout << "," << "tour" << endl;
@@ -59,12 +64,19 @@ void TSPSolutionWriter::write_header() {
 }
 
 void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool force) {
-    auto now = clock();
-    auto elapsed = ((double) (now - start)) / CLOCKS_PER_SEC;
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    double wall_time;
+    wall_time = (now.tv_sec - start_wall.tv_sec);
+    wall_time += (now.tv_nsec - start_wall.tv_nsec) / 1000000000.0;
+
+    auto cpu = ((double) (clock() - start_cpu)) / CLOCKS_PER_SEC;
 
     auto dual_str = (stats.has_dual() ? to_string(stats.dual) : "");
     auto primal_str = (stats.has_primal() ? to_string(stats.primal) : "");
-    auto elapsed_str = to_string(elapsed);
+    auto wall_str = to_string(wall_time);
+    auto cpu_str = to_string(cpu);
 
     if (format == HUMAN) {
         if (!force && last_dual_str == dual_str && last_primal_str == primal_str)
@@ -73,16 +85,22 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
         last_dual_str = dual_str;
         last_primal_str = primal_str;
 
-        stringstream s;
-        s << fixed << setprecision(3) << elapsed;
-        elapsed_str = s.str();
+        stringstream s1;
+        s1 << fixed << setprecision(4) << wall_time;
+        wall_str = s1.str();
+
+        stringstream s2;
+        s2 << fixed << setprecision(4) << cpu;
+        cpu_str = s2.str();
     }
 
     std::vector<std::string> row {
         problem.name,
         to_string(problem.nodes.size()),
         solver,
-        elapsed_str,
+        to_string(threads),
+        wall_str,
+        cpu_str,
         dual_str,
         primal_str,
         stats.has_nodes() ? to_string(stats.nodes) : "",
