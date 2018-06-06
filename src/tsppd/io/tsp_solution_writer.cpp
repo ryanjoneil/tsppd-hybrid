@@ -1,4 +1,4 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                           */
 /*  This file is part of the tsppd program and library for solving           */
 /*  Traveling Salesman Problems with Pickup and Delivery. tsppd requires     */
@@ -31,17 +31,19 @@ using namespace std;
 TSPSolutionWriter::TSPSolutionWriter(
     const TSPPDProblem& problem,
     const string solver,
+    const unsigned int threads,
     const map<string, string> options,
     const TSPSolutionFormat format) :
     problem(problem),
     solver(solver),
+    threads(threads),
     options(options),
     format(format),
     start(clock()) { }
 
 void TSPSolutionWriter::write_header() {
     if (format == HUMAN) {
-        cout << "instance         size   solver        elapsed   dual      primal    nodes     fails     depth     ";
+        cout << "instance         size   solver        threads  elapsed   dual      primal    nodes     fails     depth     ";
         for (auto opt : options)
             cout << setfill(' ') << setw(10) << left << opt.first;
         cout << endl;
@@ -51,7 +53,7 @@ void TSPSolutionWriter::write_header() {
         cout << endl;
 
     } else if (format == CSV) {
-        cout << "instance,size,solver,elapsed,dual,primal,nodes,fails,depth";
+        cout << "instance,size,solver,threads,elapsed,dual,primal,nodes,fails,depth";
         for (auto opt : options)
             cout << "," << opt.first;
         cout << "," << "tour" << endl;
@@ -82,6 +84,7 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
         problem.name,
         to_string(problem.nodes.size()),
         solver,
+        to_string(threads),
         elapsed_str,
         dual_str,
         primal_str,

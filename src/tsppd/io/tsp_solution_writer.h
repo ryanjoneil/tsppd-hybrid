@@ -35,6 +35,7 @@ namespace TSPPD {
             TSPSolutionWriter(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::string solver,
+                const unsigned int threads,
                 const std::map<std::string, std::string> options,
                 const TSPSolutionFormat format
             );
@@ -45,6 +46,7 @@ namespace TSPPD {
        protected:
             const TSPPD::Data::TSPPDProblem problem;
             const std::string solver;
+            const unsigned int threads;
             const std::map<std::string, std::string> options;
             const TSPSolutionFormat format;
             const clock_t start;
