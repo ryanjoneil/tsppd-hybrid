@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <tsppd/data/tsppd_search_statistics.h>
+#include <tsppd/solver/oneil/oneil_tsppd_callback.h>
 #include <tsppd/solver/oneil/oneil_tsppd_solver.h>
 
 using namespace TSPPD::Data;
@@ -38,7 +39,7 @@ ONeilTSPPDSolver::ONeilTSPPDSolver(
     end_index(problem.index("-0")) {
 
     // Silence output.
-    // model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+    model.getEnv().set(GRB_IntParam_OutputFlag, 0);
 
     initialize_variables();
     initialize_assignment_problem_constraints();
@@ -57,31 +58,34 @@ TSPPDSolution ONeilTSPPDSolver::solve() {
     // Set thread count.
     model.set(GRB_IntParam_Threads, threads);
 
+    ONeilTSPPDCallback callback(problem, x, writer);
+    model.setCallback(&callback);
+
     model.optimize();
 
-    cout << endl;
+    // cout << endl;
 
-    cout << "y = " << endl;
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-        cout << "[" << problem.nodes[i] << "] ";
-        for (unsigned int j = 0; j < problem.nodes.size(); ++j)
-            if (*model.get(GRB_DoubleAttr_X, &(y[i][j]), 1) > 0.5)
-                cout << problem.nodes[j] << " ";
-        cout << endl;
-    }
+    // cout << "y = " << endl;
+    // for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+    //     cout << "[" << problem.nodes[i] << "] ";
+    //     for (unsigned int j = 0; j < problem.nodes.size(); ++j)
+    //         if (*model.get(GRB_DoubleAttr_X, &(y[i][j]), 1) > 0.5)
+    //             cout << problem.nodes[j] << " ";
+    //     cout << endl;
+    // }
 
-    cout << endl;
+    // cout << endl;
 
-    cout << "x = " << endl;
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-        cout << "[" << problem.nodes[i] << "] ";
-        for (unsigned int j = 0; j < problem.nodes.size(); ++j)
-            if (*model.get(GRB_DoubleAttr_X, &(x[i][j]), 1) > 0.5)
-                cout << problem.nodes[j] << " ";
-        cout << endl;
-    }
+    // cout << "x = " << endl;
+    // for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+    //     cout << "[" << problem.nodes[i] << "] ";
+    //     for (unsigned int j = 0; j < problem.nodes.size(); ++j)
+    //         if (*model.get(GRB_DoubleAttr_X, &(x[i][j]), 1) > 0.5)
+    //             cout << problem.nodes[j] << " ";
+    //     cout << endl;
+    // }
 
-    cout << endl;
+    // cout << endl;
 
 
     if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
@@ -177,49 +181,14 @@ void ONeilTSPPDSolver::initialize_assignment_problem_constraints() {
 }
 
 void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
-    // Relations between x and y
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-        if (i == start_index || i == end_index)
-            continue;
-
-        for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
-            if (j == start_index || j == end_index || j == i)
-                continue;
-
-            if (problem.has_successor(i) && problem.has_successor(j)) {
-                // y(+i,+j) >= x(+i,+j) + x(-i,+j)
-                auto di = problem.successor_index(i);
-                model.addConstr(y[i][j] >= x[i][j] + x[di][j]);
-
-            } else if (problem.has_successor(i) && problem.has_predecessor(j)) {
-                // y(+i,-j) >= x(+i,-j) + x(-i,-j)
-                auto di = problem.successor_index(i);
-                model.addConstr(y[i][j] >= x[i][j] + x[di][j]);
-
-            } else if (problem.has_predecessor(i) && problem.has_successor(j)) {
-                // y(-i,+j) >= x(-i,+j)
-                model.addConstr(y[i][j] >= x[i][j]);
-
-            } else if (problem.has_successor(i) && problem.has_successor(j)) {
-                // y(-i,-j) >= x(-i,-j)
-                model.addConstr(y[i][j] >= x[i][j]);
-            }
-        }
-    }
-
     // +i < -i
     for (auto p : problem.pickup_indices()) {
         auto d = problem.successor_index(p);
         y[p][d].set(GRB_DoubleAttr_LB, 1);
     }
 
-    // TODO: is any of this implicit?
     // y_ij + y_ji = 1
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-        // TODO: or end_index?
-        if (i == start_index)
-            continue;
-
         for (unsigned int j = i + 1; j < problem.nodes.size(); ++j) {
             if (j == start_index)
                 continue;
@@ -227,23 +196,35 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
             model.addConstr(y[i][j] + y[j][i] == 1);
         }
     }
-        // y(+i,+j) + y(+j,+i) == 1
+
+    // y(+i,+j) + y(+j,+k) + y(+k,+i) <= 2
     for (auto pi : problem.pickup_indices()) {
         for (auto pj : problem.pickup_indices()) {
-             if (pi == pj)
+            if (pi == pj)
                 continue;
-            model.addConstr(y[pi][pj] + y[pj][pi] == 1);
+            for (auto pk : problem.pickup_indices()) {
+                if (pi == pk || pj == pk)
+                    continue;
+
+                model.addConstr(y[pi][pj] + y[pj][pk] + y[pk][pi] <= 2);
+            }
         }
     }
 
-    // y(-i,-j) + y(-j,-i) == 1
+    // y(-i,-j) + y(-j,-k) + y(-k,-i) <= 2
     for (auto di : problem.delivery_indices()) {
         for (auto dj : problem.delivery_indices()) {
-             if (di == dj)
+            if (di == dj)
                 continue;
-            model.addConstr(y[di][dj] + y[dj][di] == 1);
+            for (auto dk : problem.delivery_indices()) {
+                if (di == dk || dj == dk)
+                    continue;
+
+                model.addConstr(y[di][dj] + y[dj][dk] + y[dk][di] <= 2);
+            }
         }
     }
+
 
     // y[i][j] /\ y[j][k] -> y[i][k]
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
@@ -262,68 +243,6 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
             }
         }
     }
-
-    // // (y_ij + x_ji) + y_jk + y_ki <= 2 for all i,j,k = 2,...,n, i != j != k
-    // for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-    //     if (i == start_index)
-    //         continue;
-
-    //     for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
-    //         if (i == j || j == start_index)
-    //             continue;
-
-    //         for (unsigned int k = 0; k < problem.nodes.size(); ++k) {
-    //             if (i == k || j == k || k == start_index)
-    //                 continue;
-
-    //             model.addConstr(y[i][j] + x[j][i] + y[j][k] + y[k][i] <= 2);
-    //         }
-    //     }
-    // }
-
-    // TODO: include x?
-    // y(+i,+j) + y(+j,+k) + y(+k,+i) <= 2
-    for (auto pi : problem.pickup_indices()) {
-        for (auto pj : problem.pickup_indices()) {
-            if (pi == pj)
-                continue;
-            for (auto pk : problem.pickup_indices()) {
-                if (pi == pk || pj == pk)
-                    continue;
-
-                model.addConstr(y[pi][pj] + y[pj][pk] + y[pk][pi] <= 2);
-            }
-        }
-    }
-
-    // TODO: include x?
-    // y(-i,-j) + y(-j,-k) + y(-k,-i) <= 2
-    for (auto di : problem.delivery_indices()) {
-        for (auto dj : problem.delivery_indices()) {
-            if (di == dj)
-                continue;
-            for (auto dk : problem.delivery_indices()) {
-                if (di == dk || dj == dk)
-                    continue;
-
-                model.addConstr(y[di][dj] + y[dj][dk] + y[dk][di] <= 2);
-            }
-        }
-    }
-
-    // // y(-i,j) -> y(+i,j)
-    // for (auto pi : problem.pickup_indices()) {
-    //     auto di = problem.successor_index(pi);
-
-    //     for (auto pj : problem.pickup_indices()) {
-    //         if (pi == pj)
-    //             continue;
-
-    //         auto dj = problem.successor_index(pj);
-    //         model.addConstr(y[pi][pj] >= y[di][pj]);
-    //         model.addConstr(y[pi][dj] >= y[di][dj]);
-    //     }
-    // }
 }
 
 vector<unsigned int> ONeilTSPPDSolver::get_path() {
