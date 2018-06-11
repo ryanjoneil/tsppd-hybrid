@@ -197,34 +197,25 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
         }
     }
 
-    // y(+i,+j) + y(+j,+k) + y(+k,+i) <= 2
-    for (auto pi : problem.pickup_indices()) {
-        for (auto pj : problem.pickup_indices()) {
-            if (pi == pj)
+    // +i < +j -> +i < -j
+    for (auto p_i : problem.pickup_indices()) {
+        for (auto p_j : problem.pickup_indices()) {
+            if (p_i == p_j)
                 continue;
-            for (auto pk : problem.pickup_indices()) {
-                if (pi == pk || pj == pk)
-                    continue;
-
-                model.addConstr(y[pi][pj] + y[pj][pk] + y[pk][pi] <= 2);
-            }
+            auto d_j = problem.successor_index(p_j);
+            model.addConstr(y[p_i][d_j] >= y[p_i][p_j]);
         }
     }
 
-    // y(-i,-j) + y(-j,-k) + y(-k,-i) <= 2
-    for (auto di : problem.delivery_indices()) {
-        for (auto dj : problem.delivery_indices()) {
-            if (di == dj)
+    // -i < -j -> +i < -j
+    for (auto d_i : problem.delivery_indices()) {
+        auto p_i = problem.predecessor_index(d_i);
+        for (auto d_j : problem.delivery_indices()) {
+            if (d_i == d_j)
                 continue;
-            for (auto dk : problem.delivery_indices()) {
-                if (di == dk || dj == dk)
-                    continue;
-
-                model.addConstr(y[di][dj] + y[dj][dk] + y[dk][di] <= 2);
-            }
+            model.addConstr(y[p_i][d_j] >= y[d_i][d_j]);
         }
     }
-
 
     // y[i][j] /\ y[j][k] -> y[i][k]
     for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
@@ -239,10 +230,10 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
                 if (i == start_index || i == end_index || k == i || k == j)
                     continue;
 
-                model.addConstr(y[i][k] >= y[i][j] + y[j][k] - 1);
+                model.addConstr(y[i][k] + x[j][i] >= y[i][j] + y[j][k] - 1);
             }
         }
-    }
+    }    
 }
 
 vector<unsigned int> ONeilTSPPDSolver::get_path() {
