@@ -227,7 +227,8 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
             model.addConstr(y[i][j] + y[j][i] == 1);
         }
     }
-        // y(+i,+j) + y(+j,+i) == 1
+
+    // y(+i,+j) + y(+j,+i) == 1
     for (auto pi : problem.pickup_indices()) {
         for (auto pj : problem.pickup_indices()) {
              if (pi == pj)

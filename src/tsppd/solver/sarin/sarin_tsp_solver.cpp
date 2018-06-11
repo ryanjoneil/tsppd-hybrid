@@ -40,7 +40,10 @@ SarinTSPSolver::SarinTSPSolver(
     end_index(problem.index("-0")) {
 
     // Silence output.
-    // model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+    model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+
+    // Lazy constraints are used for subtour elimination.
+    model.set(GRB_IntParam_LazyConstraints, true);
 
     initialize_variables();
     initialize_assignment_problem_constraints();
@@ -59,12 +62,42 @@ TSPPDSolution SarinTSPSolver::solve() {
     // Set thread count.
     model.set(GRB_IntParam_Threads, threads);
 
-    SarinTSPCallback callback(problem, x, writer);
+    SarinTSPCallback callback(problem, x, y, writer);
     model.setCallback(&callback);
 
     model.optimize();
 
     if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
+        cout << "x =\t";
+        for (auto n : problem.nodes)
+            cout << setw(4) << left << n;
+        cout << endl;
+        for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
+            cout << problem.nodes[from] << "\t";
+            for (unsigned int to = 0; to < problem.nodes.size(); ++to)
+                if (*model.get(GRB_DoubleAttr_X, &(x[from][to]), 1) > 0.5)
+                    cout << " " << setw(3) << "1";
+                else
+                    cout << " " << setw(3) << "-";
+            cout << endl;
+        }
+        cout << endl;
+
+        cout << "y =\t";
+        for (auto n : problem.nodes)
+            cout << setw(4) << left << n;
+        cout << endl;
+        for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
+            cout << problem.nodes[from] << "\t";
+            for (unsigned int to = 0; to < problem.nodes.size(); ++to)
+                if (*model.get(GRB_DoubleAttr_X, &(y[from][to]), 1) > 0.5)
+                    cout << " " << setw(3) << "1";
+                else
+                    cout << " " << setw(3) << "-";
+            cout << endl;
+        }
+        cout << endl;
+
         TSPPDSolution solution(problem, get_path());
         TSPPDSearchStatistics stats(solution);
         stats.dual = model.get(GRB_DoubleAttr_ObjBound);
@@ -136,21 +169,6 @@ void SarinTSPSolver::initialize_assignment_problem_constraints() {
 }
 
 void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
-    // TODO: include x?
-    // y(+i,+j) + y(+j,+k) + y(+k,+i) <= 2
-    for (auto pi : problem.pickup_indices()) {
-        for (auto pj : problem.pickup_indices()) {
-            if (pi == pj)
-                continue;
-            for (auto pk : problem.pickup_indices()) {
-                if (pi == pk || pj == pk)
-                    continue;
-
-                model.addConstr(y[pi][pj] + y[pj][pk] + y[pk][pi] <= 2);
-            }
-        }
-    }
-
     // x_ij <= y_ij for all i,j = 2,...,n, i != j
     for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
         if (from == start_index)
@@ -178,22 +196,22 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
     }
 
     // (y_ij + x_ji) + y_jk + y_ki <= 2 for all i,j,k = 2,...,n, i != j != k
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-        if (i == start_index)
-            continue;
+    // for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+    //     if (i == start_index)
+    //         continue;
 
-        for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
-            if (i == j || j == start_index)
-                continue;
+    //     for (unsigned int j = 0; j < problem.nodes.size(); ++j) {
+    //         if (i == j || j == start_index)
+    //             continue;
 
-            for (unsigned int k = 0; k < problem.nodes.size(); ++k) {
-                if (i == k || j == k || k == start_index)
-                    continue;
+    //         for (unsigned int k = 0; k < problem.nodes.size(); ++k) {
+    //             if (i == k || j == k || k == start_index)
+    //                 continue;
 
-                model.addConstr(y[i][j] + x[j][i] + y[j][k] + y[k][i] <= 2);
-            }
-        }
-    }
+    //             model.addConstr(y[i][j] + x[j][i] + y[j][k] + y[k][i] <= 2);
+    //         }
+    //     }
+    // }
 }
 
 vector<unsigned int> SarinTSPSolver::get_path() {

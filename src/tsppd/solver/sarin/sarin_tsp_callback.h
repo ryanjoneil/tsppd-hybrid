@@ -17,6 +17,7 @@
 #ifndef TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
 #define TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
 
+#include <utility>
 #include <vector>
 
 #include <gurobi_c++.h>
@@ -31,14 +32,22 @@ namespace TSPPD {
             SarinTSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
+                std::vector<std::vector<GRBVar>> y,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
         protected:
             void callback();
 
+            std::vector<std::vector<unsigned int>> subtours();
+            void cut_subtour(std::vector<unsigned int> subtour);
+
+            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
+            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
+
             const TSPPD::Data::TSPPDProblem& problem;
             std::vector<std::vector<GRBVar>> x;
+            std::vector<std::vector<GRBVar>> y;
             TSPPD::IO::TSPSolutionWriter writer;
        };
     }
