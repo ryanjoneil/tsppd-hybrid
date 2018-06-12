@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSP_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSP_SOLVER_H
+#ifndef TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
+#define TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
 
 #include <map>
 #include <memory>
@@ -41,14 +41,15 @@ namespace TSPPD {
         protected:
             void initialize_variables();
             void initialize_assignment_problem_constraints();
+            void initialize_x_w_link_constraints();
             void initialize_subtour_and_precedence_constraints();
-
+            GRBLinExpr sec(unsigned int i, unsigned int j);
             std::vector<unsigned int> get_path();
 
             GRBEnv env;
             GRBModel model;
             std::vector<std::vector<GRBVar>> x;
-            std::vector<std::vector<GRBVar>> y;
+            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
 
             const unsigned int start_index;
             const unsigned int end_index;
