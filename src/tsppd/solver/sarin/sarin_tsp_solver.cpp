@@ -89,7 +89,7 @@ void SarinTSPSolver::initialize_variables() {
                 string("x[" + problem.nodes[from] + " " + problem.nodes[to] + "]")));
 
             auto lb = (from != to && (from == start_index || to == end_index)) ? 1 : 0;
-            y_i.push_back(model.addVar(lb, ub, 0, GRB_BINARY,
+            y_i.push_back(model.addVar(lb, ub, 0, GRB_CONTINUOUS,
                 string("y[" + problem.nodes[from] + " " + problem.nodes[to] + "]")));
         }
 
