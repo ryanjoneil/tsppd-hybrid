@@ -176,7 +176,6 @@ void SarinTSPSolver::initialize_subtour_and_precedence_constraints() {
                     continue;
 
                 model.addConstr(y[i][j] + x[j][i] + y[j][k] + y[k][i] <= 2);
-                // model.addConstr(3*(y[i][j] + y[j][k] + y[k][i]) + x[j][i] + x[k][j] + x[i][k] <= 6);
             }
         }
     }

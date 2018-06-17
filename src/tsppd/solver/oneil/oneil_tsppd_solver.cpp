@@ -140,14 +140,6 @@ void ONeilTSPPDSolver::initialize_variables() {
         for (unsigned int j = i + 1; j < pickups.size(); ++j) {
             auto pj = pickups[j];
 
-            // auto w_ij1 = model.addVar(0, 1, 0, GRB_BINARY); // +i +j -i -j -> w_ij1
-            // auto w_ij2 = model.addVar(0, 1, 0, GRB_BINARY); // +i +j -j -i -> w_ij2
-            // auto w_ij3 = model.addVar(0, 1, 0, GRB_BINARY); // +i -i +j -j -> w_ij3
-
-            // auto w_ji1 = model.addVar(0, 1, 0, GRB_BINARY); // +j +i -j -i -> w_ji1
-            // auto w_ji2 = model.addVar(0, 1, 0, GRB_BINARY); // +j +i -i -j -> w_ji2
-            // auto w_ji3 = model.addVar(0, 1, 0, GRB_BINARY); // +j -j +i -i -> w_ji3
-
             auto w_ij1 = model.addVar(0, 1, 0, GRB_CONTINUOUS); // +i +j -i -j -> w_ij1
             auto w_ij2 = model.addVar(0, 1, 0, GRB_CONTINUOUS); // +i +j -j -i -> w_ij2
             auto w_ij3 = model.addVar(0, 1, 0, GRB_CONTINUOUS); // +i -i +j -j -> w_ij3
@@ -266,16 +258,6 @@ void ONeilTSPPDSolver::initialize_subtour_and_precedence_constraints() {
                 model.addConstr(sec(di,pj) + sec(pj,dk) + sec(dk,di) <= 2); // -i +j -k -i
                 model.addConstr(sec(di,dj) + sec(dj,pk) + sec(pk,di) <= 2); // -i -j +k -i
                 model.addConstr(sec(di,dj) + sec(dj,dk) + sec(dk,di) <= 2); // -i -j -k -i
-
-                // model.addConstr(3*(sec(pi,pj) + sec(pj,pk) + sec(pk,pi)) + x[pj][pi] + x[pk][pj] + x[pi][pk] <= 6); // +i +j +k +i
-                // model.addConstr(3*(sec(pi,pj) + sec(pj,dk) + sec(dk,pi)) + x[pj][pi] + x[dk][pj] + x[pi][dk] <= 6); // +i +j -k +i
-                // model.addConstr(3*(sec(pi,dj) + sec(dj,pk) + sec(pk,pi)) + x[dj][pi] + x[pk][dj] + x[pi][pk] <= 6); // +i -j +k +i
-                // model.addConstr(3*(sec(pi,dj) + sec(dj,dk) + sec(dk,pi)) + x[dj][pi] + x[dk][dj] + x[pi][dk] <= 6); // +i -j -k +i
-
-                // model.addConstr(3*(sec(di,pj) + sec(pj,pk) + sec(pk,di)) + x[pj][di] + x[pk][pj] + x[di][pk] <= 6); // -i +j +k -i
-                // model.addConstr(3*(sec(di,pj) + sec(pj,dk) + sec(dk,di)) + x[pj][di] + x[dk][pj] + x[di][dk] <= 6); // -i +j -k -i
-                // model.addConstr(3*(sec(di,dj) + sec(dj,pk) + sec(pk,di)) + x[dj][di] + x[pk][dj] + x[di][pk] <= 6); // -i -j +k -i
-                // model.addConstr(3*(sec(di,dj) + sec(dj,dk) + sec(dk,di)) + x[dj][di] + x[dk][dk] + x[di][dk] <= 6); // -i -j -k -i
             }
         }
     }
