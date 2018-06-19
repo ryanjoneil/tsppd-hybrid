@@ -30,8 +30,9 @@ SarinTSPCallback::SarinTSPCallback(
     const TSPPDProblem& problem,
     vector<vector<GRBVar>> x,
     vector<vector<GRBVar>> y,
+    const SarinSECType sec,
     TSPSolutionWriter& writer) :
-    problem(problem), x(x), y(y), writer(writer) { }
+    problem(problem), x(x), y(y), sec(sec), writer(writer) { }
 
 void SarinTSPCallback::callback() {
     if (where == GRB_CB_MIP) {
@@ -103,7 +104,30 @@ vector<vector<unsigned int>> SarinTSPCallback::subtours() {
     return s;
 }
 
-void SarinTSPCallback::cut_subtour(vector<unsigned int> subtour) {
+void SarinTSPCallback::cut_subtour(const vector<unsigned int>& subtour) {
+    if (sec == SARIN_SEC_X)
+        cut_subtour_x(subtour);
+    else
+        cut_subtour_y(subtour);
+}
+
+void SarinTSPCallback::cut_subtour_x(const vector<unsigned int>& subtour) {
+    set<unsigned int> S(subtour.begin(), subtour.end());
+
+    vector<unsigned int> T;
+    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
+        if (S.find(i) == S.end())
+            T.push_back(i);
+
+    GRBLinExpr expr = 0;
+    for (auto n1 : S)
+        for (auto n2 : T)
+            expr += x[n1][n2] + x[n2][n1];
+
+    addLazy(expr >= 1);
+}
+
+void SarinTSPCallback::cut_subtour_y(const vector<unsigned int>& subtour) {
     if (subtour.front() != subtour.back())
         return;
 
@@ -114,13 +138,13 @@ void SarinTSPCallback::cut_subtour(vector<unsigned int> subtour) {
 
     auto i = 0; // start and end of the subtour
     for (unsigned int j = 1; j < subtour.size() - 2; ++j)
-        for (unsigned int k = j + 1; k < subtour.size() - 1; ++k)
-            addLazy(
-                y[subtour[i]][subtour[j]] +
-                x[subtour[j]][subtour[i]] +
-                y[subtour[j]][subtour[k]] +
-                y[subtour[k]][subtour[i]] <= 2
-            );
+        for (unsigned int k = j + 1; k < subtour.size() - 1; ++k) {
+            auto ni = subtour[i];
+            auto nj = subtour[j];
+            auto nk = subtour[k];
+
+            addLazy(y[ni][nj] + x[nj][ni] + y[nj][nk] + y[nk][ni] <= 2);
+        }
 
     // cout << endl;
 }

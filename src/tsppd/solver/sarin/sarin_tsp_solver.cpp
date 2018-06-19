@@ -68,7 +68,7 @@ TSPPDSolution SarinTSPSolver::solve() {
     // Set thread count.
     model.set(GRB_IntParam_Threads, threads);
 
-    SarinTSPCallback callback(problem, x, y, writer);
+    SarinTSPCallback callback(problem, x, y, sec, writer);
     model.setCallback(&callback);
 
     model.optimize();
@@ -121,6 +121,13 @@ void SarinTSPSolver::initialize_tsp_options() {
         relax = true;
     else
         throw TSPPDException("relax can be either on or off");
+
+    if (options["sec"] == "" || options["sec"] == "y")
+        sec = SARIN_SEC_Y;
+    else if (options["sec"] == "x")
+        sec = SARIN_SEC_X;
+    else
+        throw TSPPDException("sec can be either x or y");
 }
 
 void SarinTSPSolver::initialize_variables() {

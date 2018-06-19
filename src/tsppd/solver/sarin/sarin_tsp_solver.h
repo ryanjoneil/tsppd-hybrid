@@ -23,6 +23,7 @@
 
 #include <gurobi_c++.h>
 
+#include <tsppd/solver/sarin/sarin_tsp_callback.h>
 #include <tsppd/solver/tsp_solver.h>
 
 namespace TSPPD {
@@ -36,6 +37,7 @@ namespace TSPPD {
         //
         // Solver Options:
         //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
+        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
         class SarinTSPSolver : public TSPSolver {
         public:
             SarinTSPSolver(
@@ -64,6 +66,7 @@ namespace TSPPD {
             const unsigned int end_index;
 
             bool relax;
+            SarinSECType sec;
        };
     }
 }
