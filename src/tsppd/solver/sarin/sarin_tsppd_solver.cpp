@@ -31,17 +31,14 @@ SarinTSPPDSolver::SarinTSPPDSolver(
 
     initialize_tsppd_options();
     initialize_tsppd_constraints();
-    if (valid)
+    if (valid != "none" && valid != "")
         initialize_valid_inequalities();
 }
 
 void SarinTSPPDSolver::initialize_tsppd_options() {
-    if (options["valid"] == "" || options["valid"] == "off")
-        valid = false;
-    else if (options["valid"] == "on")
-        valid = true;
-    else
-        throw TSPPDException("valid can be either on or off");
+    valid = options["valid"];
+    if (!(valid == "" || valid == "none" || valid == "a" || valid == "b" || valid == "all"))
+        throw TSPPDException("valid can be either a, b, or none");
 }
 
 void SarinTSPPDSolver::initialize_tsppd_constraints() {
@@ -76,21 +73,25 @@ void SarinTSPPDSolver::initialize_valid_inequalities() {
 
             auto dj = problem.successor_index(pj);
 
-            model.addConstr(x[pj][di] + x[di][pj] <= y[pi][pj]);
-            model.addConstr(x[pj][di] + y[di][pj] <= 1 - y[pj][pi]);
+            if (valid == "a" || valid == "all") {
+                model.addConstr(x[pj][di] + x[di][pj] <= y[pi][pj]);
+                model.addConstr(x[pj][di] + y[di][pj] <= 1 - y[pj][pi]);
+            }
 
-            // (+i < +j) -> (+i < -j)
-            model.addConstr(y[pi][dj] >= y[pi][pj]);
+            if (valid == "b" || valid == "all") {
+                // (+i < +j) -> (+i < -j)
+                model.addConstr(y[pi][dj] >= y[pi][pj]);
 
-            // (+i < -j) -> nothing
+                // (+i < -j) -> nothing
 
-            // (-i < +j) -> (+i < +j) /\ (-i < -j) /\ (+i < -j)
-            model.addConstr(y[pi][pj] >= y[di][pj]);
-            model.addConstr(y[di][dj] >= y[di][pj]);
-            model.addConstr(y[pi][dj] >= y[di][pj]);
+                // (-i < +j) -> (+i < +j) /\ (-i < -j) /\ (+i < -j)
+                model.addConstr(y[pi][pj] >= y[di][pj]);
+                model.addConstr(y[di][dj] >= y[di][pj]);
+                model.addConstr(y[pi][dj] >= y[di][pj]);
 
-            // (-i < -j) -> (+i < -j)
-            model.addConstr(y[pi][dj] >= y[di][dj]);
+                // (-i < -j) -> (+i < -j)
+                model.addConstr(y[pi][dj] >= y[di][dj]);
+            }
         }
     }
 }

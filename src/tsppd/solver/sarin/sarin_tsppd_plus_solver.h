@@ -29,7 +29,7 @@ namespace TSPPD {
         //
         // Solver Options:
         //     relax:      relax model and add SEC and precedence as violated {on|off} (default=off)
-        //     valid:      additional valid inequalities {on|off} (default=off)
+        //     valid:      additional valid inequalities {a|b|all|none} (default=none)
         //     warm-time:  time limit for warm start, in milliseconds
         //     warm-soln:  solution limit for warm start
         class SarinTSPPDPlusSolver : public SarinTSPPDSolver {

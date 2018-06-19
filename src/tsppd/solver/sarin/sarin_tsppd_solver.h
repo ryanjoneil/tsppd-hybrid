@@ -32,7 +32,7 @@ namespace TSPPD {
         //
         // Solver Options:
         //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
-        //     valid:  additional valid inequalities {on|off} (default=off)
+        //     valid:  additional valid inequalities {a|b|all|none} (default=none)
         class SarinTSPPDSolver : public SarinTSPSolver {
         public:
             SarinTSPPDSolver(
@@ -48,7 +48,7 @@ namespace TSPPD {
             void initialize_tsppd_constraints();
             void initialize_valid_inequalities();
 
-            bool valid;
+            std::string valid;
        };
     }
 }
