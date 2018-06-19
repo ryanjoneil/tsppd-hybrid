@@ -31,6 +31,7 @@ namespace TSPPD {
         // Operations Research Letters 33, no. 1 (2005): 62-70.
         //
         // Solver Options:
+        //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
         //     valid:  additional valid inequalities {on|off} (default=off)
         class SarinTSPPDSolver : public SarinTSPSolver {
         public:

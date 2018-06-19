@@ -29,10 +29,13 @@ namespace TSPPD {
     namespace Solver {
         // MIP TSP Solver based on:
         //
-        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra. 
-        // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with 
+        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra.
+        // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with
         // and without precedence constraints."
         // Operations Research Letters 33, no. 1 (2005): 62-70.
+        //
+        // Solver Options:
+        //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
         class SarinTSPSolver : public TSPSolver {
         public:
             SarinTSPSolver(
@@ -45,6 +48,7 @@ namespace TSPPD {
             virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
+            void initialize_tsp_options();
             void initialize_variables();
             void initialize_assignment_problem_constraints();
             void initialize_subtour_and_precedence_constraints();
@@ -58,6 +62,8 @@ namespace TSPPD {
 
             const unsigned int start_index;
             const unsigned int end_index;
+
+            bool relax;
        };
     }
 }

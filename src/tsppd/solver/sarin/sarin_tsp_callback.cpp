@@ -107,10 +107,10 @@ void SarinTSPCallback::cut_subtour(vector<unsigned int> subtour) {
     if (subtour.front() != subtour.back())
         return;
 
-    cout << "subtour: " << endl;
-    for (auto i : subtour)
-        cout << problem.nodes[i] << " ";
-    cout << endl;
+    // cout << "subtour: " << endl;
+    // for (auto i : subtour)
+    //     cout << problem.nodes[i] << " ";
+    // cout << endl;
 
     auto i = 0; // start and end of the subtour
     for (unsigned int j = 1; j < subtour.size() - 2; ++j)
@@ -122,7 +122,7 @@ void SarinTSPCallback::cut_subtour(vector<unsigned int> subtour) {
                 y[subtour[k]][subtour[i]] <= 2
             );
 
-    cout << endl;
+    // cout << endl;
 }
 
 
@@ -158,7 +158,7 @@ void SarinTSPCallback::cut_violation(vector<unsigned int> tour, pair<unsigned in
     auto d = index.first;
     auto p = index.second;
 
-    cout << "cut violation: " << problem.nodes[tour[d]] << " < " << problem.nodes[tour[p]] << endl;
+    // cout << "cut violation: " << problem.nodes[tour[d]] << " < " << problem.nodes[tour[p]] << endl;
 
     GRBLinExpr expr = y[tour[p]][tour[d]];
     for (unsigned int j = d; j < p; ++j)
