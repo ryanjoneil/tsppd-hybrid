@@ -69,6 +69,8 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/focacci/focacci_tsp_space.h
     src/tsppd/solver/focacci/focacci_tsppd_solver.h
     src/tsppd/solver/focacci/focacci_tsppd_space.h
+    src/tsppd/solver/oneil/oneil_tsppd_callback.h
+    src/tsppd/solver/oneil/oneil_tsppd_plus_solver.h
     src/tsppd/solver/oneil/oneil_tsppd_solver.h
     src/tsppd/solver/ruland/callback/ruland_precedence_callback.h
     src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.h
@@ -80,6 +82,7 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/ruland/ruland_tsppd_solver.h
     src/tsppd/solver/sarin/sarin_tsp_callback.h
     src/tsppd/solver/sarin/sarin_tsp_solver.h
+    src/tsppd/solver/sarin/sarin_tsppd_plus_solver.h
     src/tsppd/solver/sarin/sarin_tsppd_solver.h
     src/tsppd/solver/tsp_solver.h
     src/tsppd/util/exception.h
@@ -112,6 +115,8 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/focacci/focacci_tsp_space.cpp
     src/tsppd/solver/focacci/focacci_tsppd_solver.cpp
     src/tsppd/solver/focacci/focacci_tsppd_space.cpp
+    src/tsppd/solver/oneil/oneil_tsppd_callback.cpp
+    src/tsppd/solver/oneil/oneil_tsppd_plus_solver.cpp
     src/tsppd/solver/oneil/oneil_tsppd_solver.cpp
     src/tsppd/solver/ruland/callback/ruland_precedence_callback.cpp
     src/tsppd/solver/ruland/callback/ruland_subtour_elimination_callback.cpp
@@ -122,6 +127,7 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/ruland/ruland_tsppd_solver.cpp
     src/tsppd/solver/sarin/sarin_tsp_callback.cpp
     src/tsppd/solver/sarin/sarin_tsp_solver.cpp
+    src/tsppd/solver/sarin/sarin_tsppd_plus_solver.cpp
     src/tsppd/solver/sarin/sarin_tsppd_solver.cpp
     src/tsppd/util/stacktrace.cpp)
 

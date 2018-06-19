@@ -33,12 +33,14 @@
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
 #include <tsppd/solver/focacci/focacci_tsp_solver.h>
 #include <tsppd/solver/focacci/focacci_tsppd_solver.h>
+#include <tsppd/solver/oneil/oneil_tsppd_plus_solver.h>
 #include <tsppd/solver/oneil/oneil_tsppd_solver.h>
 #include <tsppd/solver/ruland/ruland_tsp_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
 #include <tsppd/solver/sarin/sarin_tsp_solver.h>
 #include <tsppd/solver/sarin/sarin_tsppd_solver.h>
+#include <tsppd/solver/sarin/sarin_tsppd_plus_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
@@ -198,6 +200,8 @@ int main(int argc, char** argv) {
 
         else if (solver_abbrev == "tsppd-oneil")
             solver = make_shared<ONeilTSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-oneil+")
+            solver = make_shared<ONeilTSPPDPlusSolver>(problem, solver_options, writer);
 
         else if (solver_abbrev == "tsp-ruland")
             solver = make_shared<RulandTSPSolver>(problem, solver_options, writer);
@@ -210,6 +214,8 @@ int main(int argc, char** argv) {
             solver = make_shared<SarinTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-sarin")
             solver = make_shared<SarinTSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "tsppd-sarin+")
+            solver = make_shared<SarinTSPPDPlusSolver>(problem, solver_options, writer);
 
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;

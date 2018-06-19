@@ -14,45 +14,32 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_ONEIL_TSPPD_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_ONEIL_TSPPD_CALLBACK_HANDLER_H
 
-#include <map>
-#include <memory>
-#include <utility>
+#include <vector>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/data/tsppd_problem.h>
+#include <tsppd/io/tsp_solution_writer.h>
 
 namespace TSPPD {
     namespace Solver {
-        class ONeilTSPPDSolver : public TSPSolver {
+        class ONeilTSPPDCallback : public GRBCallback {
         public:
-            ONeilTSPPDSolver(
+            ONeilTSPPDCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
+                std::vector<std::vector<GRBVar>> x,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsppd-oneil"; }
-            virtual TSPPD::Data::TSPPDSolution solve();
-
         protected:
-            void initialize_variables();
-            void initialize_assignment_problem_constraints();
-            void initialize_x_w_link_constraints();
-            void initialize_subtour_and_precedence_constraints();
-            GRBLinExpr sec(unsigned int i, unsigned int j);
-            std::vector<unsigned int> get_path();
+            void callback();
 
-            GRBEnv env;
-            GRBModel model;
+            const TSPPD::Data::TSPPDProblem& problem;
             std::vector<std::vector<GRBVar>> x;
-            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
+            TSPPD::IO::TSPSolutionWriter writer;
        };
     }
 }
