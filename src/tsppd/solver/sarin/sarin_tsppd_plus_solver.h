@@ -28,6 +28,9 @@ namespace TSPPD {
         // MIP+CP TSPPD Solver: Sarin MIP ATSPPD solver with time-boxed CP warm-start.
         //
         // Solver Options:
+        //     relax:      relax model and add SEC and precedence as violated {on|off} (default=off)
+        //     sec:        relaxed SEC form that uses either x or y variables {x|y} (default=y)
+        //     valid:      additional valid inequalities {a|b|all|none} (default=none)
         //     warm-time:  time limit for warm start, in milliseconds
         //     warm-soln:  solution limit for warm start
         class SarinTSPPDPlusSolver : public SarinTSPPDSolver {

@@ -17,6 +17,7 @@
 #ifndef TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
 #define TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
 
+#include <utility>
 #include <vector>
 
 #include <gurobi_c++.h>
@@ -26,19 +27,33 @@
 
 namespace TSPPD {
     namespace Solver {
+        enum SarinSECType { SARIN_SEC_X, SARIN_SEC_Y };
+
         class SarinTSPCallback : public GRBCallback {
         public:
             SarinTSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
+                std::vector<std::vector<GRBVar>> y,
+                const SarinSECType sec,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
         protected:
             void callback();
 
+            std::vector<std::vector<unsigned int>> subtours();
+            void cut_subtour(const std::vector<unsigned int>& subtour);
+            void cut_subtour_x(const std::vector<unsigned int>& subtour);
+            void cut_subtour_y(const std::vector<unsigned int>& subtour);
+
+            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
+            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
+
             const TSPPD::Data::TSPPDProblem& problem;
             std::vector<std::vector<GRBVar>> x;
+            std::vector<std::vector<GRBVar>> y;
+            const SarinSECType sec;
             TSPPD::IO::TSPSolutionWriter writer;
        };
     }

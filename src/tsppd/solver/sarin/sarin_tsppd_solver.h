@@ -31,7 +31,9 @@ namespace TSPPD {
         // Operations Research Letters 33, no. 1 (2005): 62-70.
         //
         // Solver Options:
-        //     valid:  additional valid inequalities {on|off} (default=off)
+        //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
+        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
+        //     valid:  additional valid inequalities {a|b|all|none} (default=none)
         class SarinTSPPDSolver : public SarinTSPSolver {
         public:
             SarinTSPPDSolver(
@@ -47,7 +49,7 @@ namespace TSPPD {
             void initialize_tsppd_constraints();
             void initialize_valid_inequalities();
 
-            bool valid;
+            std::string valid;
        };
     }
 }

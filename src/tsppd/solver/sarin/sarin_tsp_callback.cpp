@@ -14,6 +14,9 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <iomanip>
+#include <set>
+
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/data/tsppd_solution.h>
 #include <tsppd/solver/sarin/sarin_tsp_callback.h>
@@ -26,8 +29,10 @@ using namespace std;
 SarinTSPCallback::SarinTSPCallback(
     const TSPPDProblem& problem,
     vector<vector<GRBVar>> x,
+    vector<vector<GRBVar>> y,
+    const SarinSECType sec,
     TSPSolutionWriter& writer) :
-    problem(problem), x(x), writer(writer) { }
+    problem(problem), x(x), y(y), sec(sec), writer(writer) { }
 
 void SarinTSPCallback::callback() {
     if (where == GRB_CB_MIP) {
@@ -36,24 +41,152 @@ void SarinTSPCallback::callback() {
         stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
         stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIP_OBJBND));
         writer.write(stats);
-   
+
     } else if (where == GRB_CB_MIPSOL) {
-        // Pull out a new solution.
-        vector<unsigned int> path{0};
-        unsigned int from = 0;
-        for (unsigned int i = 0; i < problem.nodes.size() - 1; ++i) {
-            for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
-                if (getSolution(x[from][to]) > 0.5) {
-                    path.push_back(to);
-                    from = to;
+        auto s = subtours();
+
+        if (s.size() > 1) {
+            // Elinate subtours.
+            for (auto subtour : s)
+                cut_subtour(subtour);
+
+        } else {
+            // We have a single tour. Check it for precedence violations.
+            auto v = violations(s.front());
+            if (v.size() > 0)
+                for (auto vi : v)
+                    cut_violation(s.front(), vi);
+
+            else {
+                // Single tour with no precedence violations found.
+                TSPPDSolution solution(problem, s.front());
+                TSPPDSearchStatistics stats(solution);
+                stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
+                writer.write(stats);
+            }
+        }
+    }
+}
+
+vector<vector<unsigned int>> SarinTSPCallback::subtours() {
+    vector<vector<unsigned int>> s;
+
+    // Set of unseen nodes.
+    set<unsigned int> unseen;
+    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
+        unseen.insert(i);
+
+    while (!unseen.empty()) {
+        unsigned int next = *unseen.begin();
+        unseen.erase(next);
+
+        vector<unsigned int> subtour{next};
+
+        auto done = false;
+        while (!done) {
+            done = true;
+            for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
+                if (getSolution(x[next][i]) > 0.5) {
+                    subtour.push_back(i);
+                    if (unseen.find(i) != unseen.end()) {
+                        done = false;
+                        unseen.erase(i);
+                        next = i;
+                    }
                     break;
                 }
             }
         }
 
-        TSPPDSolution solution(problem, path);
-        TSPPDSearchStatistics stats(solution);
-        stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
-        writer.write(stats);
+        s.push_back(subtour);
     }
+
+    return s;
+}
+
+void SarinTSPCallback::cut_subtour(const vector<unsigned int>& subtour) {
+    if (sec == SARIN_SEC_X)
+        cut_subtour_x(subtour);
+    else
+        cut_subtour_y(subtour);
+}
+
+void SarinTSPCallback::cut_subtour_x(const vector<unsigned int>& subtour) {
+    set<unsigned int> S(subtour.begin(), subtour.end());
+
+    vector<unsigned int> T;
+    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
+        if (S.find(i) == S.end())
+            T.push_back(i);
+
+    GRBLinExpr expr = 0;
+    for (auto n1 : S)
+        for (auto n2 : T)
+            expr += x[n1][n2] + x[n2][n1];
+
+    addLazy(expr >= 1);
+}
+
+void SarinTSPCallback::cut_subtour_y(const vector<unsigned int>& subtour) {
+    if (subtour.front() != subtour.back())
+        return;
+
+    // cout << "subtour: " << endl;
+    // for (auto i : subtour)
+    //     cout << problem.nodes[i] << " ";
+    // cout << endl;
+
+    auto i = 0; // start and end of the subtour
+    for (unsigned int j = 1; j < subtour.size() - 2; ++j)
+        for (unsigned int k = j + 1; k < subtour.size() - 1; ++k) {
+            auto ni = subtour[i];
+            auto nj = subtour[j];
+            auto nk = subtour[k];
+
+            addLazy(y[ni][nj] + x[nj][ni] + y[nj][nk] + y[nk][ni] <= 2);
+        }
+
+    // cout << endl;
+}
+
+
+vector<pair<unsigned int, unsigned int>>SarinTSPCallback::violations(vector<unsigned int> tour) {
+    vector<pair<unsigned int, unsigned int>> v;
+
+    // Pickup indices have to be less than their respective deliveries. If a pickup is found
+    // with its delivery index as non-zero, that is a violation.
+    vector<unsigned int> deliveries(tour.size(), 0);
+
+    // Note that we ignore +0/-0 at the ends of the tour.
+    for (unsigned int i = 1; i < tour.size() - 1; ++i)
+        if (problem.has_predecessor(tour[i]))
+            deliveries[tour[i]] = i;
+        else {
+            auto d = problem.successor_index(tour[i]);
+            if (deliveries[d] > 0)
+                v.push_back({deliveries[d], i});
+        }
+
+    return v;
+}
+
+void SarinTSPCallback::cut_violation(vector<unsigned int> tour, pair<unsigned int, unsigned int> index) {
+    // This method takes in partial tours of the form:
+    //
+    //     -i ... j ... k ... l ... +i
+    //
+    // It adds cuts of the form:
+    //
+    //    y(-i,j) + x(j,-i) + y(j,k) + y(k,+i) <= 2
+    //    etc.
+    auto d = index.first;
+    auto p = index.second;
+
+    // cout << "cut violation: " << problem.nodes[tour[d]] << " < " << problem.nodes[tour[p]] << endl;
+
+    GRBLinExpr expr = y[tour[p]][tour[d]];
+    for (unsigned int j = d; j < p; ++j)
+        expr += y[tour[j]][tour[j+1]];
+    addLazy(expr <= index.second - index.first);
+
 }
