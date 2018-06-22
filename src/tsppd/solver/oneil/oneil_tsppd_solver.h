@@ -27,6 +27,11 @@
 
 namespace TSPPD {
     namespace Solver {
+        // A new MIP TSPPD solver model
+        //
+        // Solver Options:
+        //     relax:  relax model and add SEC as violated {on|off} (default=off)
+        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
         class ONeilTSPPDSolver : public TSPSolver {
         public:
             ONeilTSPPDSolver(
@@ -39,10 +44,12 @@ namespace TSPPD {
             virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
+            void initialize_options();
             void initialize_variables();
             void initialize_assignment_problem_constraints();
             void initialize_x_w_link_constraints();
             void initialize_subtour_and_precedence_constraints();
+
             GRBLinExpr sec(unsigned int i, unsigned int j);
             std::vector<unsigned int> get_path();
 
@@ -53,6 +60,8 @@ namespace TSPPD {
 
             const unsigned int start_index;
             const unsigned int end_index;
+
+            bool relax;
        };
     }
 }
