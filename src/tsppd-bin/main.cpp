@@ -41,7 +41,7 @@
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
 #include <tsppd/solver/sarin/sarin_atsp_solver.h>
-// #include <tsppd/solver/sarin/sarin_tsppd_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_solver.h>
 // #include <tsppd/solver/sarin/sarin_tsppd_plus_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
@@ -219,8 +219,8 @@ int main(int argc, char** argv) {
 
         else if (solver_abbrev == "atsp-sarin")
             solver = make_shared<SarinATSPSolver>(problem, solver_options, writer);
-        // else if (solver_abbrev == "tsppd-sarin")
-        //     solver = make_shared<SarinTSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-sarin")
+            solver = make_shared<SarinATSPPDSolver>(problem, solver_options, writer);
         // else if (solver_abbrev == "tsppd-sarin+")
         //     solver = make_shared<SarinTSPPDPlusSolver>(problem, solver_options, writer);
 
