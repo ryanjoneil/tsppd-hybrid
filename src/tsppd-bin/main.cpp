@@ -41,8 +41,8 @@
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
 #include <tsppd/solver/sarin/sarin_atsp_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_plus_solver.h>
 #include <tsppd/solver/sarin/sarin_atsppd_solver.h>
-// #include <tsppd/solver/sarin/sarin_tsppd_plus_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
@@ -195,6 +195,13 @@ int main(int argc, char** argv) {
         else if (solver_abbrev == "atsppd-ap")
             solver = make_shared<APATSPPDSolver>(problem, solver_options, writer);
 
+        else if (solver_abbrev == "atsp-sarin")
+            solver = make_shared<SarinATSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-sarin")
+            solver = make_shared<SarinATSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-sarin+")
+            solver = make_shared<SarinATSPPDPlusSolver>(problem, solver_options, writer);
+
         else if (solver_abbrev == "tsp-enum")
             solver = make_shared<EnumerativeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
@@ -216,13 +223,6 @@ int main(int argc, char** argv) {
             solver = make_shared<RulandTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-ruland+")
             solver = make_shared<RulandTSPPDPlusSolver>(problem, solver_options, writer);
-
-        else if (solver_abbrev == "atsp-sarin")
-            solver = make_shared<SarinATSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "atsppd-sarin")
-            solver = make_shared<SarinATSPPDSolver>(problem, solver_options, writer);
-        // else if (solver_abbrev == "tsppd-sarin+")
-        //     solver = make_shared<SarinTSPPDPlusSolver>(problem, solver_options, writer);
 
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;

@@ -14,7 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/sarin/sarin_tsppd_plus_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_plus_solver.h>
 #include <tsppd/util/exception.h>
 
 using namespace TSPPD::Data;
@@ -23,11 +23,11 @@ using namespace TSPPD::Solver;
 using namespace TSPPD::Util;
 using namespace std;
 
-SarinTSPPDPlusSolver::SarinTSPPDPlusSolver(
+SarinATSPPDPlusSolver::SarinATSPPDPlusSolver(
     const TSPPDProblem& problem,
     const std::map<std::string, std::string> options,
     TSPSolutionWriter& writer) :
-    SarinTSPPDSolver(problem, options, writer),
+    SarinATSPPDSolver(problem, options, writer),
     warm_start_solver(problem, options, writer) {
 
     initialize_tsppd_plus_options();
@@ -38,7 +38,7 @@ SarinTSPPDPlusSolver::SarinTSPPDPlusSolver(
     time_limit -= warm_time_limit;
 }
 
-void SarinTSPPDPlusSolver::initialize_tsppd_plus_options() {
+void SarinATSPPDPlusSolver::initialize_tsppd_plus_options() {
     unsigned int wl = 0;
     auto wl_pair = options.find("warm-time");
     if (wl_pair != options.end())
@@ -62,7 +62,7 @@ void SarinTSPPDPlusSolver::initialize_tsppd_plus_options() {
     warm_solution_limit = sl;
 }
 
-void SarinTSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
+void SarinATSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
     for (unsigned int i = 0; i < solution.order.size() - 1; ++i) {
         auto n1 = problem.index(solution.order[i]);
         auto n2 = problem.index(solution.order[i + 1]);
@@ -70,7 +70,7 @@ void SarinTSPPDPlusSolver::warm_start(const TSPPDSolution& solution) {
     }
 }
 
-TSPPDSolution SarinTSPPDPlusSolver::solve() {
+TSPPDSolution SarinATSPPDPlusSolver::solve() {
     warm_start(warm_start_solver.solve());
-    return SarinTSPPDSolver::solve();
+    return SarinATSPPDSolver::solve();
 }
