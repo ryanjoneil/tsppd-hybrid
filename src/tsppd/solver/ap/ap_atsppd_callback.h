@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_AP_ATSPPD_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_AP_ATSPPD_CALLBACK_HANDLER_H
 
 #include <map>
 #include <utility>
@@ -29,25 +29,20 @@
 
 namespace TSPPD {
     namespace Solver {
-        class SarinATSPCallback : public APATSPCallback {
+        class APATSPPDCallback : public APATSPCallback {
         public:
-            SarinATSPCallback(
+            APATSPPDCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
-                std::map<std::pair<unsigned int, unsigned int>, GRBVar> y,
                 const ATSPSECType sec,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
         protected:
             virtual void callback();
-            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
-            void cut_subtour_other(const std::vector<unsigned int>& subtour);
 
-            std::map<std::pair<unsigned int, unsigned int>, GRBVar> y;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
+            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
+            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
        };
     }
 }

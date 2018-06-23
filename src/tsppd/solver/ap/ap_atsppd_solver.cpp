@@ -14,42 +14,48 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
+#include <tsppd/solver/ap/ap_atsppd_callback.h>
+#include <tsppd/solver/ap/ap_atsppd_solver.h>
+#include <tsppd/util/exception.h>
 
-#include <map>
-#include <utility>
-#include <vector>
+using namespace TSPPD::Data;
+using namespace TSPPD::IO;
+using namespace TSPPD::Solver;
+using namespace TSPPD::Util;
+using namespace std;
 
-#include <gurobi_c++.h>
+APATSPPDSolver::APATSPPDSolver(
+    const TSPPDProblem& problem,
+    const map<string, string> options,
+    TSPSolutionWriter& writer) :
+    APATSPSolver(problem, options, writer) {
 
-#include <tsppd/data/tsppd_problem.h>
-#include <tsppd/io/tsp_solution_writer.h>
-#include <tsppd/solver/ap/ap_atsp_callback.h>
-
-namespace TSPPD {
-    namespace Solver {
-        class SarinATSPCallback : public APATSPCallback {
-        public:
-            SarinATSPCallback(
-                const TSPPD::Data::TSPPDProblem& problem,
-                std::vector<std::vector<GRBVar>> x,
-                std::map<std::pair<unsigned int, unsigned int>, GRBVar> y,
-                const ATSPSECType sec,
-                TSPPD::IO::TSPSolutionWriter& writer
-            );
-
-        protected:
-            virtual void callback();
-            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
-            void cut_subtour_other(const std::vector<unsigned int>& subtour);
-
-            std::map<std::pair<unsigned int, unsigned int>, GRBVar> y;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
-       };
-    }
+    initialize_atsppd_variables();
 }
 
-#endif
+TSPPDSolution APATSPPDSolver::solve() {
+    configure_solver();
+
+    if (sec == ATSP_SEC_OTHER)
+        throw TSPPDException("sec can be either subtour or cutset");
+
+    APATSPPDCallback callback(problem, x, sec, writer);
+    model.setCallback(&callback);
+
+    model.optimize();
+    return solution();
+}
+
+void APATSPPDSolver::initialize_atsppd_variables() {
+    for (auto p : problem.pickup_indices()) {
+        // ~(+0 -i)
+        auto d = problem.successor_index(p);
+        x[start_index][d].set(GRB_DoubleAttr_UB, 0);
+
+        // ~(+i -0)
+        x[p][end_index].set(GRB_DoubleAttr_UB, 0);
+
+        // ~(-i +i)
+        x[d][p].set(GRB_DoubleAttr_UB, 0);
+    }
+}

@@ -14,40 +14,36 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_AP_ATSPPD_SOLVER_H
+#define TSPPD_SOLVER_AP_ATSPPD_SOLVER_H
 
 #include <map>
-#include <utility>
-#include <vector>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/data/tsppd_problem.h>
-#include <tsppd/io/tsp_solution_writer.h>
-#include <tsppd/solver/ap/ap_atsp_callback.h>
+#include <tsppd/solver/ap/ap_atsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        class SarinATSPCallback : public APATSPCallback {
+        // MIP ATSPPD Solver based on an Assignment Problem relaxation
+        //
+        // Solver Options:
+        //     sec: subtour elimination constraint type
+        //         - cutset:      x(delta(S)) >= 1
+        //         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
+        class APATSPPDSolver : public APATSPSolver {
         public:
-            SarinATSPCallback(
+            APATSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
-                std::vector<std::vector<GRBVar>> x,
-                std::map<std::pair<unsigned int, unsigned int>, GRBVar> y,
-                const ATSPSECType sec,
+                const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
+            std::string name() const { return "atsppd-ap"; }
+            virtual TSPPD::Data::TSPPDSolution solve();
+
         protected:
-            virtual void callback();
-            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
-            void cut_subtour_other(const std::vector<unsigned int>& subtour);
-
-            std::map<std::pair<unsigned int, unsigned int>, GRBVar> y;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
+            void initialize_atsppd_variables();
        };
     }
 }

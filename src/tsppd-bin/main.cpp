@@ -32,6 +32,7 @@
 #include <tsppd/solver/enumerative/enumerative_tsp_solver.h>
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
 #include <tsppd/solver/ap/ap_atsp_solver.h>
+#include <tsppd/solver/ap/ap_atsppd_solver.h>
 #include <tsppd/solver/focacci/focacci_tsp_solver.h>
 #include <tsppd/solver/focacci/focacci_tsppd_solver.h>
 #include <tsppd/solver/oneil/oneil_tsppd_plus_solver.h>
@@ -191,6 +192,8 @@ int main(int argc, char** argv) {
 
         if (solver_abbrev == "atsp-ap")
             solver = make_shared<APATSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-ap")
+            solver = make_shared<APATSPPDSolver>(problem, solver_options, writer);
 
         else if (solver_abbrev == "tsp-enum")
             solver = make_shared<EnumerativeTSPSolver>(problem, solver_options, writer);

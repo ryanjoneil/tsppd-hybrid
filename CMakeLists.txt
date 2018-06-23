@@ -53,6 +53,8 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/io/tsp_solution_writer.h
     src/tsppd/solver/ap/ap_atsp_callback.h
     src/tsppd/solver/ap/ap_atsp_solver.h
+    src/tsppd/solver/ap/ap_atsppds_callback.h
+    src/tsppd/solver/ap/ap_atsppd_solver.h
     src/tsppd/solver/enumerative/enumerative_tsp_solver.h
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.h
     src/tsppd/solver/focacci/brancher/focacci_tsp_branch_choice.h
@@ -104,6 +106,8 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/io/tsp_solution_writer.cpp
     src/tsppd/solver/ap/ap_atsp_callback.cpp
     src/tsppd/solver/ap/ap_atsp_solver.cpp
+    src/tsppd/solver/ap/ap_atsppd_callback.cpp
+    src/tsppd/solver/ap/ap_atsppd_solver.cpp
     src/tsppd/solver/enumerative/enumerative_tsp_solver.cpp
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.cpp
     src/tsppd/solver/focacci/brancher/focacci_tsp_brancher.cpp

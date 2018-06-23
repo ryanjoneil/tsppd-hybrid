@@ -69,20 +69,11 @@ void SarinATSPSolver::initialize_sarin_variables() {
         if (from == start_index || from == end_index)
             continue;
 
-        // if (problem.has_predecessor(from))
-        //     x[start_index][from].set(GRB_DoubleAttr_UB, 0);
-        // else if (problem.has_successor(from))
-        //     x[from][end_index].set(GRB_DoubleAttr_UB, 0);
-
         for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
             if (to == start_index || to == end_index || to == from)
                 continue;
 
-            auto ub = 1;
-            // if (problem.has_successor(from) && problem.successor_index(from) == to)
-            //     ub = 0;
-
-            y[{from,to}] = model.addVar(0, ub, 0, GRB_CONTINUOUS);
+            y[{from,to}] = model.addVar(0, 1, 0, GRB_CONTINUOUS);
         }
     }
 }
