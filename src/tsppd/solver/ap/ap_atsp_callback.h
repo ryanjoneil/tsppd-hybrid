@@ -14,10 +14,9 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_AP_ATSP_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_AP_ATSP_CALLBACK_HANDLER_H
 
-#include <map>
 #include <utility>
 #include <vector>
 
@@ -28,12 +27,14 @@
 
 namespace TSPPD {
     namespace Solver {
-        class ONeilTSPPDCallback : public GRBCallback {
+        enum APATSPSECType { AP_ATSP_SEC_CUTSET, AP_ATSP_SEC_SUBTOUR };
+
+        class APATSPCallback : public GRBCallback {
         public:
-            ONeilTSPPDCallback(
+            APATSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
-                std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w,
+                const APATSPSECType sec_type,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
@@ -42,13 +43,12 @@ namespace TSPPD {
 
             std::vector<std::vector<unsigned int>> subtours();
             void cut_subtour(const std::vector<unsigned int>& subtour);
-
-            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
-            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
+            void cut_subtour_cutset(const std::vector<unsigned int>& subtour);
+            void cut_subtour_subtour(const std::vector<unsigned int>& subtour);
 
             const TSPPD::Data::TSPPDProblem& problem;
             std::vector<std::vector<GRBVar>> x;
-            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
+            const APATSPSECType sec_type;
             TSPPD::IO::TSPSolutionWriter writer;
        };
     }
