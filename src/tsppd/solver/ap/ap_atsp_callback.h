@@ -27,28 +27,30 @@
 
 namespace TSPPD {
     namespace Solver {
-        enum APATSPSECType { AP_ATSP_SEC_CUTSET, AP_ATSP_SEC_SUBTOUR };
+        enum ATSPSECType { ATSP_SEC_CUTSET, ATSP_SEC_SUBTOUR, ATSP_SEC_OTHER };
 
         class APATSPCallback : public GRBCallback {
         public:
             APATSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
-                const APATSPSECType sec_type,
+                const ATSPSECType sec_type,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
         protected:
-            void callback();
+            virtual void callback();
+            void log_mip();
+            void log_mipsol(std::vector<unsigned int>& tour);
 
             std::vector<std::vector<unsigned int>> subtours();
-            void cut_subtour(const std::vector<unsigned int>& subtour);
+            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
             void cut_subtour_cutset(const std::vector<unsigned int>& subtour);
             void cut_subtour_subtour(const std::vector<unsigned int>& subtour);
 
             const TSPPD::Data::TSPPDProblem& problem;
             std::vector<std::vector<GRBVar>> x;
-            const APATSPSECType sec_type;
+            const ATSPSECType sec_type;
             TSPPD::IO::TSPSolutionWriter writer;
        };
     }

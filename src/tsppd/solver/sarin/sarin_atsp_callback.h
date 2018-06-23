@@ -14,9 +14,10 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_SARIN_ATSP_CALLBACK_HANDLER_H
 
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -24,37 +25,32 @@
 
 #include <tsppd/data/tsppd_problem.h>
 #include <tsppd/io/tsp_solution_writer.h>
+#include <tsppd/solver/ap/ap_atsp_callback.h>
 
 namespace TSPPD {
     namespace Solver {
-        enum SarinSECType { SARIN_SEC_X, SARIN_SEC_Y };
-
-        class SarinTSPCallback : public GRBCallback {
+        class SarinATSPCallback : public APATSPCallback {
         public:
-            SarinTSPCallback(
+            SarinATSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::vector<std::vector<GRBVar>> x,
-                std::vector<std::vector<GRBVar>> y,
-                const SarinSECType sec,
+                std::map<std::pair<unsigned int, unsigned int>, GRBVar> y,
+                const ATSPSECType sec,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
         protected:
-            void callback();
+            virtual void callback();
+            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
+            void cut_subtour_other(const std::vector<unsigned int>& subtour);
 
-            std::vector<std::vector<unsigned int>> subtours();
-            void cut_subtour(const std::vector<unsigned int>& subtour);
-            void cut_subtour_x(const std::vector<unsigned int>& subtour);
-            void cut_subtour_y(const std::vector<unsigned int>& subtour);
+            // std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
+            // void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
 
-            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
-            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
+            std::map<std::pair<unsigned int, unsigned int>, GRBVar> y;
 
-            const TSPPD::Data::TSPPDProblem& problem;
-            std::vector<std::vector<GRBVar>> x;
-            std::vector<std::vector<GRBVar>> y;
-            const SarinSECType sec;
-            TSPPD::IO::TSPSolutionWriter writer;
+            const unsigned int start_index;
+            const unsigned int end_index;
        };
     }
 }

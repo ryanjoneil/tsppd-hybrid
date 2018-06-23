@@ -29,34 +29,36 @@ using namespace std;
 APATSPCallback::APATSPCallback(
     const TSPPDProblem& problem,
     vector<vector<GRBVar>> x,
-    const APATSPSECType sec_type,
+    const ATSPSECType sec_type,
     TSPSolutionWriter& writer) :
     problem(problem), x(x), sec_type(sec_type), writer(writer) { }
 
 void APATSPCallback::callback() {
-    if (where == GRB_CB_MIP) {
-        // Just log bounds.
-        TSPPDSearchStatistics stats;
-        stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
-        stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIP_OBJBND));
-        writer.write(stats);
+    if (where == GRB_CB_MIP)
+        log_mip();
 
-    } else if (where == GRB_CB_MIPSOL) {
+    else if (where == GRB_CB_MIPSOL) {
         auto s = subtours();
-
-        if (s.size() > 1) {
-            // Elinate subtours.
+        if (s.size() > 1)
             for (auto subtour : s)
                 cut_subtour(subtour);
-
-        } else {
-            // Single tour with no precedence violations found.
-            TSPPDSolution solution(problem, s.front());
-            TSPPDSearchStatistics stats(solution);
-            stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
-            writer.write(stats);
-        }
+        else
+            log_mipsol(s.front());
     }
+}
+
+void APATSPCallback::log_mip() {
+    TSPPDSearchStatistics stats;
+    stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
+    stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIP_OBJBND));
+    writer.write(stats);
+}
+
+void APATSPCallback::log_mipsol(vector<unsigned int>& tour) {
+    TSPPDSolution solution(problem, tour);
+    TSPPDSearchStatistics stats(solution);
+    stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
+    writer.write(stats);
 }
 
 vector<vector<unsigned int>> APATSPCallback::subtours() {
@@ -96,9 +98,9 @@ vector<vector<unsigned int>> APATSPCallback::subtours() {
 }
 
 void APATSPCallback::cut_subtour(const vector<unsigned int>& subtour) {
-    if (sec_type == AP_ATSP_SEC_CUTSET)
+    if (sec_type == ATSP_SEC_CUTSET)
         cut_subtour_cutset(subtour);
-    else
+    else if (sec_type == ATSP_SEC_SUBTOUR)
         cut_subtour_subtour(subtour);
 }
 

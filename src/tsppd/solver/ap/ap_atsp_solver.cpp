@@ -44,8 +44,10 @@ APATSPSolver::APATSPSolver(
 TSPPDSolution APATSPSolver::solve() {
     configure_solver();
 
-    auto sec_type = sec == "cutset" ? AP_ATSP_SEC_CUTSET : AP_ATSP_SEC_SUBTOUR;
-    APATSPCallback callback(problem, x, sec_type, writer);
+    if (sec == ATSP_SEC_OTHER)
+        throw TSPPDException("sec can be either subtour or cutset");
+
+    APATSPCallback callback(problem, x, sec, writer);
     model.setCallback(&callback);
 
     model.optimize();
@@ -56,11 +58,11 @@ void APATSPSolver::initialize_options() {
     relaxed = true;
 
     if (options["sec"] == "" || options["sec"] == "subtour")
-        sec = "subtour";
+        sec = ATSP_SEC_SUBTOUR;
     else if (options["sec"] == "cutset")
-        sec = "cutset";
+        sec = ATSP_SEC_CUTSET;
     else
-        throw TSPPDException("sec can be either subtour or cutset");
+        sec = ATSP_SEC_OTHER;
 }
 
 void APATSPSolver::initialize_variables() {
@@ -69,7 +71,7 @@ void APATSPSolver::initialize_variables() {
 
         for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
             auto lb = (from == end_index && to == start_index) ? 1 : 0;
-            auto ub = (from == to) ? 0 : 1;
+            auto ub = (from == to || (to == start_index && from != end_index)) ? 0 : 1;
             x_i.push_back(model.addVar(lb, ub, problem.cost(from, to), GRB_BINARY));
         }
 

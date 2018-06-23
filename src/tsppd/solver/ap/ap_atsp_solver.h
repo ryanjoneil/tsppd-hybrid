@@ -21,6 +21,7 @@
 
 #include <gurobi_c++.h>
 
+#include <tsppd/solver/ap/ap_atsp_callback.h>
 #include <tsppd/solver/tsp_solver.h>
 
 namespace TSPPD {
@@ -59,7 +60,7 @@ namespace TSPPD {
             const unsigned int end_index;
 
             bool relaxed;
-            std::string sec;
+            ATSPSECType sec;
        };
     }
 }
