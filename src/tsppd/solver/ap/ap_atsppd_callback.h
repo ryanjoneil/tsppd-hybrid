@@ -14,54 +14,35 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_AP_ATSPPD_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_AP_ATSPPD_CALLBACK_HANDLER_H
 
 #include <map>
-#include <memory>
 #include <utility>
+#include <vector>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/data/tsppd_problem.h>
+#include <tsppd/io/tsp_solution_writer.h>
+#include <tsppd/solver/ap/ap_atsp_callback.h>
 
 namespace TSPPD {
     namespace Solver {
-        // A new MIP TSPPD solver model
-        //
-        // Solver Options:
-        //     relax:  relax model and add SEC as violated {on|off} (default=off)
-        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        class ONeilTSPPDSolver : public TSPSolver {
+        class APATSPPDCallback : public APATSPCallback {
         public:
-            ONeilTSPPDSolver(
+            APATSPPDCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
+                std::vector<std::vector<GRBVar>> x,
+                const ATSPSECType sec,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsppd-oneil"; }
-            virtual TSPPD::Data::TSPPDSolution solve();
-
         protected:
-            void initialize_options();
-            void initialize_variables();
-            void initialize_assignment_problem_constraints();
-            void initialize_x_w_link_constraints();
-            void initialize_subtour_and_precedence_constraints();
+            virtual void callback();
 
-            GRBLinExpr sec(unsigned int i, unsigned int j);
-            std::vector<unsigned int> get_path();
-
-            GRBEnv env;
-            GRBModel model;
-            std::vector<std::vector<GRBVar>> x;
-            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
-
-            bool relax;
+            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
+            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
        };
     }
 }

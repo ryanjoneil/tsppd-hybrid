@@ -14,112 +14,46 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <set>
+#include <vector>
 
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/data/tsppd_solution.h>
-#include <tsppd/solver/oneil/oneil_tsppd_callback.h>
+#include <tsppd/solver/ap/ap_atsppd_callback.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::IO;
 using namespace TSPPD::Solver;
 using namespace std;
 
-ONeilTSPPDCallback::ONeilTSPPDCallback(
+APATSPPDCallback::APATSPPDCallback(
     const TSPPDProblem& problem,
     vector<vector<GRBVar>> x,
-    map<pair<unsigned int, unsigned int>, vector<GRBVar>> w,
+    const ATSPSECType sec,
     TSPSolutionWriter& writer) :
-    problem(problem), x(x), w(w), writer(writer) { }
+    APATSPCallback(problem, x, sec, writer) { }
 
-void ONeilTSPPDCallback::callback() {
-    if (where == GRB_CB_MIP) {
-        // Just log bounds.
-        TSPPDSearchStatistics stats;
-        stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
-        stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIP_OBJBND));
-        writer.write(stats);
+void APATSPPDCallback::callback() {
+    if (where == GRB_CB_MIP)
+        log_mip();
 
-    } else if (where == GRB_CB_MIPSOL) {
+    else if (where == GRB_CB_MIPSOL) {
         auto s = subtours();
 
         if (s.size() > 1) {
-            // Elinate subtours.
             for (auto subtour : s)
                 cut_subtour(subtour);
-
         } else {
-            // We have a single tour. Check it for precedence violations.
             auto v = violations(s.front());
             if (v.size() > 0)
                 for (auto vi : v)
                     cut_violation(s.front(), vi);
-
-            else {
-                // Single tour with no precedence violations found.
-                TSPPDSolution solution(problem, s.front());
-                TSPPDSearchStatistics stats(solution);
-                stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
-                writer.write(stats);
-            }
+            else
+                log_mipsol(s.front());
         }
     }
 }
 
-vector<vector<unsigned int>> ONeilTSPPDCallback::subtours() {
-    vector<vector<unsigned int>> s;
-
-    // Set of unseen nodes.
-    set<unsigned int> unseen;
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
-        unseen.insert(i);
-
-    while (!unseen.empty()) {
-        unsigned int next = *unseen.begin();
-        unseen.erase(next);
-
-        vector<unsigned int> subtour{next};
-
-        auto done = false;
-        while (!done) {
-            done = true;
-            for (unsigned int i = 0; i < problem.nodes.size(); ++i) {
-                if (getSolution(x[next][i]) > 0.5) {
-                    subtour.push_back(i);
-                    if (unseen.find(i) != unseen.end()) {
-                        done = false;
-                        unseen.erase(i);
-                        next = i;
-                    }
-                    break;
-                }
-            }
-        }
-
-        s.push_back(subtour);
-    }
-
-    return s;
-}
-
-void ONeilTSPPDCallback::cut_subtour(const vector<unsigned int>& subtour) {
-    set<unsigned int> S(subtour.begin(), subtour.end());
-
-    vector<unsigned int> T;
-    for (unsigned int i = 0; i < problem.nodes.size(); ++i)
-        if (S.find(i) == S.end())
-            T.push_back(i);
-
-    GRBLinExpr expr = 0;
-    for (auto n1 : S)
-        for (auto n2 : T)
-            expr += x[n1][n2] + x[n2][n1];
-
-    addLazy(expr >= 1);
-}
-
-
-vector<pair<unsigned int, unsigned int>>ONeilTSPPDCallback::violations(vector<unsigned int> tour) {
+vector<pair<unsigned int, unsigned int>>APATSPPDCallback::violations(vector<unsigned int> tour) {
     vector<pair<unsigned int, unsigned int>> v;
 
     // Pickup indices have to be less than their respective deliveries. If a pickup is found
@@ -139,7 +73,7 @@ vector<pair<unsigned int, unsigned int>>ONeilTSPPDCallback::violations(vector<un
     return v;
 }
 
-void ONeilTSPPDCallback::cut_violation(vector<unsigned int> tour, pair<unsigned int, unsigned int> index) {
+void APATSPPDCallback::cut_violation(vector<unsigned int> tour, pair<unsigned int, unsigned int> index) {
     GRBLinExpr expr = 0;
     for (unsigned int i = 0; i <= index.first; ++i)
         for (unsigned int j = index.first + 1; j < tour.size(); ++j)

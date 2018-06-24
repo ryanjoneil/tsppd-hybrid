@@ -14,45 +14,37 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSPPD_PLUS_SOLVER_H
-#define TSPPD_SOLVER_SARIN_TSPPD_PLUS_SOLVER_H
+#ifndef TSPPD_SOLVER_AP_ATSPPD_SOLVER_H
+#define TSPPD_SOLVER_AP_ATSPPD_SOLVER_H
 
 #include <map>
-#include <utility>
 
-#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
-#include <tsppd/solver/sarin/sarin_tsppd_solver.h>
+#include <gurobi_c++.h>
+
+#include <tsppd/solver/ap/ap_atsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP+CP TSPPD Solver: Sarin MIP ATSPPD solver with time-boxed CP warm-start.
+        // MIP ATSPPD Solver based on an Assignment Problem relaxation
         //
         // Solver Options:
-        //     relax:      relax model and add SEC and precedence as violated {on|off} (default=off)
-        //     sec:        relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        //     valid:      additional valid inequalities {a|b|all|none} (default=none)
-        //     warm-time:  time limit for warm start, in milliseconds
-        //     warm-soln:  solution limit for warm start
-        class SarinTSPPDPlusSolver : public SarinTSPPDSolver {
+        //     sec: subtour elimination constraint type
+        //         - cutset:      x(delta(S)) >= 1
+        //         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
+        class APATSPPDSolver : public APATSPSolver {
         public:
-            SarinTSPPDPlusSolver(
+            APATSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            virtual std::string name() const override { return "tsppd-sarin+"; }
-            virtual TSPPD::Data::TSPPDSolution solve() override;
+            std::string name() const { return "atsppd-ap"; }
+            virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
-            void initialize_tsppd_plus_options();
-            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
-
-            FocacciTSPPDSolver warm_start_solver;
-
-            unsigned int warm_time_limit;
-            unsigned int warm_solution_limit;
-        };
+            void initialize_atsppd_variables();
+       };
     }
 }
 

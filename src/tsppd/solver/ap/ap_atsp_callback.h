@@ -14,42 +14,44 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_SARIN_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_AP_ATSP_CALLBACK_HANDLER_H
+#define TSPPD_SOLVER_AP_ATSP_CALLBACK_HANDLER_H
 
-#include <map>
+#include <utility>
+#include <vector>
 
-#include <tsppd/solver/sarin/sarin_tsp_solver.h>
+#include <gurobi_c++.h>
+
+#include <tsppd/data/tsppd_problem.h>
+#include <tsppd/io/tsp_solution_writer.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP TSPPD Solver based on:
-        //
-        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra.
-        // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with
-        // and without precedence constraints."
-        // Operations Research Letters 33, no. 1 (2005): 62-70.
-        //
-        // Solver Options:
-        //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
-        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        //     valid:  additional valid inequalities {a|b|all|none} (default=none)
-        class SarinTSPPDSolver : public SarinTSPSolver {
+        enum ATSPSECType { ATSP_SEC_CUTSET, ATSP_SEC_SUBTOUR, ATSP_SEC_OTHER };
+
+        class APATSPCallback : public GRBCallback {
         public:
-            SarinTSPPDSolver(
+            APATSPCallback(
                 const TSPPD::Data::TSPPDProblem& problem,
-                const std::map<std::string, std::string> options,
+                std::vector<std::vector<GRBVar>> x,
+                const ATSPSECType sec_type,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsppd-sarin"; }
-
         protected:
-            void initialize_tsppd_options();
-            void initialize_tsppd_constraints();
-            void initialize_valid_inequalities();
+            virtual void callback();
+            void log_mip();
+            void log_mipsol(std::vector<unsigned int>& tour);
 
-            std::string valid;
+            std::vector<std::vector<unsigned int>> subtours();
+            virtual void cut_subtour(const std::vector<unsigned int>& subtour);
+            void cut_subtour_cutset(const std::vector<unsigned int>& subtour);
+            void cut_subtour_subtour(const std::vector<unsigned int>& subtour);
+
+            const TSPPD::Data::TSPPDProblem& problem;
+            std::vector<std::vector<GRBVar>> x;
+            const ATSPSECType sec_type;
+            TSPPD::IO::TSPSolutionWriter writer;
        };
     }
 }

@@ -14,21 +14,15 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSP_SOLVER_H
-#define TSPPD_SOLVER_SARIN_TSP_SOLVER_H
+#ifndef TSPPD_SOLVER_SARIN_ATSPPD_SOLVER_H
+#define TSPPD_SOLVER_SARIN_ATSPPD_SOLVER_H
 
-#include <map>
-#include <memory>
-#include <utility>
-
-#include <gurobi_c++.h>
-
-#include <tsppd/solver/sarin/sarin_tsp_callback.h>
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_callback.h>
+#include <tsppd/solver/sarin/sarin_atsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP TSP Solver based on:
+        // MIP ATSPPD Solver based on:
         //
         // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra.
         // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with
@@ -37,36 +31,27 @@ namespace TSPPD {
         //
         // Solver Options:
         //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
-        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        class SarinTSPSolver : public TSPSolver {
+        //     prec:   relaxed precedence form that uses either x or y variables {x|y} (default=x)
+        //     sec:    relaxed SEC form that uses either x or y variables {subtour|cutset|y} (default=subtour)
+        //     valid:  additional valid inequalities {a|b|all|none} (default=none)
+        class SarinATSPPDSolver : public SarinATSPSolver {
         public:
-            SarinTSPSolver(
+            SarinATSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsp-sarin"; }
+            std::string name() const { return "atsppd-sarin"; }
             virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
-            void initialize_tsp_options();
-            void initialize_variables();
-            void initialize_assignment_problem_constraints();
-            void initialize_subtour_and_precedence_constraints();
+            void initialize_sarin_atsppd_options();
+            void initialize_sarin_atsppd_variables();
+            void initialize_valid_inequalities();
 
-            std::vector<unsigned int> get_path();
-
-            GRBEnv env;
-            GRBModel model;
-            std::vector<std::vector<GRBVar>> x;
-            std::vector<std::vector<GRBVar>> y;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
-
-            bool relax;
-            SarinSECType sec;
+            std::string valid;
+            SarinPrecType prec;
        };
     }
 }

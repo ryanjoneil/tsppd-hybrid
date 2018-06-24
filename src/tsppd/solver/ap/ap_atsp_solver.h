@@ -14,47 +14,53 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
-#define TSPPD_SOLVER_SARIN_TSP_CALLBACK_HANDLER_H
+#ifndef TSPPD_SOLVER_AP_ATSP_SOLVER_H
+#define TSPPD_SOLVER_AP_ATSP_SOLVER_H
 
-#include <utility>
-#include <vector>
+#include <map>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/data/tsppd_problem.h>
-#include <tsppd/io/tsp_solution_writer.h>
+#include <tsppd/solver/ap/ap_atsp_callback.h>
+#include <tsppd/solver/tsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        enum SarinSECType { SARIN_SEC_X, SARIN_SEC_Y };
-
-        class SarinTSPCallback : public GRBCallback {
+        // MIP ATSP Solver based on an Assignment Problem relaxation
+        //
+        // Solver Options:
+        //     sec: subtour elimination constraint type
+        //         - cutset:      x(delta(S)) >= 1
+        //         - subtour:     sum { i,j in S } in x_{i,j} <= |S| - 1 (default)
+        class APATSPSolver : public TSPSolver {
         public:
-            SarinTSPCallback(
+            APATSPSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
-                std::vector<std::vector<GRBVar>> x,
-                std::vector<std::vector<GRBVar>> y,
-                const SarinSECType sec,
+                const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
+            std::string name() const { return "atsp-ap"; }
+            virtual TSPPD::Data::TSPPDSolution solve();
+
         protected:
-            void callback();
+            void initialize_options();
+            void initialize_variables();
+            void initialize_constraints();
+            void configure_solver();
 
-            std::vector<std::vector<unsigned int>> subtours();
-            void cut_subtour(const std::vector<unsigned int>& subtour);
-            void cut_subtour_x(const std::vector<unsigned int>& subtour);
-            void cut_subtour_y(const std::vector<unsigned int>& subtour);
+            TSPPD::Data::TSPPDSolution solution();
+            std::vector<unsigned int> path();
 
-            std::vector<std::pair<unsigned int, unsigned int>> violations(std::vector<unsigned int> tour);
-            void cut_violation(std::vector<unsigned int> tour, std::pair<unsigned int, unsigned int> index);
-
-            const TSPPD::Data::TSPPDProblem& problem;
+            GRBEnv env;
+            GRBModel model;
             std::vector<std::vector<GRBVar>> x;
-            std::vector<std::vector<GRBVar>> y;
-            const SarinSECType sec;
-            TSPPD::IO::TSPSolutionWriter writer;
+
+            const unsigned int start_index;
+            const unsigned int end_index;
+
+            bool relaxed;
+            ATSPSECType sec;
        };
     }
 }

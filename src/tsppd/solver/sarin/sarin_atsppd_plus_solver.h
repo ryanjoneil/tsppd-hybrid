@@ -14,55 +14,46 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_SARIN_TSPPD_PLUS_SOLVER_H
+#define TSPPD_SOLVER_SARIN_TSPPD_PLUS_SOLVER_H
 
 #include <map>
-#include <memory>
 #include <utility>
 
-#include <gurobi_c++.h>
-
-#include <tsppd/solver/tsp_solver.h>
+#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // A new MIP TSPPD solver model
+        // MIP+CP ATSPPD Solver: Sarin MIP ATSPPD solver with time-boxed CP warm-start.
         //
         // Solver Options:
-        //     relax:  relax model and add SEC as violated {on|off} (default=off)
-        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        class ONeilTSPPDSolver : public TSPSolver {
+        //     relax:      relax model and add SEC and precedence as violated {on|off} (default=off)
+        //     prec:       relaxed precedence form that uses either x or y variables {x|y} (default=x)
+        //     sec:        relaxed SEC form that uses either x or y variables {subtour|cutset|y} (default=subtour)
+        //     valid:      additional valid inequalities {a|b|all|none} (default=none)
+        //     warm-time:  time limit for warm start, in milliseconds
+        //     warm-soln:  solution limit for warm start
+        class SarinATSPPDPlusSolver : public SarinATSPPDSolver {
         public:
-            ONeilTSPPDSolver(
+            SarinATSPPDPlusSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsppd-oneil"; }
-            virtual TSPPD::Data::TSPPDSolution solve();
+            virtual std::string name() const override { return "atsppd-sarin+"; }
+            virtual TSPPD::Data::TSPPDSolution solve() override;
 
         protected:
-            void initialize_options();
-            void initialize_variables();
-            void initialize_assignment_problem_constraints();
-            void initialize_x_w_link_constraints();
-            void initialize_subtour_and_precedence_constraints();
+            void initialize_tsppd_plus_options();
+            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
 
-            GRBLinExpr sec(unsigned int i, unsigned int j);
-            std::vector<unsigned int> get_path();
+            FocacciTSPPDSolver warm_start_solver;
 
-            GRBEnv env;
-            GRBModel model;
-            std::vector<std::vector<GRBVar>> x;
-            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
-
-            bool relax;
-       };
+            unsigned int warm_time_limit;
+            unsigned int warm_solution_limit;
+        };
     }
 }
 

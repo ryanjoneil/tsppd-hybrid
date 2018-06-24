@@ -51,6 +51,10 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/io/tsp_problem_reader.h
     src/tsppd/io/tsp_problem_writer.h
     src/tsppd/io/tsp_solution_writer.h
+    src/tsppd/solver/ap/ap_atsp_callback.h
+    src/tsppd/solver/ap/ap_atsp_solver.h
+    src/tsppd/solver/ap/ap_atsppds_callback.h
+    src/tsppd/solver/ap/ap_atsppd_solver.h
     src/tsppd/solver/enumerative/enumerative_tsp_solver.h
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.h
     src/tsppd/solver/focacci/brancher/focacci_tsp_branch_choice.h
@@ -80,10 +84,11 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/ruland/ruland_tsp_solver.h
     src/tsppd/solver/ruland/ruland_tsppd_plus_solver.h
     src/tsppd/solver/ruland/ruland_tsppd_solver.h
-    src/tsppd/solver/sarin/sarin_tsp_callback.h
-    src/tsppd/solver/sarin/sarin_tsp_solver.h
-    src/tsppd/solver/sarin/sarin_tsppd_plus_solver.h
-    src/tsppd/solver/sarin/sarin_tsppd_solver.h
+    src/tsppd/solver/sarin/sarin_atsp_callback.h
+    src/tsppd/solver/sarin/sarin_atsp_solver.h
+    src/tsppd/solver/sarin/sarin_atsppd_callback.h
+    src/tsppd/solver/sarin/sarin_atsppd_plus_solver.h
+    src/tsppd/solver/sarin/sarin_atsppd_solver.h
     src/tsppd/solver/tsp_solver.h
     src/tsppd/util/exception.h
     src/tsppd/util/stacktrace.h
@@ -100,6 +105,10 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/io/tsp_problem_reader.cpp
     src/tsppd/io/tsp_problem_writer.cpp
     src/tsppd/io/tsp_solution_writer.cpp
+    src/tsppd/solver/ap/ap_atsp_callback.cpp
+    src/tsppd/solver/ap/ap_atsp_solver.cpp
+    src/tsppd/solver/ap/ap_atsppd_callback.cpp
+    src/tsppd/solver/ap/ap_atsppd_solver.cpp
     src/tsppd/solver/enumerative/enumerative_tsp_solver.cpp
     src/tsppd/solver/enumerative/enumerative_tsppd_solver.cpp
     src/tsppd/solver/focacci/brancher/focacci_tsp_brancher.cpp
@@ -125,10 +134,11 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/ruland/ruland_tsp_solver.cpp
     src/tsppd/solver/ruland/ruland_tsppd_plus_solver.cpp
     src/tsppd/solver/ruland/ruland_tsppd_solver.cpp
-    src/tsppd/solver/sarin/sarin_tsp_callback.cpp
-    src/tsppd/solver/sarin/sarin_tsp_solver.cpp
-    src/tsppd/solver/sarin/sarin_tsppd_plus_solver.cpp
-    src/tsppd/solver/sarin/sarin_tsppd_solver.cpp
+    src/tsppd/solver/sarin/sarin_atsp_callback.cpp
+    src/tsppd/solver/sarin/sarin_atsp_solver.cpp
+    src/tsppd/solver/sarin/sarin_atsppd_callback.cpp
+    src/tsppd/solver/sarin/sarin_atsppd_plus_solver.cpp
+    src/tsppd/solver/sarin/sarin_atsppd_solver.cpp
     src/tsppd/util/stacktrace.cpp)
 
 # tsppd library

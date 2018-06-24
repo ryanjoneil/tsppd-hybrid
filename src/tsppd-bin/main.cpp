@@ -31,6 +31,8 @@
 #include <tsppd/io/tsp_problem_writer.h>
 #include <tsppd/solver/enumerative/enumerative_tsp_solver.h>
 #include <tsppd/solver/enumerative/enumerative_tsppd_solver.h>
+#include <tsppd/solver/ap/ap_atsp_solver.h>
+#include <tsppd/solver/ap/ap_atsppd_solver.h>
 #include <tsppd/solver/focacci/focacci_tsp_solver.h>
 #include <tsppd/solver/focacci/focacci_tsppd_solver.h>
 #include <tsppd/solver/oneil/oneil_tsppd_plus_solver.h>
@@ -38,9 +40,9 @@
 #include <tsppd/solver/ruland/ruland_tsp_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_plus_solver.h>
 #include <tsppd/solver/ruland/ruland_tsppd_solver.h>
-#include <tsppd/solver/sarin/sarin_tsp_solver.h>
-#include <tsppd/solver/sarin/sarin_tsppd_solver.h>
-#include <tsppd/solver/sarin/sarin_tsppd_plus_solver.h>
+#include <tsppd/solver/sarin/sarin_atsp_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_plus_solver.h>
+#include <tsppd/solver/sarin/sarin_atsppd_solver.h>
 #include <tsppd/solver/tsp_solver.h>
 #include <tsppd/util/exception.h>
 #include <tsppd/util/stacktrace.h>
@@ -56,7 +58,7 @@ int main(int argc, char** argv) {
     desc.add_options()
         ("help,h", "produce help message")
         ("no-header,H", "do not print csv header line")
-        ("solver,s", po::value<string>(), "{tsp|tsppd}-{enum|focacci|ruland|sarin}")
+        ("solver,s", po::value<string>(), "solver slug")
         ("input,i", po::value<string>(), "input tsplib file")
         ("format,f", po::value<string>(), "output format: {human|csv} (default=human)")
         ("random-seed,r", po::value<unsigned int>(), "random seed (default=0)")
@@ -188,7 +190,19 @@ int main(int argc, char** argv) {
         // Instantiate the solver.
         shared_ptr<TSPSolver> solver;
 
-        if (solver_abbrev == "tsp-enum")
+        if (solver_abbrev == "atsp-ap")
+            solver = make_shared<APATSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-ap")
+            solver = make_shared<APATSPPDSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "atsp-sarin")
+            solver = make_shared<SarinATSPSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-sarin")
+            solver = make_shared<SarinATSPPDSolver>(problem, solver_options, writer);
+        else if (solver_abbrev == "atsppd-sarin+")
+            solver = make_shared<SarinATSPPDPlusSolver>(problem, solver_options, writer);
+
+        else if (solver_abbrev == "tsp-enum")
             solver = make_shared<EnumerativeTSPSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-enum")
             solver = make_shared<EnumerativeTSPPDSolver>(problem, solver_options, writer);
@@ -209,13 +223,6 @@ int main(int argc, char** argv) {
             solver = make_shared<RulandTSPPDSolver>(problem, solver_options, writer);
         else if (solver_abbrev == "tsppd-ruland+")
             solver = make_shared<RulandTSPPDPlusSolver>(problem, solver_options, writer);
-
-        else if (solver_abbrev == "tsp-sarin")
-            solver = make_shared<SarinTSPSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-sarin")
-            solver = make_shared<SarinTSPPDSolver>(problem, solver_options, writer);
-        else if (solver_abbrev == "tsppd-sarin+")
-            solver = make_shared<SarinTSPPDPlusSolver>(problem, solver_options, writer);
 
         else {
             cerr << "unknown solver: " << solver_abbrev << endl;

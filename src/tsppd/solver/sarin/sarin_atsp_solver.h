@@ -14,54 +14,46 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_SOLVER_H
+#ifndef TSPPD_SOLVER_SARIN_ATSP_SOLVER_H
+#define TSPPD_SOLVER_SARIN_ATSP_SOLVER_H
 
 #include <map>
-#include <memory>
 #include <utility>
 
 #include <gurobi_c++.h>
 
-#include <tsppd/solver/tsp_solver.h>
+// #include <tsppd/solver/sarin/sarin_tsp_callback.h>
+#include <tsppd/solver/ap/ap_atsp_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // A new MIP TSPPD solver model
+        // MIP ATSP Solver based on:
+        //
+        // Subhash C. Sarin, Hanif D. Sherali, and Ajay Bhootra.
+        // "New tighter polynomial length formulations for the asymmetric traveling salesman problem with
+        // and without precedence constraints."
+        // Operations Research Letters 33, no. 1 (2005): 62-70.
         //
         // Solver Options:
-        //     relax:  relax model and add SEC as violated {on|off} (default=off)
-        //     sec:    relaxed SEC form that uses either x or y variables {x|y} (default=y)
-        class ONeilTSPPDSolver : public TSPSolver {
+        //     relax:  relax model and add SEC and precedence as violated {on|off} (default=off)
+        //     sec:    relaxed SEC form that uses either x or y variables {cutset|subtour|y} (default=subtour)
+        class SarinATSPSolver : public APATSPSolver {
         public:
-            ONeilTSPPDSolver(
+            SarinATSPSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            std::string name() const { return "tsppd-oneil"; }
+            std::string name() const { return "atsp-sarin"; }
             virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
-            void initialize_options();
-            void initialize_variables();
-            void initialize_assignment_problem_constraints();
-            void initialize_x_w_link_constraints();
-            void initialize_subtour_and_precedence_constraints();
+            void initialize_sarin_options();
+            void initialize_sarin_variables();
+            void initialize_sarin_constraints();
 
-            GRBLinExpr sec(unsigned int i, unsigned int j);
-            std::vector<unsigned int> get_path();
-
-            GRBEnv env;
-            GRBModel model;
-            std::vector<std::vector<GRBVar>> x;
-            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
-
-            const unsigned int start_index;
-            const unsigned int end_index;
-
-            bool relax;
+            std::map<std::pair<unsigned int, unsigned int>, GRBVar> y;
        };
     }
 }

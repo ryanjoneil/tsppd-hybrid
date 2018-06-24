@@ -21,10 +21,12 @@
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/solver/oneil/oneil_tsppd_callback.h>
 #include <tsppd/solver/oneil/oneil_tsppd_solver.h>
+#include <tsppd/util/exception.h>
 
 using namespace TSPPD::Data;
 using namespace TSPPD::IO;
 using namespace TSPPD::Solver;
+using namespace TSPPD::Util;
 using namespace std;
 
 ONeilTSPPDSolver::ONeilTSPPDSolver(
@@ -39,13 +41,21 @@ ONeilTSPPDSolver::ONeilTSPPDSolver(
     start_index(problem.index("+0")),
     end_index(problem.index("-0")) {
 
+    initialize_options();
+
     // Silence output.
     model.getEnv().set(GRB_IntParam_OutputFlag, 0);
+
+    if (relax) {
+        // Lazy constraints are used for subtour elimination.
+        model.set(GRB_IntParam_LazyConstraints, true);
+    }
 
     initialize_variables();
     initialize_assignment_problem_constraints();
     initialize_x_w_link_constraints();
-    initialize_subtour_and_precedence_constraints();
+    if (!relax)
+        initialize_subtour_and_precedence_constraints();
 }
 
 TSPPDSolution ONeilTSPPDSolver::solve() {
@@ -60,7 +70,7 @@ TSPPDSolution ONeilTSPPDSolver::solve() {
     // Set thread count.
     model.set(GRB_IntParam_Threads, threads);
 
-    ONeilTSPPDCallback callback(problem, x, writer);
+    ONeilTSPPDCallback callback(problem, x, w, writer);
     model.setCallback(&callback);
 
     model.optimize();
@@ -100,7 +110,6 @@ TSPPDSolution ONeilTSPPDSolver::solve() {
 
     // cout << endl;
 
-
     if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
         TSPPDSolution solution(problem, get_path());
         TSPPDSearchStatistics stats(solution);
@@ -110,6 +119,15 @@ TSPPDSolution ONeilTSPPDSolver::solve() {
     }
 
     return {problem, problem.nodes};
+}
+
+void ONeilTSPPDSolver::initialize_options() {
+    if (options["relax"] == "" || options["relax"] == "off")
+        relax = false;
+    else if (options["relax"] == "on")
+        relax = true;
+    else
+        throw TSPPDException("relax can be either on or off");
 }
 
 void ONeilTSPPDSolver::initialize_variables() {
