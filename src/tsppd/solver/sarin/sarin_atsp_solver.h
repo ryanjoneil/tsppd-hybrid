@@ -22,7 +22,6 @@
 
 #include <gurobi_c++.h>
 
-// #include <tsppd/solver/sarin/sarin_tsp_callback.h>
 #include <tsppd/solver/ap/ap_atsp_solver.h>
 
 namespace TSPPD {

@@ -70,9 +70,8 @@ void APATSPSolver::initialize_variables() {
         vector<GRBVar> x_i;
 
         for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
-            auto lb = (from == end_index && to == start_index) ? 1 : 0;
-            auto ub = (from == to || (to == start_index && from != end_index)) ? 0 : 1;
-            x_i.push_back(model.addVar(lb, ub, problem.cost(from, to), GRB_BINARY));
+            auto ub = (from == to) ? 0 : 1;
+            x_i.push_back(model.addVar(0, ub, problem.cost(from, to), GRB_BINARY));
         }
 
         x.push_back(x_i);
@@ -80,7 +79,7 @@ void APATSPSolver::initialize_variables() {
 }
 
 void APATSPSolver::initialize_constraints() {
-    // sum {j != i} x_ij = 1 for all i
+    // sum {j != i} x_ij = 1 for all j != start
     for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
         GRBLinExpr expr = 0;
         for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
@@ -88,10 +87,12 @@ void APATSPSolver::initialize_constraints() {
                 continue;
             expr += x[from][to];
         }
-        model.addConstr(expr == 1);
+
+        auto ub = (to == start_index) ? 0 : 1;
+        model.addConstr(expr == ub);
     }
 
-    // sum {i != j} x_ij = 1 for all j
+    // sum {i != j} x_ij = 1 for all i != end
     for (unsigned int from = 0; from < problem.nodes.size(); ++from) {
         GRBLinExpr expr = 0;
         for (unsigned int to = 0; to < problem.nodes.size(); ++to) {
@@ -99,7 +100,9 @@ void APATSPSolver::initialize_constraints() {
                 continue;
             expr += x[from][to];
         }
-        model.addConstr(expr == 1);
+
+        auto ub = (from == end_index) ? 0 : 1;
+        model.addConstr(expr == ub);
     }
 }
 
