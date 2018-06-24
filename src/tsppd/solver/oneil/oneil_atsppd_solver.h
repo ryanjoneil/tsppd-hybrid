@@ -14,42 +14,44 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_ONEIL_TSPPD_PLUS_SOLVER_H
-#define TSPPD_SOLVER_ONEIL_TSPPD_PLUS_SOLVER_H
+#ifndef TSPPD_SOLVER_ONEIL_ATSPPD_SOLVER_H
+#define TSPPD_SOLVER_ONEIL_ATSPPD_SOLVER_H
 
 #include <map>
+#include <memory>
 #include <utility>
 
-#include <tsppd/solver/focacci/focacci_tsppd_solver.h>
-#include <tsppd/solver/oneil/oneil_tsppd_solver.h>
+#include <gurobi_c++.h>
+
+#include <tsppd/solver/ap/ap_atsppd_solver.h>
 
 namespace TSPPD {
     namespace Solver {
-        // MIP+CP TSPPD Solver: O'Neil MIP ATSPPD solver with time-boxed CP warm-start.
+        // A new MIP TSPPD solver model
         //
         // Solver Options:
-        //     warm-time:  time limit for warm start, in milliseconds
-        //     warm-soln:  solution limit for warm start
-        class ONeilTSPPDPlusSolver : public ONeilTSPPDSolver {
+        //     relax:  relax model and add SEC as violated {on|off} (default=off)
+        //     sec:    relaxed SEC form that uses x variables {cutset|subtour} (default=subtour)
+        class ONeilATSPPDSolver : public APATSPPDSolver {
         public:
-            ONeilTSPPDPlusSolver(
+            ONeilATSPPDSolver(
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
             );
 
-            virtual std::string name() const override { return "tsppd-oneil+"; }
-            virtual TSPPD::Data::TSPPDSolution solve() override;
+            std::string name() const { return "atsppd-oneil"; }
+            virtual TSPPD::Data::TSPPDSolution solve();
 
         protected:
-            void initialize_tsppd_plus_options();
-            void warm_start(const TSPPD::Data::TSPPDSolution& solution);
+            void initialize_oneil_options();
+            void initialize_oneil_variables();
+            void initialize_oneil_constraints();
 
-            FocacciTSPPDSolver warm_start_solver;
+            GRBLinExpr s(unsigned int i, unsigned int j);
 
-            unsigned int warm_time_limit;
-            unsigned int warm_solution_limit;
-        };
+            std::map<std::pair<unsigned int, unsigned int>, std::vector<GRBVar>> w;
+       };
     }
 }
 

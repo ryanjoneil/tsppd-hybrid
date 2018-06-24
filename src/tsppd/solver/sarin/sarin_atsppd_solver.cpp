@@ -58,7 +58,6 @@ void SarinATSPPDSolver::initialize_sarin_atsppd_options() {
         prec = SARIN_PREC_Y;
     else
         throw TSPPDException("prec can be either x or y");
-
 }
 
 void SarinATSPPDSolver::initialize_sarin_atsppd_variables() {
