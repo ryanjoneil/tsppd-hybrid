@@ -81,10 +81,10 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
     if (!force && last_dual_str == dual_str && last_primal_str == primal_str)
         return;
 
-    if (format == HUMAN) {
-        last_dual_str = dual_str;
-        last_primal_str = primal_str;
+    last_dual_str = dual_str;
+    last_primal_str = primal_str;
 
+    if (format == HUMAN) {
         stringstream s1;
         s1 << fixed << setprecision(4) << wall_time;
         wall_str = s1.str();
