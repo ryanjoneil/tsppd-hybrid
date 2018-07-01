@@ -78,13 +78,13 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
     auto wall_str = to_string(wall_time);
     auto cpu_str = to_string(cpu);
 
+    if (!force && last_dual_str == dual_str && last_primal_str == primal_str)
+        return;
+
+    last_dual_str = dual_str;
+    last_primal_str = primal_str;
+
     if (format == HUMAN) {
-        if (!force && last_dual_str == dual_str && last_primal_str == primal_str)
-            return;
-
-        last_dual_str = dual_str;
-        last_primal_str = primal_str;
-
         stringstream s1;
         s1 << fixed << setprecision(4) << wall_time;
         wall_str = s1.str();
