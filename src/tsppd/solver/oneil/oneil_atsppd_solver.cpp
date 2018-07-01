@@ -109,6 +109,10 @@ void ONeilATSPPDSolver::initialize_oneil_constraints() {
                 auto pj = j;
                 model.addConstr(x_ij <= w[{pi,pj}][0] + w[{pi,pj}][1]);
 
+                // x(+i,-i) <= w_ij3 + w_ji2 + w_ji3
+                auto x_ii = x[pi][problem.successor_index(i)];
+                model.addConstr(x_ii <= w[{pi,pj}][2] + w[{pj,pi}][1] + w[{pj,pi}][2]);
+
             } else if (problem.has_successor(i) && problem.has_predecessor(j)) {
                 // x(+i,-j) <= w_ji1
                 auto pi = i;
