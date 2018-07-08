@@ -226,6 +226,9 @@ void PrimalDualAPSolver::initialize_phase_2() {
         while (!assign && j < (int) size) {
             if (a[i][j] - u[i] - v[j] == 0) {
                 auto r = f_bar[j];
+                if (r < 0)
+					break;
+
                 auto k = p[r];
 
                 while (!assign && k < (int) size) {
