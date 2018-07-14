@@ -76,6 +76,7 @@ TSPPDSolution RulandTSPSolver::solve() {
         TSPPDSolution solution(problem, subtours[0]);
         TSPPDSearchStatistics stats(solution);
         stats.dual = ceil(model.get(GRB_DoubleAttr_ObjBound));
+        stats.optimal = true;
         writer.write(stats, true);
 
         return solution;

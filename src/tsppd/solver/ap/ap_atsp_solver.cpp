@@ -131,6 +131,7 @@ TSPPDSolution APATSPSolver::solution() {
         TSPPDSolution solution(problem, path());
         TSPPDSearchStatistics stats(solution);
         stats.dual = model.get(GRB_DoubleAttr_ObjBound);
+        stats.optimal = true;
         writer.write(stats, true);
         return solution;
     }

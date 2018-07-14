@@ -42,6 +42,7 @@ namespace TSPPD {
             void initialize_search();
             void find_best();
             virtual bool feasible(TSPPD::Data::TSPPDArc next);
+            void check_time_limit();
 
             std::vector<std::vector<TSPPD::Data::TSPPDArc>> arcs;
 
@@ -53,7 +54,7 @@ namespace TSPPD {
             int best_cost;
 
             bool stopped = false;
-            clock_t start;
+            struct timespec start;
        };
     }
 }
