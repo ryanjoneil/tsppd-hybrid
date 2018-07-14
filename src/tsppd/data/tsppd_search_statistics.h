@@ -33,6 +33,7 @@ namespace TSPPD {
             bool has_primal() const { return primal >= 0; }
             bool has_dual() const { return dual >= 0; }
             bool has_tour() const { return tour.size() > 0; }
+            bool is_optimal() const { return optimal; }
 
             // Search information
             bool has_nodes() const { return nodes >= 0; }
@@ -42,10 +43,12 @@ namespace TSPPD {
             int primal = -1;
             int dual = -1;
             std::vector<std::string> tour = {};
+            bool optimal = false;
 
             int nodes = -1;
             int fails = -1;
             int depth = -1;
+
         };
     }
 }

@@ -46,7 +46,7 @@ TSPSolutionWriter::TSPSolutionWriter(
 
 void TSPSolutionWriter::write_header() {
     if (format == HUMAN) {
-        cout << "instance         size   solver        threads   clock     cpu       dual      primal    nodes     fails     depth     ";
+        cout << "instance         size   solver        threads   clock     cpu       optimal   dual      primal    nodes     fails     depth     ";
         for (auto opt : options)
             cout << setfill(' ') << setw(10) << left << opt.first;
         cout << endl;
@@ -56,7 +56,7 @@ void TSPSolutionWriter::write_header() {
         cout << endl;
 
     } else if (format == CSV) {
-        cout << "instance,size,solver,threads,clock,cpu,dual,primal,nodes,fails,depth";
+        cout << "instance,size,solver,threads,clock,cpu,optimal,dual,primal,nodes,fails,depth";
         for (auto opt : options)
             cout << "," << opt.first;
         cout << "," << "tour" << endl;
@@ -101,6 +101,7 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
         to_string(threads),
         wall_str,
         cpu_str,
+        stats.is_optimal() ? "true" : "false",
         dual_str,
         primal_str,
         stats.has_nodes() ? to_string(stats.nodes) : "",
