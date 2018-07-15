@@ -14,6 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <cmath>
+
 #include <tsppd/data/tsppd_search_statistics.h>
 #include <tsppd/solver/ap/ap_atsp_callback.h>
 #include <tsppd/solver/ap/ap_atsp_solver.h>
@@ -130,7 +132,7 @@ TSPPDSolution APATSPSolver::solution() {
     if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
         TSPPDSolution solution(problem, path());
         TSPPDSearchStatistics stats(solution);
-        stats.dual = model.get(GRB_DoubleAttr_ObjBound);
+        stats.dual = ceil(model.get(GRB_DoubleAttr_ObjBound));
         stats.optimal = true;
         writer.write(stats, true);
         return solution;
