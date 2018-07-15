@@ -52,6 +52,8 @@ namespace TSPPD {
             std::vector<std::vector<GRBVar>> x;
             const ATSPSECType sec_type;
             TSPPD::IO::TSPSolutionWriter writer;
+
+            int primal;
        };
     }
 }
