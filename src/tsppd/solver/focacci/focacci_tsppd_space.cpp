@@ -14,6 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <tsppd/solver/focacci/propagator/focacci_tsppd_additive_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.h>
@@ -73,6 +74,10 @@ void FocacciTSPPDSpace::initialize_precedence_propagators(const FocacciTSPPDPrec
         tsppd_precede_set(*this, next, problem);
     if (precede_type == PRECEDE_COST || precede_type == PRECEDE_ALL)
         tsppd_precede_cost(*this, length, next, problem);
+}
+
+void FocacciTSPPDSpace::initialize_additive_bounding() {
+    tsppd_additive(*this, next, length, problem);
 }
 
 void FocacciTSPPDSpace::initialize_assignment_propagator() {

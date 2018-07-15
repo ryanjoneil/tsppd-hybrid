@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ADDITIVE_PROPAGATOR_H
+#define TSPPD_SOLVER_FOCACCI_TSPPD_ADDITIVE_PROPAGATOR_H
 
 #include <memory>
 #include <utility>
@@ -24,21 +24,21 @@
 #include <gecode/int.hh>
 #include <gecode/minimodel.hh>
 
-#include <tsppd/ap/primal_dual_ap_solver.h>
 #include <tsppd/data/tsppd_problem.h>
+#include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDAssignmentPropagator : public Gecode::Propagator {
+        class FocacciTSPPDAdditivePropagator : public FocacciTSPPDAssignmentPropagator {
         public:
-            FocacciTSPPDAssignmentPropagator(
+            FocacciTSPPDAdditivePropagator(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            FocacciTSPPDAssignmentPropagator(Gecode::Space& home, FocacciTSPPDAssignmentPropagator& p);
+            FocacciTSPPDAdditivePropagator(Gecode::Space& home, FocacciTSPPDAdditivePropagator& p);
 
             virtual Gecode::Propagator* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);
@@ -53,17 +53,9 @@ namespace TSPPD {
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
-
-        protected:
-            Gecode::ViewArray<Gecode::Int::IntView> next;
-            Gecode::Int::IntView primal;
-            const TSPPD::Data::TSPPDProblem& problem;
-
-            TSPPD::AP::PrimalDualAPSolver ap;
-            std::vector<std::pair<int, int>> unassigned;
         };
 
-        void tsppd_assignment(
+        void tsppd_additive(
             Gecode::Home home,
             Gecode::IntVarArray& next,
             Gecode::IntVar& primal,

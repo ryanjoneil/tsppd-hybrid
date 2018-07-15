@@ -25,15 +25,15 @@
 
 // CP TSPPD Solver based on:
 //
-// Filippo Focacci, Andrea Lodi, and Michela Milano. 
-// "A hybrid exact algorithm for the TSPTW." 
+// Filippo Focacci, Andrea Lodi, and Michela Milano.
+// "A hybrid exact algorithm for the TSPTW."
 // INFORMS Journal on Computing 14, no. 4 (2002): 403-417.
 //
 // Solver Options:
 //     brancher: branching scheme {cn, regret, seq-cn} (default=regret)
 //     precede:  precedence propagator type {set, cost, all} (default=set)
-//     ap:       assignment problem reduced cost propagator {on, off} (default=off)
 //     dual:     dual bounder {none, cn} (default=none)
+//     filter:   reduced-cost variable domain filtering {add, ap, none} (default=none)
 //     omc:      order matching constraints (default=off)
 //
 //     search:   search engine {bab, dfs, lds} (default=bab)
@@ -58,7 +58,8 @@ namespace TSPPD {
             virtual std::shared_ptr<FocacciTSPSpace> build_space() override;
 
             FocacciTSPPDPrecedePropagatorType precede_type;
-            bool ap;
+            bool filter_add;
+            bool filter_ap;
             bool omc;
        };
     }
