@@ -32,26 +32,6 @@ FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(
 FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(Space& home, FocacciTSPPDAdditivePropagator& p) :
     FocacciTSPPDAssignmentPropagator(home, p) { }
 
-Propagator* FocacciTSPPDAdditivePropagator::copy(Space& home) {
-    return new (home) FocacciTSPPDAdditivePropagator(home, *this);
-}
-
-size_t FocacciTSPPDAdditivePropagator::dispose(Space& home) {
-    return FocacciTSPPDAssignmentPropagator::dispose(home);
-}
-
-PropCost FocacciTSPPDAdditivePropagator::cost(const Space& home, const ModEventDelta& med) const {
-    return PropCost::quadratic(PropCost::HI, next.size());
-}
-
-void FocacciTSPPDAdditivePropagator::reschedule(Space& home) {
-    FocacciTSPPDAssignmentPropagator::reschedule(home);
-}
-
-ExecStatus FocacciTSPPDAdditivePropagator::propagate(Space& home, const ModEventDelta& med) {
-    return FocacciTSPPDAssignmentPropagator::propagate(home, med);
-}
-
 ExecStatus FocacciTSPPDAdditivePropagator::post(
     Home home,
     ViewArray<Int::IntView>& next,

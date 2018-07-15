@@ -40,13 +40,6 @@ namespace TSPPD {
 
             FocacciTSPPDAdditivePropagator(Gecode::Space& home, FocacciTSPPDAdditivePropagator& p);
 
-            virtual Gecode::Propagator* copy(Gecode::Space& home);
-            virtual size_t dispose(Gecode::Space& home);
-
-            virtual Gecode::PropCost cost(const Gecode::Space& home, const Gecode::ModEventDelta& med) const;
-            virtual void reschedule(Gecode::Space& home);
-            virtual Gecode::ExecStatus propagate(Gecode::Space& home, const Gecode::ModEventDelta& med);
-
             static Gecode::ExecStatus post(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
