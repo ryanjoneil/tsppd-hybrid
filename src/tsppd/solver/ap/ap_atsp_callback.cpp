@@ -49,7 +49,13 @@ void APATSPCallback::callback() {
 
 void APATSPCallback::log_mip() {
     TSPPDSearchStatistics stats;
-    stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
+        // For some reason this moodel produces invalid primal bounds during search sometimes,
+        // so we instead get primal bounds directly off of MIPSOL callbacks.
+        if (primal >= 0)
+            stats.primal = primal;
+        else
+            stats.primal = getDoubleInfo(GRB_CB_MIP_OBJBST);
+
     stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIP_OBJBND));
     writer.write(stats);
 }
@@ -57,6 +63,7 @@ void APATSPCallback::log_mip() {
 void APATSPCallback::log_mipsol(vector<unsigned int>& tour) {
     TSPPDSolution solution(problem, tour);
     TSPPDSearchStatistics stats(solution);
+    primal = solution.cost;
     stats.dual = max(0.0, getDoubleInfo(GRB_CB_MIPSOL_OBJBND));
     writer.write(stats);
 }
