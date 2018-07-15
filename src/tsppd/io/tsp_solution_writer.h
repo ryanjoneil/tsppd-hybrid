@@ -17,6 +17,7 @@
 #ifndef TSPPD_IO_TSP_SOLUTION_WRITER_H
 #define TSPPD_IO_TSP_SOLUTION_WRITER_H
 
+#include <chrono>
 #include <ctime>
 #include <map>
 #include <ostream>
@@ -50,7 +51,7 @@ namespace TSPPD {
             const std::map<std::string, std::string> options;
             const TSPSolutionFormat format;
 
-            struct timespec start_wall;
+            const std::chrono::steady_clock::time_point start_wall;
             const clock_t start_cpu;
 
             // For avoiding duplicate output in human mode.

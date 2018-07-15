@@ -17,7 +17,6 @@
 #ifndef TSPPD_SOLVER_ENUMERATIVE_TSP_SOLVER_H
 #define TSPPD_SOLVER_ENUMERATIVE_TSP_SOLVER_H
 
-#include <ctime>
 #include <map>
 #include <queue>
 #include <vector>
@@ -42,7 +41,6 @@ namespace TSPPD {
             void initialize_search();
             void find_best();
             virtual bool feasible(TSPPD::Data::TSPPDArc next);
-            void check_time_limit();
 
             std::vector<std::vector<TSPPD::Data::TSPPDArc>> arcs;
 
@@ -52,9 +50,6 @@ namespace TSPPD {
 
             std::vector<unsigned int> best_tour;
             int best_cost;
-
-            bool stopped = false;
-            struct timespec start;
        };
     }
 }
