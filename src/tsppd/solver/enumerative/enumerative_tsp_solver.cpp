@@ -33,7 +33,9 @@ EnumerativeTSPSolver::EnumerativeTSPSolver(
     arcs(),
     in_tour(problem.nodes.size(), false),
     current_tour(),
-    start(clock()) {
+    stopped(false) {
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     initialize_search();
 }
@@ -43,6 +45,10 @@ TSPPDSolution EnumerativeTSPSolver::solve() {
 
     TSPPDSolution solution(problem, best_tour);
     TSPPDSearchStatistics stats(solution);
+    if (!stopped) {
+        stats.dual = stats.primal;
+        stats.optimal = true;
+    }
     writer.write(stats, true);
 
     return solution;
@@ -58,18 +64,15 @@ void EnumerativeTSPSolver::initialize_search() {
 }
 
 void EnumerativeTSPSolver::find_best() {
+    if (time_limit > 0)
+        check_time_limit();
+
     if (stopped)
         return;
 
     auto current = current_tour[current_tour.size() - 1];
 
     for (unsigned int index = 0; index < arcs[current].size(); ++index) {
-        // Time limits
-        if (time_limit > 0 && ((clock() - start) * 1000.0 / CLOCKS_PER_SEC) >= time_limit) {
-            stopped = true;
-            return;
-        }
-
         auto next = arcs[current][index];
         if (!feasible(next))
             continue;
@@ -123,4 +126,15 @@ bool EnumerativeTSPSolver::feasible(TSPPDArc next) {
         return false;
 
     return true;
+}
+
+void EnumerativeTSPSolver::check_time_limit() {
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    double wall_time;
+    wall_time = (now.tv_sec - start.tv_sec);
+    wall_time += (now.tv_nsec - start.tv_nsec) / 1000000.0;
+
+    stopped = stopped || wall_time >= time_limit;
 }

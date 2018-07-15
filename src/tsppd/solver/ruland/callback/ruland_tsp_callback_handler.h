@@ -56,6 +56,8 @@ namespace TSPPD {
             std::vector<std::shared_ptr<RulandTSPCallback>> callbacks;
             TSPPD::IO::TSPSolutionWriter writer;
             TSPPD::Solver::RulandSubtourFinder subtour_finder;
+
+            int primal;
        };
     }
 }

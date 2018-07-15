@@ -14,6 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <cmath>
 #include <memory>
 
 #include <tsppd/data/tsppd_search_statistics.h>
@@ -74,7 +75,8 @@ TSPPDSolution RulandTSPSolver::solve() {
 
         TSPPDSolution solution(problem, subtours[0]);
         TSPPDSearchStatistics stats(solution);
-        stats.dual = model.get(GRB_DoubleAttr_ObjBound);
+        stats.dual = ceil(model.get(GRB_DoubleAttr_ObjBound));
+        stats.optimal = true;
         writer.write(stats, true);
 
         return solution;

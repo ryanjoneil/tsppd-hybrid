@@ -40,7 +40,10 @@ FocacciTSPSolver::FocacciTSPSolver(
     const map<string, string> options,
     TSPSolutionWriter& writer) :
     TSPSolver(problem, options, writer),
-    discrepancy_limit(0) {
+    discrepancy_limit(0),
+    stopped(false) {
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     initialize_tsp_options();
 }
@@ -106,16 +109,25 @@ TSPPDSolution FocacciTSPSolver::solve() {
             best_order = order;
         }
 
-        if (has_solution_limit && --solution_limit <= 0)
+        if (has_solution_limit && --solution_limit <= 0) {
+            stopped = true;
             break;
+        }
     }
 
     TSPPDSolution solution(problem, best_order);
     auto gecode_stats = engine->statistics();
+
     TSPPDSearchStatistics stats(solution);
     stats.nodes = gecode_stats.node;
     stats.fails = gecode_stats.fail;
     stats.depth = gecode_stats.depth;
+
+    check_time_limit();
+    if (!stopped) {
+        stats.dual = stats.primal;
+        stats.optimal = true;
+    }
 
     writer.write(stats, true);
     return solution;
@@ -186,4 +198,18 @@ void FocacciTSPSolver::initialize_option_search() {
 
 shared_ptr<FocacciTSPSpace> FocacciTSPSolver::build_space() {
     return make_shared<FocacciTSPSpace>(problem);
+}
+
+void FocacciTSPSolver::check_time_limit() {
+    if (time_limit == 0)
+        return;
+
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    double wall_time;
+    wall_time = (now.tv_sec - start.tv_sec);
+    wall_time += (now.tv_nsec - start.tv_nsec) / 1000000.0;
+
+    stopped = stopped || wall_time >= time_limit;
 }
