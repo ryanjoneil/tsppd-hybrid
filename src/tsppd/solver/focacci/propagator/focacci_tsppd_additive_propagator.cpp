@@ -32,6 +32,21 @@ FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(
 FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(Space& home, FocacciTSPPDAdditivePropagator& p) :
     FocacciTSPPDAssignmentPropagator(home, p) { }
 
+
+Propagator* FocacciTSPPDAdditivePropagator::copy(Space& home) {
+    return new (home) FocacciTSPPDAdditivePropagator(home, *this);
+}
+
+ExecStatus FocacciTSPPDAdditivePropagator::propagate(Space& home, const ModEventDelta& med) {
+    auto status = FocacciTSPPDAssignmentPropagator::propagate(home, med);
+    if (status != ES_FIX)
+        return status;
+
+    // TODO: 1-tree
+
+    return status;
+}
+
 ExecStatus FocacciTSPPDAdditivePropagator::post(
     Home home,
     ViewArray<Int::IntView>& next,
