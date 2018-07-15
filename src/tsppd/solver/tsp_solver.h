@@ -17,7 +17,7 @@
 #ifndef TSPPD_SOLVER_TSP_SOLVER_H
 #define TSPPD_SOLVER_TSP_SOLVER_H
 
-#include <ctime>
+#include <chrono>
 #include <iostream>
 #include <map>
 #include <string>
@@ -34,7 +34,11 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem,
                 const std::map<std::string, std::string> options,
                 TSPPD::IO::TSPSolutionWriter& writer
-            ) : problem(problem), options(options), writer(writer) { }
+            ) : problem(problem),
+                options(options),
+                writer(writer),
+                start(std::chrono::steady_clock::now()),
+                stopped(false) { }
 
             virtual std::string name() const = 0;
             virtual TSPPD::Data::TSPPDSolution solve() = 0;
@@ -44,9 +48,20 @@ namespace TSPPD {
             unsigned int threads = 1;
 
         protected:
+            void check_time_limit() {
+                if (time_limit == 0)
+                    return;
+
+                auto duration = std::chrono::steady_clock::now() - start;
+                auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+                stopped = stopped || (millis.count() >= time_limit);
+            }
+
             const TSPPD::Data::TSPPDProblem& problem;
             std::map<std::string, std::string> options;
             TSPPD::IO::TSPSolutionWriter& writer;
+            const std::chrono::steady_clock::time_point start;
+            bool stopped;
        };
     }
 }

@@ -39,9 +39,8 @@ TSPSolutionWriter::TSPSolutionWriter(
     threads(threads),
     options(options),
     format(format),
+    start_wall(chrono::steady_clock::now()),
     start_cpu(clock()) {
-
-    clock_gettime(CLOCK_MONOTONIC, &start_wall);
 }
 
 void TSPSolutionWriter::write_header() {
@@ -64,19 +63,15 @@ void TSPSolutionWriter::write_header() {
 }
 
 void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool force) {
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-
-    double wall_time;
-    wall_time = (now.tv_sec - start_wall.tv_sec);
-    wall_time += (now.tv_nsec - start_wall.tv_nsec) / 1000000000.0;
+    auto wall = chrono::steady_clock::now() - start_wall;
+    auto wall_time = chrono::duration_cast<std::chrono::milliseconds>(wall).count() / 1000.0;
+    auto wall_str = to_string(wall_time);
 
     auto cpu = ((double) (clock() - start_cpu)) / CLOCKS_PER_SEC;
+    auto cpu_str = to_string(cpu);
 
     auto dual_str = (stats.has_dual() ? to_string(stats.dual) : "");
     auto primal_str = (stats.has_primal() ? to_string(stats.primal) : "");
-    auto wall_str = to_string(wall_time);
-    auto cpu_str = to_string(cpu);
 
     if (!force && last_dual_str == dual_str && last_primal_str == primal_str)
         return;

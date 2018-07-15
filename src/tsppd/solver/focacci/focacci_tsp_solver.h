@@ -60,7 +60,6 @@ namespace TSPPD {
             void initialize_option_search();
 
             virtual std::shared_ptr<FocacciTSPSpace> build_space();
-            void check_time_limit();
 
             FocacciTSPBrancherType brancher_type;
             FocacciTSPDualType dual_type;
@@ -68,9 +67,6 @@ namespace TSPPD {
 
             int discrepancy_limit;
             bool gist;
-
-            bool stopped = false;
-            struct timespec start;
        };
     }
 }

@@ -32,10 +32,7 @@ EnumerativeTSPSolver::EnumerativeTSPSolver(
     TSPSolver(problem, options, writer),
     arcs(),
     in_tour(problem.nodes.size(), false),
-    current_tour(),
-    stopped(false) {
-
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    current_tour() {
 
     initialize_search();
 }
@@ -64,9 +61,7 @@ void EnumerativeTSPSolver::initialize_search() {
 }
 
 void EnumerativeTSPSolver::find_best() {
-    if (time_limit > 0)
-        check_time_limit();
-
+    check_time_limit();
     if (stopped)
         return;
 
@@ -76,6 +71,9 @@ void EnumerativeTSPSolver::find_best() {
         auto next = arcs[current][index];
         if (!feasible(next))
             continue;
+
+        if (stopped)
+            return;
 
         // Continue exploring this part of the tree.
         current_tour.push_back(next.to_index);
@@ -126,15 +124,4 @@ bool EnumerativeTSPSolver::feasible(TSPPDArc next) {
         return false;
 
     return true;
-}
-
-void EnumerativeTSPSolver::check_time_limit() {
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-
-    double wall_time;
-    wall_time = (now.tv_sec - start.tv_sec);
-    wall_time += (now.tv_nsec - start.tv_nsec) / 1000000.0;
-
-    stopped = stopped || wall_time >= time_limit;
 }
