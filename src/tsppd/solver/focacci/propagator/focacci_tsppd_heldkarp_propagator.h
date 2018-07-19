@@ -17,6 +17,7 @@
 #ifndef TSPPD_SOLVER_FOCACCI_TSPPD_HELDKARP_PROPAGATOR_H
 #define TSPPD_SOLVER_FOCACCI_TSPPD_HELDKARP_PROPAGATOR_H
 
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -54,6 +55,9 @@ namespace TSPPD {
             );
 
         protected:
+            int marginal_cost(int from, int to, const std::vector<std::set<int>>& edges);
+            int marginal_cost(int from, int to, const std::vector<std::set<int>>& edges, std::vector<bool> seen);
+
             Gecode::ViewArray<Gecode::Int::IntView> next;
             Gecode::Int::IntView primal;
             const TSPPD::Data::TSPPDProblem& problem;

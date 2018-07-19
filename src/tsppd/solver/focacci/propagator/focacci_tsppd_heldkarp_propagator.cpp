@@ -88,7 +88,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
-    // Construct a 1-tree.
+    // Construct an MST on everything but {+0,-0}.
     Graph graph(next.size() - 2);
     boost::property_map<Graph, boost::edge_weight_t>::type weights = boost::get(boost::edge_weight, graph);
 
@@ -107,42 +107,79 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
         }
     }
 
-    vector <Edge> mst;
+    vector<Edge> mst;
     boost::kruskal_minimum_spanning_tree(graph, back_inserter(mst));
 
-    // Calculate cost of the MST
+    // Calculate cost of the MST and pull out the predecessor vector.
+    vector<int> pred(next.size(), -1);
+    vector<set<int>> edges(next.size(), set<int>());
     int z = 0;
-    for (auto e : mst)
+    for (auto e : mst) {
+        pred[e.m_target] = e.m_source;
+        edges[e.m_source].insert(e.m_target);
+        edges[e.m_target].insert(e.m_source);
         z += weights[e];
+    }
 
     // Add cheapest arc connecting +0.
+    int min_p0_idx = -1;
     int min_p0 = numeric_limits<int>::max();
     for (auto to = next[start_index].min(); to <= next[start_index].max(); ++to) {
         if (!next[start_index].in(to))
             continue;
 
         auto c = problem.cost(start_index, to);
-        if (c < min_p0)
+        if (c < min_p0) {
+            min_p0_idx = to;
             min_p0 = c;
+        }
     }
+    pred[min_p0_idx] = start_index;
+    edges[start_index].insert(min_p0_idx);
+    edges[min_p0_idx].insert(start_index);
 
     // Add cheapest arc connecting -0.
+    int min_d0_idx = -1;
     int min_d0 = numeric_limits<int>::max();
     for (int from = 0; from < next.size(); ++from) {
         if (!next[from].in(end_index))
             continue;
 
         auto c = problem.cost(from, end_index);
-        if (c < min_d0)
+        if (c < min_d0) {
+            min_d0_idx = from;
             min_d0 = c;
+        }
     }
+    pred[end_index] = min_d0_idx;
+    edges[end_index].insert(min_d0_idx);
+    edges[min_d0_idx].insert(end_index);
+
+    // for (unsigned int i = 0; i < edges.size(); ++i) {
+    //     cout << problem.nodes[i] << ": { ";
+    //     for (auto j : edges[i])
+    //         cout << problem.nodes[j] << " ";
+    //     cout << " }\n";
+    // }
 
     // TODO: Perturbation of 1-tree to get HK bound
 
     // Objective filtering.
-    GECODE_ME_CHECK(primal.gq(home, z + min_p0 + min_d0));
+    z += min_p0 + min_d0;
+    GECODE_ME_CHECK(primal.gq(home, z));
 
-    // TODO: Marginal-cost filtering,
+    // Marginal-cost filtering,
+    for (int from = 0; from < (int) next.size(); ++from) {
+        for (auto to = next[from].min(); to <= next[from].max(); ++to) {
+            // This only applies to nonbasic feasible arcs in the MST.
+            if (!next[from].in(to) || pred[to] == from)
+                continue;
+
+            auto rc = marginal_cost(from, to, edges);
+            if (z + rc > primal.max())
+                GECODE_ME_CHECK(next[from].nq(home, to));
+        }
+    }
 
     return ES_FIX;
 }
@@ -156,6 +193,22 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::post(
     if (!primal.assigned() && !next.assigned())
         (void) new (home) FocacciTSPPDHeldKarpPropagator(home, next, primal, problem);
     return ES_OK;
+}
+
+int FocacciTSPPDHeldKarpPropagator::marginal_cost(int from, int to, const vector<set<int>>& edges) {
+    vector<bool> seen(edges.size(), false);
+    seen[from] = true;
+    seen[to] = true;
+    return marginal_cost(from, to, edges, seen);
+}
+
+int FocacciTSPPDHeldKarpPropagator::marginal_cost(int from, int to, const vector<set<int>>& edges, vector<bool> seen) {
+    // Introducing a nonbasic arc into the basis would create a cycle.
+    // The marginal cost of this operation is the cost of the new arc
+    // minus the max cost in the cycle. This can be found using DFS.
+
+    // TODO
+    return 0;
 }
 
 void TSPPD::Solver::tsppd_heldkarp(
