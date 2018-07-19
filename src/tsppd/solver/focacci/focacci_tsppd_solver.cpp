@@ -45,13 +45,15 @@ void FocacciTSPPDSolver::initialize_tsppd_options() {
         throw TSPPDException("precede can be either set, cost, or all");
 
     // Additive bounding reduced cost fixing
-    filter_add = false;
-    filter_ap = false;
     if (options["filter"] == "add")
-        filter_add = true;
+        filter_type = FOCACCI_FILTER_ADD;
     else if (options["filter"] == "ap")
-        filter_ap = true;
-    else if (options["filter"] != "" && options["filter"] != "none")
+        filter_type = FOCACCI_FILTER_AP;
+    else if (options["filter"] == "hk")
+        filter_type = FOCACCI_FILTER_HK;
+    else if (options["filter"] == "" || options["filter"] == "none")
+        filter_type = FOCACCI_FILTER_NONE;
+    else
         throw TSPPDException("filter can be either add, ap, or none");
 
     // Order Matching Constraint propagation
@@ -66,11 +68,16 @@ void FocacciTSPPDSolver::initialize_tsppd_options() {
 shared_ptr<FocacciTSPSpace> FocacciTSPPDSolver::build_space() {
     auto space = make_shared<FocacciTSPPDSpace>(problem);
     space->initialize_precedence_propagators(precede_type);
-    if (filter_add)
-        space->initialize_additive_bounding();
-    else if (filter_ap)
+
+    if (filter_type == FOCACCI_FILTER_ADD)
+        space->initialize_additive_propagator();
+    else if (filter_type == FOCACCI_FILTER_AP)
         space->initialize_assignment_propagator();
+    else if (filter_type == FOCACCI_FILTER_HK)
+        space->initialize_heldkarp_propagator();
+
     if (omc)
         space->initialize_omc_constraints();
+
     return space;
 }

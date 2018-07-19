@@ -58,7 +58,6 @@ FocacciTSPPDAssignmentPropagator::FocacciTSPPDAssignmentPropagator(
     }
 
     next.subscribe(home, *this, Int::PC_INT_DOM);
-
     home.notice(*this, AP_DISPOSE);
 }
 

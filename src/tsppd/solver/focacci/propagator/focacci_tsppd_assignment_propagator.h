@@ -17,7 +17,6 @@
 #ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
 #define TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
 
-#include <memory>
 #include <utility>
 #include <vector>
 

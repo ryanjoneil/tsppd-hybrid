@@ -38,8 +38,9 @@ namespace TSPPD {
 
             virtual void initialize_constraints();
             void initialize_precedence_propagators(const FocacciTSPPDPrecedePropagatorType precede_type);
-            void initialize_additive_bounding();
+            void initialize_additive_propagator();
             void initialize_assignment_propagator();
+            void initialize_heldkarp_propagator();
             void initialize_omc_constraints();
         };
     }

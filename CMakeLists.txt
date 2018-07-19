@@ -66,6 +66,7 @@ set(TSPPD_LIB_HEADERS
     src/tsppd/solver/focacci/dual/focacci_tsp_dual.h
     src/tsppd/solver/focacci/propagator/focacci_tsppd_additive_propagator.h
     src/tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h
     src/tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.h
     src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.h
     src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_propagator.h
@@ -118,6 +119,7 @@ set(TSPPD_LIB_SOURCES
     src/tsppd/solver/focacci/dual/focacci_closest_neighbor_dual.cpp
     src/tsppd/solver/focacci/propagator/focacci_tsppd_additive_propagator.cpp
     src/tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.cpp
+    src/tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.cpp
     src/tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.cpp
     src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.cpp
     src/tsppd/solver/focacci/propagator/focacci_tsppd_precede_set_propagator.cpp

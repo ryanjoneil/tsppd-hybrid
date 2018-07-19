@@ -16,6 +16,7 @@
 
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_additive_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
+#include <tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_omc_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_cost_propagator.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_set_propagator.h>
@@ -76,12 +77,17 @@ void FocacciTSPPDSpace::initialize_precedence_propagators(const FocacciTSPPDPrec
         tsppd_precede_cost(*this, length, next, problem);
 }
 
-void FocacciTSPPDSpace::initialize_additive_bounding() {
+void FocacciTSPPDSpace::initialize_additive_propagator() {
     tsppd_additive(*this, next, length, problem);
 }
 
 void FocacciTSPPDSpace::initialize_assignment_propagator() {
+    cout << "foo\n";
     tsppd_assignment(*this, next, length, problem);
+}
+
+void FocacciTSPPDSpace::initialize_heldkarp_propagator() {
+    tsppd_heldkarp(*this, next, length, problem);
 }
 
 void FocacciTSPPDSpace::initialize_omc_constraints() {

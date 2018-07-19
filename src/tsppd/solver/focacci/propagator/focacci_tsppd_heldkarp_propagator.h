@@ -14,31 +14,36 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ADDITIVE_PROPAGATOR_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_ADDITIVE_PROPAGATOR_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_HELDKARP_PROPAGATOR_H
+#define TSPPD_SOLVER_FOCACCI_TSPPD_HELDKARP_PROPAGATOR_H
 
+#include <utility>
 #include <vector>
 
 #include <gecode/int.hh>
 #include <gecode/minimodel.hh>
 
+#include <tsppd/ap/primal_dual_ap_solver.h>
 #include <tsppd/data/tsppd_problem.h>
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDAdditivePropagator : public FocacciTSPPDAssignmentPropagator {
+        class FocacciTSPPDHeldKarpPropagator : public Gecode::Propagator {
         public:
-            FocacciTSPPDAdditivePropagator(
+            FocacciTSPPDHeldKarpPropagator(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            FocacciTSPPDAdditivePropagator(Gecode::Space& home, FocacciTSPPDAdditivePropagator& p);
+            FocacciTSPPDHeldKarpPropagator(Gecode::Space& home, FocacciTSPPDHeldKarpPropagator& p);
 
             virtual Gecode::Propagator* copy(Gecode::Space& home);
+            virtual size_t dispose(Gecode::Space& home);
+
+            virtual Gecode::PropCost cost(const Gecode::Space& home, const Gecode::ModEventDelta& med) const;
+            virtual void reschedule(Gecode::Space& home);
             virtual Gecode::ExecStatus propagate(Gecode::Space& home, const Gecode::ModEventDelta& med);
 
             static Gecode::ExecStatus post(
@@ -47,9 +52,14 @@ namespace TSPPD {
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
+
+        protected:
+            Gecode::ViewArray<Gecode::Int::IntView> next;
+            Gecode::Int::IntView primal;
+            const TSPPD::Data::TSPPDProblem& problem;
         };
 
-        void tsppd_additive(
+        void tsppd_heldkarp(
             Gecode::Home home,
             Gecode::IntVarArray& next,
             Gecode::IntVar& primal,
