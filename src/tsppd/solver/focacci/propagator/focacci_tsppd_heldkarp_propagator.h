@@ -57,6 +57,9 @@ namespace TSPPD {
             Gecode::ViewArray<Gecode::Int::IntView> next;
             Gecode::Int::IntView primal;
             const TSPPD::Data::TSPPDProblem& problem;
+
+            const int start_index;
+            const int end_index;
         };
 
         void tsppd_heldkarp(

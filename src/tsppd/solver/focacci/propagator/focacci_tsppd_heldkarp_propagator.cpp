@@ -14,6 +14,12 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <iterator>
+#include <utility>
+
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/kruskal_min_spanning_tree.hpp>
+
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h>
 
 using namespace Gecode;
@@ -21,6 +27,15 @@ using namespace TSPPD::AP;
 using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
+
+typedef boost::adjacency_list<
+    boost::vecS,
+    boost::vecS,
+    boost::directedS,
+    boost::no_property,
+    boost::property<boost::edge_weight_t, int>
+> Graph;
+typedef boost::graph_traits <Graph>::edge_descriptor Edge;
 
 FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(
     Home home,
@@ -30,7 +45,9 @@ FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(
     Propagator(home),
     next(next),
     primal(primal),
-    problem(problem) {
+    problem(problem),
+    start_index(problem.index("+0")),
+    end_index(problem.index("-0")) {
 
     next.subscribe(home, *this, Int::PC_INT_DOM);
     home.notice(*this, AP_DISPOSE);
@@ -40,7 +57,9 @@ FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(Space& home, Foca
     Propagator(home, p),
     next(p.next),
     primal(p.primal),
-    problem(p.problem) {
+    problem(p.problem),
+    start_index(p.start_index),
+    end_index(p.end_index) {
 
     next.update(home, p.next);
     primal.update(home, p.primal);
@@ -68,6 +87,62 @@ void FocacciTSPPDHeldKarpPropagator::reschedule(Space& home) {
 ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEventDelta& med) {
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
+
+    // Construct a 1-tree.
+    Graph graph(next.size() - 2);
+    boost::property_map<Graph, boost::edge_weight_t>::type weights = boost::get(boost::edge_weight, graph);
+
+    for (int i = 0; i < next.size(); ++i) {
+        if (i == start_index || i == end_index)
+            continue;
+
+        for (auto j = next[i].min(); j <= next[i].max(); ++j) {
+            if (!next[i].in(j) || j == (int) start_index || j == (int) end_index)
+                continue;
+
+            Edge e;
+            bool inserted;
+            boost::tie(e, inserted) = boost::add_edge(i, j, graph);
+            weights[e] = problem.cost(i, j);
+        }
+    }
+
+    vector <Edge> mst;
+    boost::kruskal_minimum_spanning_tree(graph, back_inserter(mst));
+
+    // Calculate cost of the MST
+    int z = 0;
+    for (auto e : mst)
+        z += weights[e];
+
+    // Add cheapest arc connecting +0.
+    int min_p0 = numeric_limits<int>::max();
+    for (auto to = next[start_index].min(); to <= next[start_index].max(); ++to) {
+        if (!next[start_index].in(to))
+            continue;
+
+        auto c = problem.cost(start_index, to);
+        if (c < min_p0)
+            min_p0 = c;
+    }
+
+    // Add cheapest arc connecting -0.
+    int min_d0 = numeric_limits<int>::max();
+    for (int from = 0; from < next.size(); ++from) {
+        if (!next[from].in(end_index))
+            continue;
+
+        auto c = problem.cost(from, end_index);
+        if (c < min_d0)
+            min_d0 = c;
+    }
+
+    // TODO: Perturbation of 1-tree to get HK bound
+
+    // Objective filtering.
+    GECODE_ME_CHECK(primal.gq(home, z + min_p0 + min_d0));
+
+    // TODO: Marginal-cost filtering,
 
     return ES_FIX;
 }
