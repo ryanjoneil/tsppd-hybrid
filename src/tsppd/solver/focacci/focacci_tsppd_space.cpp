@@ -82,7 +82,6 @@ void FocacciTSPPDSpace::initialize_additive_propagator() {
 }
 
 void FocacciTSPPDSpace::initialize_assignment_propagator() {
-    cout << "foo\n";
     tsppd_assignment(*this, next, length, problem);
 }
 

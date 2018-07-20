@@ -175,7 +175,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
             if (!next[from].in(to) || pred[to] == from)
                 continue;
 
-            auto rc = marginal_cost(from, to, edges);
+            auto rc = marginal_cost(from, to, pred, edges);
             if (z + rc > primal.max())
                 GECODE_ME_CHECK(next[from].nq(home, to));
         }
@@ -195,20 +195,49 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::post(
     return ES_OK;
 }
 
-int FocacciTSPPDHeldKarpPropagator::marginal_cost(int from, int to, const vector<set<int>>& edges) {
+int FocacciTSPPDHeldKarpPropagator::marginal_cost(
+    int from,
+    int to,
+    const vector<int>& pred,
+    const vector<set<int>>& edges) {
+
     vector<bool> seen(edges.size(), false);
     seen[from] = true;
     seen[to] = true;
-    return marginal_cost(from, to, edges, seen);
+    return marginal_cost(from, to, pred, edges, seen, to);
 }
 
-int FocacciTSPPDHeldKarpPropagator::marginal_cost(int from, int to, const vector<set<int>>& edges, vector<bool> seen) {
+int FocacciTSPPDHeldKarpPropagator::marginal_cost(
+    int from,
+    int to,
+    const vector<int>& pred,
+    const vector<set<int>>& edges,
+    vector<bool> seen,
+    int node) {
+
     // Introducing a nonbasic arc into the basis would create a cycle.
     // The marginal cost of this operation is the cost of the new arc
     // minus the max cost in the cycle. This can be found using DFS.
+    for (auto next : edges[node]) {
+        // If we loop back to the from node, then compute marginal cost.
+        if (next == from) {
+            if (pred[from] == node)
+                return problem.cost(from, to) - problem.cost(node, from);
+            return problem.cost(from, to) - problem.cost(from, node);
+        }
 
-    // TODO
-    return 0;
+        if (seen[next])
+            continue;
+
+        vector<bool> new_seen(seen);
+        new_seen[next] = true;
+
+        auto cost = marginal_cost(from, to, pred, edges, new_seen, next);
+        if (cost > -1)
+            return cost;
+    }
+
+    return -1;
 }
 
 void TSPPD::Solver::tsppd_heldkarp(

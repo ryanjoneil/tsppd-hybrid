@@ -55,8 +55,15 @@ namespace TSPPD {
             );
 
         protected:
-            int marginal_cost(int from, int to, const std::vector<std::set<int>>& edges);
-            int marginal_cost(int from, int to, const std::vector<std::set<int>>& edges, std::vector<bool> seen);
+            int marginal_cost(int from, int to, const std::vector<int>& pred, const std::vector<std::set<int>>& edges);
+            int marginal_cost(
+                int from,
+                int to,
+                const std::vector<int>& pred,
+                const std::vector<std::set<int>>& edges,
+                std::vector<bool> seen,
+                int node
+            );
 
             Gecode::ViewArray<Gecode::Int::IntView> next;
             Gecode::Int::IntView primal;
