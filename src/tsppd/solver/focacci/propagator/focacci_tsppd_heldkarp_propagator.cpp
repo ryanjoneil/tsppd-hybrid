@@ -228,13 +228,7 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
     edges[end_index].insert(min_d0_idx);
     edges[min_d0_idx].insert(end_index);
 
-    z += min_p0 + min_d0;
-
-    // Remove transformations from cost
-    // for (int i = 0; i < next.size(); ++i)
-    //     z -= potentials[i] * edges[i].size();
-
-    return z;
+    return z + min_p0 + min_d0;
 }
 
 int FocacciTSPPDHeldKarpPropagator::undirected_cost(int i, int j) {
@@ -254,9 +248,8 @@ int FocacciTSPPDHeldKarpPropagator::marginal_cost(
     const vector<set<int>>& edges) {
 
     vector<bool> seen(edges.size(), false);
-    seen[from] = true;
     seen[to] = true;
-    return marginal_cost(from, to, edges, seen, to);
+    return marginal_cost(from, to, edges, seen, to, 0);
 }
 
 int FocacciTSPPDHeldKarpPropagator::marginal_cost(
@@ -264,23 +257,26 @@ int FocacciTSPPDHeldKarpPropagator::marginal_cost(
     int to,
     const vector<set<int>>& edges,
     vector<bool> seen,
-    int node) {
+    int node,
+    int max_edge_cost) {
 
     // Introducing a nonbasic arc into the basis would create a cycle.
     // The marginal cost of this operation is the cost of the new arc
     // minus the max cost in the cycle. This can be found using DFS.
     for (auto next : edges[node]) {
-        // If we loop back to the from node, then compute marginal cost.
-        if (next == from && node != to)
-            return undirected_cost(from, to) - undirected_cost(from, node);
-
         if (seen[next])
             continue;
+
+        int new_max = max(new_max, undirected_cost(from, node));
+
+        // If we loop back to the from node, then compute marginal cost.
+        if (next == from && node != to)
+            return undirected_cost(from, to) - new_max;
 
         vector<bool> new_seen(seen);
         new_seen[next] = true;
 
-        auto cost = marginal_cost(from, to, edges, new_seen, next);
+        auto cost = marginal_cost(from, to, edges, new_seen, next, new_max);
         if (cost > -1)
             return cost;
     }

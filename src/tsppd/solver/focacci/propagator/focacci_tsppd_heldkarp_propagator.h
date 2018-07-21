@@ -68,7 +68,8 @@ namespace TSPPD {
                 int to,
                 const std::vector<std::set<int>>& edges,
                 std::vector<bool> seen,
-                int node
+                int node,
+                int max_edge_cost
             );
 
             Gecode::ViewArray<Gecode::Int::IntView> next;
