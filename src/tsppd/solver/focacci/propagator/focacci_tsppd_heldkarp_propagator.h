@@ -57,6 +57,7 @@ namespace TSPPD {
         protected:
             double one_tree(const std::vector<double>& potentials, std::vector<std::set<int>>& edges);
             int undirected_cost(int i, int j);
+            double transformed_cost(int i, int j, const std::vector<double> potentials);
             int marginal_cost(
                 int from,
                 int to,

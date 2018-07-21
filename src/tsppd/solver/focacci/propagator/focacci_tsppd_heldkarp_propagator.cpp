@@ -98,7 +98,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     double z;
 
     // TODO: stopping criteria
-    for (int iter = 0; iter < 2; ++iter) {
+    for (int iter = 0; iter < 10; ++iter) {
 
         bool is_tour = true;
 
@@ -110,7 +110,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
         for (int node = 0; node < next.size(); ++node) {
             if (edges[node].size() != 2)
                 is_tour = false;
-            potentials[node] = (2 - (int) edges[node].size()) * C;
+            potentials[node] += (((int) edges[node].size()) - 2) * C;
         }
 
         if (is_tour)
@@ -133,7 +133,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     // Objective filtering.
     GECODE_ME_CHECK(primal.gq(home, (int) ceil(z)));
 
-    // Marginal-cost filtering,
+    // Marginal-cost filtering.
     // TODO: what do we do with node potentials?
     for (int from = 0; from < (int) next.size(); ++from) {
         for (auto to = next[from].min(); to <= next[from].max(); ++to) {
@@ -147,6 +147,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     }
 
     return ES_FIX;
+    // return ES_FAILED;
 }
 
 ExecStatus FocacciTSPPDHeldKarpPropagator::post(
@@ -180,7 +181,7 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
             Edge e;
             bool inserted;
             boost::tie(e, inserted) = boost::add_edge(i, j, graph);
-            weights[e] = undirected_cost(i, j) - potentials[i] - potentials[j];
+            weights[e] = transformed_cost(i, j, potentials);
         }
     }
 
@@ -202,7 +203,7 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
         if (!next[start_index].in(to))
             continue;
 
-        auto c = problem.cost(start_index, to) - potentials[start_index] - potentials[to];
+        auto c = transformed_cost(start_index, to, potentials);
         if (c < min_p0) {
             min_p0_idx = to;
             min_p0 = c;
@@ -218,7 +219,7 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
         if (!next[from].in(end_index))
             continue;
 
-        auto c = problem.cost(from, end_index) - potentials[from] - potentials[end_index];
+        auto c = transformed_cost(from, end_index, potentials);
         if (c < min_d0) {
             min_d0_idx = from;
             min_d0 = c;
@@ -227,7 +228,13 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
     edges[end_index].insert(min_d0_idx);
     edges[min_d0_idx].insert(end_index);
 
-    return z + min_p0 + min_d0;
+    z += min_p0 + min_d0;
+
+    // Remove transformations from cost
+    // for (int i = 0; i < next.size(); ++i)
+    //     z -= potentials[i] * edges[i].size();
+
+    return z;
 }
 
 int FocacciTSPPDHeldKarpPropagator::undirected_cost(int i, int j) {
@@ -236,6 +243,11 @@ int FocacciTSPPDHeldKarpPropagator::undirected_cost(int i, int j) {
     return min(c_ij, c_ji);
 }
 
+double FocacciTSPPDHeldKarpPropagator::transformed_cost(int i, int j, const std::vector<double> potentials) {
+    return undirected_cost(i, j) + potentials[i] + potentials[j];
+}
+
+// TODO: should this operate on original or transformed costs?
 int FocacciTSPPDHeldKarpPropagator::marginal_cost(
     int from,
     int to,
