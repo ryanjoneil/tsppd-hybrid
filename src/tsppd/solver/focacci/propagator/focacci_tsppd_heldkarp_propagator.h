@@ -55,12 +55,16 @@ namespace TSPPD {
             );
 
         protected:
-            int one_tree(std::vector<int>& pred, std::vector<std::set<int>>& edges);
-            int marginal_cost(int from, int to, const std::vector<int>& pred, const std::vector<std::set<int>>& edges);
+            double one_tree(const std::vector<double>& potentials, std::vector<std::set<int>>& edges);
+            int undirected_cost(int i, int j);
             int marginal_cost(
                 int from,
                 int to,
-                const std::vector<int>& pred,
+                const std::vector<std::set<int>>& edges
+            );
+            int marginal_cost(
+                int from,
+                int to,
                 const std::vector<std::set<int>>& edges,
                 std::vector<bool> seen,
                 int node
@@ -72,6 +76,8 @@ namespace TSPPD {
 
             const int start_index;
             const int end_index;
+
+            const double C = 1.5;
         };
 
         void tsppd_heldkarp(
