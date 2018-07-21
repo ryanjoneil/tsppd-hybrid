@@ -55,6 +55,7 @@ namespace TSPPD {
             );
 
         protected:
+            int one_tree(std::vector<int>& pred, std::vector<std::set<int>>& edges);
             int marginal_cost(int from, int to, const std::vector<int>& pred, const std::vector<std::set<int>>& edges);
             int marginal_cost(
                 int from,

@@ -77,7 +77,7 @@ size_t FocacciTSPPDHeldKarpPropagator::dispose(Space& home) {
 }
 
 PropCost FocacciTSPPDHeldKarpPropagator::cost(const Space& home, const ModEventDelta& med) const {
-    return PropCost::quadratic(PropCost::HI, next.size());
+    return PropCost::crazy(PropCost::HI, next.size());
 }
 
 void FocacciTSPPDHeldKarpPropagator::reschedule(Space& home) {
@@ -88,6 +88,51 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
+    // Compute optimal 1-tree.
+    vector<int> pred(next.size(), -1);
+    vector<set<int>> edges(next.size(), set<int>());
+    int z = one_tree(pred, edges);
+
+    // for (unsigned int i = 0; i < edges.size(); ++i) {
+    //     cout << problem.nodes[i] << ": { ";
+    //     for (auto j : edges[i])
+    //         cout << problem.nodes[j] << " ";
+    //     cout << " }\n";
+    // }
+
+    // TODO: Perturbation of 1-tree to get HK bound
+
+    // Objective filtering.
+    GECODE_ME_CHECK(primal.gq(home, z));
+
+    // Marginal-cost filtering,
+    for (int from = 0; from < (int) next.size(); ++from) {
+        for (auto to = next[from].min(); to <= next[from].max(); ++to) {
+            // This only applies to nonbasic feasible arcs in the MST.
+            if (!next[from].in(to) || pred[to] == from)
+                continue;
+
+            auto rc = marginal_cost(from, to, pred, edges);
+            if (z + rc > primal.max())
+                GECODE_ME_CHECK(next[from].nq(home, to));
+        }
+    }
+
+    return ES_FIX;
+}
+
+ExecStatus FocacciTSPPDHeldKarpPropagator::post(
+    Home home,
+    ViewArray<Int::IntView>& next,
+    Int::IntView& primal,
+    const TSPPDProblem& problem) {
+
+    if (!primal.assigned() && !next.assigned())
+        (void) new (home) FocacciTSPPDHeldKarpPropagator(home, next, primal, problem);
+    return ES_OK;
+}
+
+int FocacciTSPPDHeldKarpPropagator::one_tree(vector<int>& pred, vector<set<int>>& edges) {
     // Construct an MST on everything but {+0,-0}.
     Graph graph(next.size() - 2);
     boost::property_map<Graph, boost::edge_weight_t>::type weights = boost::get(boost::edge_weight, graph);
@@ -111,8 +156,6 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     boost::kruskal_minimum_spanning_tree(graph, back_inserter(mst));
 
     // Calculate cost of the MST and pull out the predecessor vector.
-    vector<int> pred(next.size(), -1);
-    vector<set<int>> edges(next.size(), set<int>());
     int z = 0;
     for (auto e : mst) {
         pred[e.m_target] = e.m_source;
@@ -155,44 +198,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     edges[end_index].insert(min_d0_idx);
     edges[min_d0_idx].insert(end_index);
 
-    // for (unsigned int i = 0; i < edges.size(); ++i) {
-    //     cout << problem.nodes[i] << ": { ";
-    //     for (auto j : edges[i])
-    //         cout << problem.nodes[j] << " ";
-    //     cout << " }\n";
-    // }
-
-    // TODO: Perturbation of 1-tree to get HK bound
-
-    // Objective filtering.
-    z += min_p0 + min_d0;
-    GECODE_ME_CHECK(primal.gq(home, z));
-
-    // Marginal-cost filtering,
-    for (int from = 0; from < (int) next.size(); ++from) {
-        for (auto to = next[from].min(); to <= next[from].max(); ++to) {
-            // This only applies to nonbasic feasible arcs in the MST.
-            if (!next[from].in(to) || pred[to] == from)
-                continue;
-
-            auto rc = marginal_cost(from, to, pred, edges);
-            if (z + rc > primal.max())
-                GECODE_ME_CHECK(next[from].nq(home, to));
-        }
-    }
-
-    return ES_FIX;
-}
-
-ExecStatus FocacciTSPPDHeldKarpPropagator::post(
-    Home home,
-    ViewArray<Int::IntView>& next,
-    Int::IntView& primal,
-    const TSPPDProblem& problem) {
-
-    if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPPDHeldKarpPropagator(home, next, primal, problem);
-    return ES_OK;
+    return z + min_p0 + min_d0;
 }
 
 int FocacciTSPPDHeldKarpPropagator::marginal_cost(
