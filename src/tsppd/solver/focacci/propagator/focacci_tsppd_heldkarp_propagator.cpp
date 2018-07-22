@@ -91,47 +91,48 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
-    // Node potentials.
     vector<double> potentials(next.size(), 0);
-
     vector<set<int>> edges;
-    double z;
+    double w;
+    double last_w = 0;
 
-    // TODO: stopping criteria
-    for (int iter = 0; iter < 10; ++iter) {
-
+    for (unsigned int iter = 0; iter < MAX_ITERATIONS; ++iter) {
         bool is_tour = true;
 
         // Compute optimal 1-tree.
         edges = vector<set<int>>(next.size(), set<int>());
-        z = one_tree(potentials, edges);
+        w = one_tree(potentials, edges);
+
+        // Remove node potentials from tour.
+        for (auto pi : potentials)
+            w -= 2 * pi;
 
         // Update node potentials.
         for (int node = 0; node < next.size(); ++node) {
-            if (edges[node].size() != 2)
+            if (node != start_index && node != end_index && edges[node].size() != 2)
                 is_tour = false;
-            potentials[node] += (((int) edges[node].size()) - 2) * C;
+            potentials[node] += (((int) edges[node].size()) - 2) * STEP_SIZE;
         }
 
-        if (is_tour)
+        // cout << "[" << iter << "] 1-tree=" << w << " primal=" << primal << " t=" << t << endl;
+        if (is_tour || w <= last_w + 0.1)
             break;
-
-        // cout << "z=" << z << "\n";
-
-        // for (unsigned int i = 0; i < edges.size(); ++i) {
-        //     cout << problem.nodes[i] << ": { ";
-        //     for (auto j : edges[i])
-        //         cout << problem.nodes[j] << " ";
-        //     cout << " }\n";
-        // }
+        else
+            last_w = w;
     }
+
+    // cout << "1-tree=" << w << " primal=" << primal << " t=" << t << endl;
+    // for (unsigned int i = 0; i < edges.size(); ++i) {
+    //     cout << problem.nodes[i] << ": { ";
+    //     for (auto j : edges[i])
+    //         cout << problem.nodes[j] << " ";
+    //     cout << " }\n";
+    // }
 
     // Perturbation of 1-tree to get HK bound
 
-    // TODO: remove node potentials from objective for HK bound.
-
     // Objective filtering.
-    GECODE_ME_CHECK(primal.gq(home, (int) ceil(z)));
+    GECODE_ME_CHECK(primal.gq(home, (int) ceil(w)));
 
     // Marginal-cost filtering.
     // TODO: what do we do with node potentials?
@@ -141,13 +142,12 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
             if (!(next[from].in(to) && edges[from].find(to) == edges[from].end()))
                 continue;
 
-            if (z + marginal_cost(from, to, edges) > primal.max())
+            if (w + marginal_cost(from, to, edges) > primal.max())
                 GECODE_ME_CHECK(next[from].nq(home, to));
         }
     }
 
     return ES_FIX;
-    // return ES_FAILED;
 }
 
 ExecStatus FocacciTSPPDHeldKarpPropagator::post(
@@ -228,6 +228,9 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
     edges[end_index].insert(min_d0_idx);
     edges[min_d0_idx].insert(end_index);
 
+    edges[start_index].insert(end_index);
+    edges[end_index].insert(start_index);
+
     return z + min_p0 + min_d0;
 }
 
@@ -271,7 +274,7 @@ int FocacciTSPPDHeldKarpPropagator::marginal_cost(
 
         // If we loop back to the from node, then compute marginal cost.
         if (next == from && node != to)
-            return undirected_cost(from, to) - new_max;
+            return problem.cost(from, to) - new_max;
 
         vector<bool> new_seen(seen);
         new_seen[next] = true;

@@ -79,7 +79,8 @@ namespace TSPPD {
             const int start_index;
             const int end_index;
 
-            const double C = 1.5;
+            const double STEP_SIZE = 1.5;
+            const unsigned int MAX_ITERATIONS = 100;
         };
 
         void tsppd_heldkarp(
