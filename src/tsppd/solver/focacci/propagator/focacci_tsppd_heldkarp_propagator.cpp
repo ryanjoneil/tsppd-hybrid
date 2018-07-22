@@ -96,12 +96,24 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     double w;
     double last_w = 0;
 
-    for (unsigned int iter = 0; iter < MAX_ITERATIONS; ++iter) {
+    double t1, ti;
+    double M = MAX_ITERATIONS;
+
+    // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
+    for (unsigned int m = 1; m <= MAX_ITERATIONS; ++m) {
         bool is_tour = true;
 
         // Compute optimal 1-tree.
         edges = vector<set<int>>(next.size(), set<int>());
         w = one_tree(potentials, edges);
+
+        // Update step size
+        if (m == 1) {
+            t1 = w / (2.0 * next.size());
+            ti = t1;
+        } else {
+            ti = t1*(m - 1)*(2*M - 5)/(2*(M-1)) - t1*(m-2) + t1*(m-1)*(m-2)/(2*(M-1)*(M-2));
+        }
 
         // Remove node potentials from tour.
         for (auto pi : potentials)
@@ -111,31 +123,19 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
         for (int node = 0; node < next.size(); ++node) {
             if (node != start_index && node != end_index && edges[node].size() != 2)
                 is_tour = false;
-            potentials[node] += (((int) edges[node].size()) - 2) * STEP_SIZE;
+            potentials[node] += (((int) edges[node].size()) - 2) * ti;
         }
 
-        // cout << "[" << iter << "] 1-tree=" << w << " primal=" << primal << " t=" << t << endl;
-        if (is_tour || w <= last_w + 0.1)
+        if (is_tour || abs(w - last_w) <= EPSILON)
             break;
         else
             last_w = w;
     }
 
-    // cout << "1-tree=" << w << " primal=" << primal << " t=" << t << endl;
-    // for (unsigned int i = 0; i < edges.size(); ++i) {
-    //     cout << problem.nodes[i] << ": { ";
-    //     for (auto j : edges[i])
-    //         cout << problem.nodes[j] << " ";
-    //     cout << " }\n";
-    // }
-
-    // Perturbation of 1-tree to get HK bound
-
     // Objective filtering.
     GECODE_ME_CHECK(primal.gq(home, (int) ceil(w)));
 
     // Marginal-cost filtering.
-    // TODO: what do we do with node potentials?
     for (int from = 0; from < (int) next.size(); ++from) {
         for (auto to = next[from].min(); to <= next[from].max(); ++to) {
             // This only applies to nonbasic feasible arcs in the MST.
@@ -147,6 +147,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
         }
     }
 
+    // return ES_FAILED;
     return ES_FIX;
 }
 

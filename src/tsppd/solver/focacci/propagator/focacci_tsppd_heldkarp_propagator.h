@@ -79,7 +79,7 @@ namespace TSPPD {
             const int start_index;
             const int end_index;
 
-            const double STEP_SIZE = 1.5;
+            const double EPSILON = 10e-7;
             const unsigned int MAX_ITERATIONS = 100;
         };
 
