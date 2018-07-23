@@ -20,7 +20,6 @@
 #include <limits>
 #include <utility>
 
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/kruskal_min_spanning_tree.hpp>
 
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h>
@@ -30,15 +29,6 @@ using namespace TSPPD::AP;
 using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
-
-typedef boost::adjacency_list<
-    boost::vecS,
-    boost::vecS,
-    boost::directedS,
-    boost::no_property,
-    boost::property<boost::edge_weight_t, int>
-> Graph;
-typedef boost::graph_traits <Graph>::edge_descriptor Edge;
 
 FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(
     Home home,
@@ -91,6 +81,12 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
+    // Construct an MST on everything but {+0,-0}.
+    OneTreeGraph graph(next.size() - 2);
+    OneTreeWeights weights = boost::get(boost::edge_weight, graph);
+    initialize_one_tree(graph, weights);
+
+
     vector<double> potentials(next.size(), 0);
     vector<set<int>> edges;
     double w;
@@ -105,7 +101,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
 
         // Compute optimal 1-tree.
         edges = vector<set<int>>(next.size(), set<int>());
-        w = one_tree(potentials, edges);
+        w = minimize_one_tree(graph, weights, potentials, edges);
 
         // Update step size
         if (m == 1) {
@@ -130,6 +126,8 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
             break;
         else
             last_w = w;
+
+        update_one_tree(graph, weights, potentials);
     }
 
     // Objective filtering.
@@ -147,7 +145,6 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
         }
     }
 
-    // return ES_FAILED;
     return ES_FIX;
 }
 
@@ -162,11 +159,7 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::post(
     return ES_OK;
 }
 
-double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials, vector<set<int>>& edges) {
-    // Construct an MST on everything but {+0,-0}.
-    Graph graph(next.size() - 2);
-    boost::property_map<Graph, boost::edge_weight_t>::type weights = boost::get(boost::edge_weight, graph);
-
+void FocacciTSPPDHeldKarpPropagator::initialize_one_tree(OneTreeGraph& graph, OneTreeWeights& weights) {
     for (int i = 0; i < next.size(); ++i) {
         // Arcs are undirected for MST.
         if (i == start_index || i == end_index)
@@ -179,14 +172,35 @@ double FocacciTSPPDHeldKarpPropagator::one_tree(const vector<double>& potentials
             if (!(next[i].in(j) || next[j].in(i)))
                 continue;
 
-            Edge e;
+            OneTreeEdge e;
             bool inserted;
             boost::tie(e, inserted) = boost::add_edge(i, j, graph);
-            weights[e] = transformed_cost(i, j, potentials);
+            weights[e] = undirected_cost(i, j);
+
+            // transformed_cost(i, j, potentials);
         }
     }
+}
 
-    vector<Edge> mst;
+void FocacciTSPPDHeldKarpPropagator::update_one_tree(
+    OneTreeGraph& graph,
+    OneTreeWeights& weights,
+    const vector<double>& potentials) {
+
+    auto es = boost::edges(graph);
+    for (auto eit = es.first; eit != es.second; ++eit) {
+        auto e = *eit;
+        weights[e] = transformed_cost(e.m_source, e.m_target, potentials);
+    }
+}
+
+double FocacciTSPPDHeldKarpPropagator::minimize_one_tree(
+    const OneTreeGraph& graph,
+    const OneTreeWeights& weights,
+    const vector<double>& potentials,
+    vector<set<int>>& edges) {
+
+    vector<OneTreeEdge> mst;
     boost::kruskal_minimum_spanning_tree(graph, back_inserter(mst));
 
     // Calculate cost of the MST and pull out edges.

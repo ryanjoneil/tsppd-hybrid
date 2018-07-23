@@ -21,6 +21,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/graph/adjacency_list.hpp>
+
 #include <gecode/int.hh>
 #include <gecode/minimodel.hh>
 
@@ -29,6 +31,16 @@
 
 namespace TSPPD {
     namespace Solver {
+        typedef boost::adjacency_list<
+            boost::vecS,
+            boost::vecS,
+            boost::directedS,
+            boost::no_property,
+            boost::property<boost::edge_weight_t, int>
+        > OneTreeGraph;
+        typedef boost::graph_traits <OneTreeGraph>::edge_descriptor OneTreeEdge;
+        typedef boost::property_map<OneTreeGraph, boost::edge_weight_t>::type OneTreeWeights;
+
         class FocacciTSPPDHeldKarpPropagator : public Gecode::Propagator {
         public:
             FocacciTSPPDHeldKarpPropagator(
@@ -55,9 +67,18 @@ namespace TSPPD {
             );
 
         protected:
-            double one_tree(const std::vector<double>& potentials, std::vector<std::set<int>>& edges);
+            void initialize_one_tree(OneTreeGraph& graph, OneTreeWeights& weights);
+            void update_one_tree(OneTreeGraph& graph, OneTreeWeights& weights, const std::vector<double>& potentials);
+            double minimize_one_tree(
+                const OneTreeGraph& graph,
+                const OneTreeWeights& weights,
+                const std::vector<double>& potentials,
+                std::vector<std::set<int>>& edges
+            );
+
             int undirected_cost(int i, int j);
             double transformed_cost(int i, int j, const std::vector<double> potentials);
+
             int marginal_cost(
                 int from,
                 int to,
