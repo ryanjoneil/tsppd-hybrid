@@ -14,14 +14,9 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <algorithm>
 #include <cmath>
-#include <iterator>
-#include <limits>
-#include <utility>
 
-#include <boost/graph/kruskal_min_spanning_tree.hpp>
-
+#include <tsppd/solver/focacci/one_tree/focacci_tsppd_one_tree.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h>
 
 using namespace Gecode;
@@ -81,54 +76,8 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
-    // Construct an MST on everything but {+0,-0}.
-    OneTreeGraph graph(next.size() - 2);
-    OneTreeWeights weights = boost::get(boost::edge_weight, graph);
-    initialize_one_tree(graph, weights);
-
-
-    vector<double> potentials(next.size(), 0);
-    vector<set<int>> edges;
-    double w;
-    double last_w = 0;
-
-    double t1, ti;
-    double M = MAX_ITERATIONS;
-
-    // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
-    for (unsigned int m = 1; m <= MAX_ITERATIONS; ++m) {
-        bool is_tour = true;
-
-        // Compute optimal 1-tree.
-        edges = vector<set<int>>(next.size(), set<int>());
-        w = minimize_one_tree(graph, weights, potentials, edges);
-
-        // Update step size
-        if (m == 1) {
-            t1 = w / (2.0 * next.size());
-            ti = t1;
-        } else {
-            ti = t1*(m - 1)*(2*M - 5)/(2*(M-1)) - t1*(m-2) + t1*(m-1)*(m-2)/(2*(M-1)*(M-2));
-        }
-
-        // Remove node potentials from tour.
-        for (auto pi : potentials)
-            w -= 2 * pi;
-
-        // Update node potentials.
-        for (int node = 0; node < next.size(); ++node) {
-            if (node != start_index && node != end_index && edges[node].size() != 2)
-                is_tour = false;
-            potentials[node] += (((int) edges[node].size()) - 2) * ti;
-        }
-
-        if (is_tour || abs(w - last_w) <= EPSILON)
-            break;
-        else
-            last_w = w;
-
-        update_one_tree(graph, weights, potentials);
-    }
+    OneTree tree(next, problem);
+    auto w = tree.bound();
 
     // Objective filtering.
     GECODE_ME_CHECK(primal.gq(home, (int) ceil(w)));
@@ -137,10 +86,10 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     for (int from = 0; from < (int) next.size(); ++from) {
         for (auto to = next[from].min(); to <= next[from].max(); ++to) {
             // This only applies to nonbasic feasible arcs in the MST.
-            if (!(next[from].in(to) && edges[from].find(to) == edges[from].end()))
+            if (!(next[from].in(to) && !tree.has_edge(from, to)))
                 continue;
 
-            if (w + marginal_cost(from, to, edges) > primal.max())
+            if (w + tree.marginal_cost(from, to) > primal.max())
                 GECODE_ME_CHECK(next[from].nq(home, to));
         }
     }
@@ -157,149 +106,6 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::post(
     if (!primal.assigned() && !next.assigned())
         (void) new (home) FocacciTSPPDHeldKarpPropagator(home, next, primal, problem);
     return ES_OK;
-}
-
-void FocacciTSPPDHeldKarpPropagator::initialize_one_tree(OneTreeGraph& graph, OneTreeWeights& weights) {
-    for (int i = 0; i < next.size(); ++i) {
-        // Arcs are undirected for MST.
-        if (i == start_index || i == end_index)
-            continue;
-
-        for (int j = i + 1; j < next.size(); ++j) {
-            if (j == start_index || j == end_index)
-                continue;
-
-            if (!(next[i].in(j) || next[j].in(i)))
-                continue;
-
-            OneTreeEdge e;
-            bool inserted;
-            boost::tie(e, inserted) = boost::add_edge(i, j, graph);
-            weights[e] = undirected_cost(i, j);
-
-            // transformed_cost(i, j, potentials);
-        }
-    }
-}
-
-void FocacciTSPPDHeldKarpPropagator::update_one_tree(
-    OneTreeGraph& graph,
-    OneTreeWeights& weights,
-    const vector<double>& potentials) {
-
-    auto es = boost::edges(graph);
-    for (auto eit = es.first; eit != es.second; ++eit) {
-        auto e = *eit;
-        weights[e] = transformed_cost(e.m_source, e.m_target, potentials);
-    }
-}
-
-double FocacciTSPPDHeldKarpPropagator::minimize_one_tree(
-    const OneTreeGraph& graph,
-    const OneTreeWeights& weights,
-    const vector<double>& potentials,
-    vector<set<int>>& edges) {
-
-    vector<OneTreeEdge> mst;
-    boost::kruskal_minimum_spanning_tree(graph, back_inserter(mst));
-
-    // Calculate cost of the MST and pull out edges.
-    double z = 0;
-    for (auto e : mst) {
-        edges[e.m_source].insert(e.m_target);
-        edges[e.m_target].insert(e.m_source);
-        z += weights[e];
-    }
-
-    // Add cheapest arc connecting +0.
-    int min_p0_idx = -1;
-    double min_p0 = numeric_limits<double>::max();
-    for (auto to = next[start_index].min(); to <= next[start_index].max(); ++to) {
-        if (!next[start_index].in(to))
-            continue;
-
-        auto c = transformed_cost(start_index, to, potentials);
-        if (c < min_p0) {
-            min_p0_idx = to;
-            min_p0 = c;
-        }
-    }
-    edges[start_index].insert(min_p0_idx);
-    edges[min_p0_idx].insert(start_index);
-
-    // Add cheapest arc connecting -0.
-    int min_d0_idx = -1;
-    double min_d0 = numeric_limits<double>::max();
-    for (int from = 0; from < next.size(); ++from) {
-        if (!next[from].in(end_index))
-            continue;
-
-        auto c = transformed_cost(from, end_index, potentials);
-        if (c < min_d0) {
-            min_d0_idx = from;
-            min_d0 = c;
-        }
-    }
-    edges[end_index].insert(min_d0_idx);
-    edges[min_d0_idx].insert(end_index);
-
-    edges[start_index].insert(end_index);
-    edges[end_index].insert(start_index);
-
-    return z + min_p0 + min_d0;
-}
-
-int FocacciTSPPDHeldKarpPropagator::undirected_cost(int i, int j) {
-    auto c_ij = next[i].in(j) ? problem.cost(i, j) : numeric_limits<int>::max();
-    auto c_ji = next[j].in(i) ? problem.cost(j, i) : numeric_limits<int>::max();
-    return min(c_ij, c_ji);
-}
-
-double FocacciTSPPDHeldKarpPropagator::transformed_cost(int i, int j, const std::vector<double> potentials) {
-    return undirected_cost(i, j) + potentials[i] + potentials[j];
-}
-
-// TODO: should this operate on original or transformed costs?
-int FocacciTSPPDHeldKarpPropagator::marginal_cost(
-    int from,
-    int to,
-    const vector<set<int>>& edges) {
-
-    vector<bool> seen(edges.size(), false);
-    seen[to] = true;
-    return marginal_cost(from, to, edges, seen, to, 0);
-}
-
-int FocacciTSPPDHeldKarpPropagator::marginal_cost(
-    int from,
-    int to,
-    const vector<set<int>>& edges,
-    vector<bool> seen,
-    int node,
-    int max_edge_cost) {
-
-    // Introducing a nonbasic arc into the basis would create a cycle.
-    // The marginal cost of this operation is the cost of the new arc
-    // minus the max cost in the cycle. This can be found using DFS.
-    for (auto next : edges[node]) {
-        if (seen[next])
-            continue;
-
-        int new_max = max(new_max, undirected_cost(from, node));
-
-        // If we loop back to the from node, then compute marginal cost.
-        if (next == from && node != to)
-            return problem.cost(from, to) - new_max;
-
-        vector<bool> new_seen(seen);
-        new_seen[next] = true;
-
-        auto cost = marginal_cost(from, to, edges, new_seen, next, new_max);
-        if (cost > -1)
-            return cost;
-    }
-
-    return -1;
 }
 
 void TSPPD::Solver::tsppd_heldkarp(
