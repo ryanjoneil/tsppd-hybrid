@@ -42,9 +42,25 @@ ExecStatus FocacciTSPPDAdditivePropagator::propagate(Space& home, const ModEvent
     if (status != ES_FIX)
         return status;
 
-    // TODO: 1-tree
+    OneTree tree(next, problem);
+    auto w = tree.bound();
 
-    return status;
+    // Objective filtering.
+    GECODE_ME_CHECK(primal.gq(home, (int) ceil(w)));
+
+    // Marginal-cost filtering.
+    for (int from = 0; from < (int) next.size(); ++from) {
+        for (auto to = next[from].min(); to <= next[from].max(); ++to) {
+            // This only applies to nonbasic feasible arcs in the MST.
+            if (!(next[from].in(to) && !tree.has_edge(from, to)))
+                continue;
+
+            if (w + tree.marginal_cost(from, to) > primal.max())
+                GECODE_ME_CHECK(next[from].nq(home, to));
+        }
+    }
+
+    return ES_FIX;
 }
 
 ExecStatus FocacciTSPPDAdditivePropagator::post(

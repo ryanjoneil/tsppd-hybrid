@@ -48,6 +48,12 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
+            OneTree(
+                Gecode::ViewArray<Gecode::Int::IntView>& next,
+                const TSPPD::Data::TSPPDProblem& problem,
+                TSPPD::AP::PrimalDualAPSolver* ap
+            );
+
             double bound();
             bool has_edge(int from, int to);
             int marginal_cost(int from, int to);
@@ -68,8 +74,11 @@ namespace TSPPD {
                 int max_edge_cost
             );
 
+            int cost(int i, int j);
+
             Gecode::ViewArray<Gecode::Int::IntView> next;
             const TSPPD::Data::TSPPDProblem& problem;
+            TSPPD::AP::PrimalDualAPSolver* ap;
 
             OneTreeGraph graph;
             OneTreeWeights weights;

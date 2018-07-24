@@ -69,8 +69,11 @@ shared_ptr<FocacciTSPSpace> FocacciTSPPDSolver::build_space() {
     auto space = make_shared<FocacciTSPPDSpace>(problem);
     space->initialize_precedence_propagators(precede_type);
 
-    if (filter_type == FOCACCI_FILTER_ADD)
-        space->initialize_additive_propagator();
+    if (filter_type == FOCACCI_FILTER_ADD) {
+        space->initialize_assignment_propagator();
+        space->initialize_heldkarp_propagator();
+        // space->initialize_additive_propagator();
+    }
     else if (filter_type == FOCACCI_FILTER_AP)
         space->initialize_assignment_propagator();
     else if (filter_type == FOCACCI_FILTER_HK)

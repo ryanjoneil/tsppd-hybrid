@@ -29,11 +29,15 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
+OneTree::OneTree(ViewArray<Int::IntView>& next, const TSPPDProblem& problem) : OneTree(next, problem, nullptr) { }
+
 OneTree::OneTree(
     ViewArray<Int::IntView>& next,
-    const TSPPDProblem& problem) :
+    const TSPPDProblem& problem,
+    TSPPD::AP::PrimalDualAPSolver* ap) :
     next(next),
     problem(problem),
+    ap(ap),
     graph(next.size() - 2),
     potentials(next.size(), 0),
     edges(next.size(), set<int>()),
@@ -94,7 +98,6 @@ bool OneTree::has_edge(int from, int to) {
 };
 
 int OneTree::marginal_cost(int from, int to) {
-
     vector<bool> seen(edges.size(), false);
     seen[to] = true;
     return marginal_cost(from, to, seen, to, 0);
@@ -180,8 +183,8 @@ double OneTree::minimize_one_tree() {
 }
 
 int OneTree::undirected_cost(int i, int j) {
-    auto c_ij = next[i].in(j) ? problem.cost(i, j) : numeric_limits<int>::max();
-    auto c_ji = next[j].in(i) ? problem.cost(j, i) : numeric_limits<int>::max();
+    auto c_ij = next[i].in(j) ? cost(i, j) : numeric_limits<int>::max();
+    auto c_ji = next[j].in(i) ? cost(j, i) : numeric_limits<int>::max();
     return min(c_ij, c_ji);
 }
 
@@ -207,7 +210,7 @@ int OneTree::marginal_cost(
 
         // If we loop back to the from node, then compute marginal cost.
         if (next == from && node != to)
-            return problem.cost(from, to) - new_max;
+            return cost(from, to) - new_max;
 
         vector<bool> new_seen(seen);
         new_seen[next] = true;
@@ -218,4 +221,8 @@ int OneTree::marginal_cost(
     }
 
     return -1;
+}
+
+int OneTree::cost(int i, int j) {
+    return ap == nullptr ? problem.cost(i, j) : ap->get_rc({i, j});
 }

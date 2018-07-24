@@ -23,6 +23,7 @@
 #include <gecode/minimodel.hh>
 
 #include <tsppd/data/tsppd_problem.h>
+#include <tsppd/solver/focacci/one_tree/focacci_tsppd_one_tree.h>
 #include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
 
 namespace TSPPD {
