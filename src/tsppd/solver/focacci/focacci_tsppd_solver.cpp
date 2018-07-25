@@ -54,7 +54,7 @@ void FocacciTSPPDSolver::initialize_tsppd_options() {
     else if (options["filter"] == "" || options["filter"] == "none")
         filter_type = FOCACCI_FILTER_NONE;
     else
-        throw TSPPDException("filter can be either add, ap, or none");
+        throw TSPPDException("filter can be either add, ap, hk, or none");
 
     // Order Matching Constraint propagation
     if (options["omc"] == "" || options["omc"] == "off")
