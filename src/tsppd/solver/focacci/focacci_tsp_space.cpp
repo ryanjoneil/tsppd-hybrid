@@ -75,6 +75,7 @@ void FocacciTSPSpace::constrain(const Space& _best) {
 }
 
 void FocacciTSPSpace::initialize_constraints() {
+    rel(*this, next[problem.index("-0")] == problem.index("+0"));
     circuit(*this, build_arc_costs(), next, length);
 }
 

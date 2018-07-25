@@ -95,7 +95,7 @@ double OneTree::bound() {
 
 bool OneTree::has_edge(int from, int to) {
     return edges[from].find(to) != edges[from].end();
-};
+}
 
 int OneTree::marginal_cost(int from, int to) {
     vector<bool> seen(edges.size(), false);
