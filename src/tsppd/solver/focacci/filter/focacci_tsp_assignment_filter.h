@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_ASSIGNMENT_FILTER_H
+#define TSPPD_SOLVER_FOCACCI_TSP_ASSIGNMENT_FILTER_H
 
 #include <utility>
 #include <vector>
@@ -28,16 +28,16 @@
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDAssignmentPropagator : public Gecode::Propagator {
+        class FocacciTSPAssignmentFilter : public Gecode::Propagator {
         public:
-            FocacciTSPPDAssignmentPropagator(
+            FocacciTSPAssignmentFilter(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            FocacciTSPPDAssignmentPropagator(Gecode::Space& home, FocacciTSPPDAssignmentPropagator& p);
+            FocacciTSPAssignmentFilter(Gecode::Space& home, FocacciTSPAssignmentFilter& p);
 
             virtual Gecode::Propagator* copy(Gecode::Space& home);
             virtual size_t dispose(Gecode::Space& home);

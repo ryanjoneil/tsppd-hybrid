@@ -14,32 +14,48 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_SPACE_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_SPACE_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_ADDITIVE_FILTER_H
+#define TSPPD_SOLVER_FOCACCI_TSP_ADDITIVE_FILTER_H
 
 #include <vector>
 
-#include <gecode/set.hh>
+#include <gecode/int.hh>
 #include <gecode/minimodel.hh>
 
 #include <tsppd/data/tsppd_problem.h>
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_propagator.h>
-#include <tsppd/solver/focacci/focacci_tsp_space.h>
+#include <tsppd/solver/focacci/filter/one_tree/focacci_tsp_one_tree.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_assignment_filter.h>
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDSpace : public FocacciTSPSpace {
+        class FocacciTSPAdditiveFilter : public FocacciTSPAssignmentFilter {
         public:
-            FocacciTSPPDSpace(const TSPPD::Data::TSPPDProblem& problem);
+            FocacciTSPAdditiveFilter(
+                Gecode::Home home,
+                Gecode::ViewArray<Gecode::Int::IntView>& next,
+                Gecode::Int::IntView& primal,
+                const TSPPD::Data::TSPPDProblem& problem
+            );
 
-            // Search & optimization support
-            FocacciTSPPDSpace(FocacciTSPPDSpace& rs);
-            virtual Gecode::Space* copy();
+            FocacciTSPAdditiveFilter(Gecode::Space& home, FocacciTSPAdditiveFilter& p);
 
-            virtual void initialize_constraints();
-            void initialize_precedence_propagators(const FocacciTSPPDPrecedePropagatorType precede_type);
-            void initialize_omc_constraints();
+            virtual Gecode::Propagator* copy(Gecode::Space& home);
+            virtual Gecode::ExecStatus propagate(Gecode::Space& home, const Gecode::ModEventDelta& med);
+
+            static Gecode::ExecStatus post(
+                Gecode::Home home,
+                Gecode::ViewArray<Gecode::Int::IntView>& next,
+                Gecode::Int::IntView& primal,
+                const TSPPD::Data::TSPPDProblem& problem
+            );
         };
+
+        void tsppd_additive(
+            Gecode::Home home,
+            Gecode::IntVarArray& next,
+            Gecode::IntVar& primal,
+            const TSPPD::Data::TSPPDProblem& problem
+        );
     }
 }
 

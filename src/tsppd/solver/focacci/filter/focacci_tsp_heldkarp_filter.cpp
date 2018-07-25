@@ -16,8 +16,8 @@
 
 #include <cmath>
 
-#include <tsppd/solver/focacci/one_tree/focacci_tsppd_one_tree.h>
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_heldkarp_propagator.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_heldkarp_filter.h>
+#include <tsppd/solver/focacci/filter/one_tree/focacci_tsp_one_tree.h>
 
 using namespace Gecode;
 using namespace TSPPD::AP;
@@ -25,7 +25,7 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(
+FocacciTSPHeldKarpFilter::FocacciTSPHeldKarpFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
@@ -41,7 +41,7 @@ FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(
     home.notice(*this, AP_DISPOSE);
 }
 
-FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(Space& home, FocacciTSPPDHeldKarpPropagator& p) :
+FocacciTSPHeldKarpFilter::FocacciTSPHeldKarpFilter(Space& home, FocacciTSPHeldKarpFilter& p) :
     Propagator(home, p),
     next(p.next),
     primal(p.primal),
@@ -53,26 +53,26 @@ FocacciTSPPDHeldKarpPropagator::FocacciTSPPDHeldKarpPropagator(Space& home, Foca
     primal.update(home, p.primal);
 }
 
-Propagator* FocacciTSPPDHeldKarpPropagator::copy(Space& home) {
-    return new (home) FocacciTSPPDHeldKarpPropagator(home, *this);
+Propagator* FocacciTSPHeldKarpFilter::copy(Space& home) {
+    return new (home) FocacciTSPHeldKarpFilter(home, *this);
 }
 
-size_t FocacciTSPPDHeldKarpPropagator::dispose(Space& home) {
+size_t FocacciTSPHeldKarpFilter::dispose(Space& home) {
     home.ignore(*this, AP_DISPOSE);
     next.cancel(home, *this, Int::PC_INT_DOM);
     (void) Propagator::dispose(home);
     return sizeof(*this);
 }
 
-PropCost FocacciTSPPDHeldKarpPropagator::cost(const Space& home, const ModEventDelta& med) const {
+PropCost FocacciTSPHeldKarpFilter::cost(const Space& home, const ModEventDelta& med) const {
     return PropCost::crazy(PropCost::HI, next.size());
 }
 
-void FocacciTSPPDHeldKarpPropagator::reschedule(Space& home) {
+void FocacciTSPHeldKarpFilter::reschedule(Space& home) {
     next.reschedule(home, *this, Int::PC_INT_DOM);
 }
 
-ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEventDelta& med) {
+ExecStatus FocacciTSPHeldKarpFilter::propagate(Space& home, const ModEventDelta& med) {
     if (primal.assigned() || next.assigned())
         return home.ES_SUBSUMED(*this);
 
@@ -97,14 +97,14 @@ ExecStatus FocacciTSPPDHeldKarpPropagator::propagate(Space& home, const ModEvent
     return ES_FIX;
 }
 
-ExecStatus FocacciTSPPDHeldKarpPropagator::post(
+ExecStatus FocacciTSPHeldKarpFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPPDHeldKarpPropagator(home, next, primal, problem);
+        (void) new (home) FocacciTSPHeldKarpFilter(home, next, primal, problem);
     return ES_OK;
 }
 
@@ -121,5 +121,5 @@ void TSPPD::Solver::tsppd_heldkarp(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPPDHeldKarpPropagator::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPHeldKarpFilter::post(home, next_view, primal_view, problem));
 }

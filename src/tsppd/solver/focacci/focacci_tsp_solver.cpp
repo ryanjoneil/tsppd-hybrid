@@ -50,6 +50,7 @@ TSPPDSolution FocacciTSPSolver::solve() {
     space->initialize_constraints();
     space->initialize_dual(dual_type);
     space->initialize_brancher(brancher_type);
+    space->initialize_filter(filter_type);
 
     vector<string> best_order = problem.nodes;
     auto best_cost = numeric_limits<int>::max();
@@ -134,6 +135,7 @@ void FocacciTSPSolver::initialize_tsp_options() {
     initialize_option_brancher();
     initialize_option_discrepancy_limit();
     initialize_option_dual_bound();
+    initialize_option_filter();
     initialize_option_gist();
     initialize_option_search();
 }
@@ -176,6 +178,19 @@ void FocacciTSPSolver::initialize_option_dual_bound() {
     }
 }
 
+void FocacciTSPSolver::initialize_option_filter() {
+    if (options["filter"] == "add") 
+        filter_type = FOCACCI_FILTER_ADD;
+    else if (options["filter"] == "ap")
+        filter_type = FOCACCI_FILTER_AP;
+    else if (options["filter"] == "hk")
+        filter_type = FOCACCI_FILTER_HK;
+    else if (options["filter"] == "" || options["filter"] == "none")
+        filter_type = FOCACCI_FILTER_NONE;
+    else
+        throw TSPPDException("filter can be either add, ap, hk, or none");    
+}
+
 void FocacciTSPSolver::initialize_option_gist() {
     gist = options.find("gist") != options.end();
 }
@@ -194,5 +209,6 @@ void FocacciTSPSolver::initialize_option_search() {
 }
 
 shared_ptr<FocacciTSPSpace> FocacciTSPSolver::build_space() {
-    return make_shared<FocacciTSPSpace>(problem);
+    auto space = make_shared<FocacciTSPSpace>(problem);
+    return space;
 }

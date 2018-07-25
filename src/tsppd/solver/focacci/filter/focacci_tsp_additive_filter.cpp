@@ -14,7 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_additive_propagator.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_additive_filter.h>
 
 using namespace Gecode;
 using namespace TSPPD::AP;
@@ -22,23 +22,23 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(
+FocacciTSPAdditiveFilter::FocacciTSPAdditiveFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) :
-    FocacciTSPPDAssignmentPropagator(home, next, primal, problem) { }
+    FocacciTSPAssignmentFilter(home, next, primal, problem) { }
 
-FocacciTSPPDAdditivePropagator::FocacciTSPPDAdditivePropagator(Space& home, FocacciTSPPDAdditivePropagator& p) :
-    FocacciTSPPDAssignmentPropagator(home, p) { }
+FocacciTSPAdditiveFilter::FocacciTSPAdditiveFilter(Space& home, FocacciTSPAdditiveFilter& p) :
+    FocacciTSPAssignmentFilter(home, p) { }
 
 
-Propagator* FocacciTSPPDAdditivePropagator::copy(Space& home) {
-    return new (home) FocacciTSPPDAdditivePropagator(home, *this);
+Propagator* FocacciTSPAdditiveFilter::copy(Space& home) {
+    return new (home) FocacciTSPAdditiveFilter(home, *this);
 }
 
-ExecStatus FocacciTSPPDAdditivePropagator::propagate(Space& home, const ModEventDelta& med) {
-    auto status = FocacciTSPPDAssignmentPropagator::propagate(home, med);
+ExecStatus FocacciTSPAdditiveFilter::propagate(Space& home, const ModEventDelta& med) {
+    auto status = FocacciTSPAssignmentFilter::propagate(home, med);
     if (status != ES_FIX)
         return status;
 
@@ -64,14 +64,14 @@ ExecStatus FocacciTSPPDAdditivePropagator::propagate(Space& home, const ModEvent
     return ES_FIX;
 }
 
-ExecStatus FocacciTSPPDAdditivePropagator::post(
+ExecStatus FocacciTSPAdditiveFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPPDAdditivePropagator(home, next, primal, problem);
+        (void) new (home) FocacciTSPAdditiveFilter(home, next, primal, problem);
     return ES_OK;
 }
 
@@ -88,5 +88,5 @@ void TSPPD::Solver::tsppd_additive(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPPDAdditivePropagator::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPAdditiveFilter::post(home, next_view, primal_view, problem));
 }

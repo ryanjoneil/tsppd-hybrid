@@ -26,6 +26,7 @@
 #include <tsppd/data/tsppd_problem.h>
 #include <tsppd/solver/focacci/brancher/focacci_tsp_brancher.h>
 #include <tsppd/solver/focacci/dual/focacci_tsp_dual.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_filter.h>
 
 namespace TSPPD {
     namespace Solver {
@@ -45,6 +46,7 @@ namespace TSPPD {
             virtual void initialize_constraints();
             virtual void initialize_brancher(const FocacciTSPBrancherType brancher_type);
             virtual void initialize_dual(const FocacciTSPDualType dual_type);
+            virtual void initialize_filter(const FocacciTSPFilterType filter_type);
 
             virtual std::vector<std::string> solution() const;
 

@@ -33,7 +33,6 @@
 //     brancher: branching scheme {cn, regret, seq-cn} (default=regret)
 //     precede:  precedence propagator type {set, cost, all} (default=set)
 //     dual:     dual bounder {none, cn} (default=none)
-//     filter:   reduced-cost variable domain filtering {add, ap, hk, none} (default=none)
 //     omc:      order matching constraints (default=off)
 //
 //     search:   search engine {bab, dfs, lds} (default=bab)
@@ -43,13 +42,6 @@
 //     threads:  number of threads to use in Gecode (default=1)
 namespace TSPPD {
     namespace Solver {
-        enum FOCACCI_FILTER_TYPE {
-            FOCACCI_FILTER_ADD,
-            FOCACCI_FILTER_AP,
-            FOCACCI_FILTER_HK,
-            FOCACCI_FILTER_NONE
-        };
-
         class FocacciTSPPDSolver : public FocacciTSPSolver {
         public:
             FocacciTSPPDSolver(
@@ -65,7 +57,6 @@ namespace TSPPD {
             virtual std::shared_ptr<FocacciTSPSpace> build_space() override;
 
             FocacciTSPPDPrecedePropagatorType precede_type;
-            FOCACCI_FILTER_TYPE filter_type;
             bool omc;
        };
     }

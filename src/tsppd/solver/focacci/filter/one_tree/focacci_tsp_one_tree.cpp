@@ -22,7 +22,7 @@
 
 #include <boost/graph/kruskal_min_spanning_tree.hpp>
 
-#include <tsppd/solver/focacci/one_tree/focacci_tsppd_one_tree.h>
+#include <tsppd/solver/focacci/filter/one_tree/focacci_tsp_one_tree.h>
 
 using namespace Gecode;
 using namespace TSPPD::Data;
