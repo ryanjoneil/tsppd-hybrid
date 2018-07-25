@@ -199,22 +199,25 @@ int OneTree::marginal_cost(
     int node,
     int max_edge_cost) {
 
+
     // Introducing a nonbasic arc into the basis would create a cycle.
     // The marginal cost of this operation is the cost of the new arc
     // minus the max cost in the cycle. This can be found using DFS.
     for (auto next : edges[node]) {
+        if ((node == start_index && next == end_index) || (node == end_index && next == start_index))
+            continue;
+
         if (seen[next])
             continue;
 
-        int new_max = max(new_max, undirected_cost(from, node));
-
         // If we loop back to the from node, then compute marginal cost.
         if (next == from && node != to)
-            return cost(from, to) - new_max;
+            return cost(from, to) - max_edge_cost;
 
         vector<bool> new_seen(seen);
         new_seen[next] = true;
 
+        int new_max = max(max_edge_cost, undirected_cost(from, node));
         auto cost = marginal_cost(from, to, new_seen, next, new_max);
         if (cost > -1)
             return cost;
@@ -224,5 +227,7 @@ int OneTree::marginal_cost(
 }
 
 int OneTree::cost(int i, int j) {
-    return ap == nullptr ? problem.cost(i, j) : ap->get_rc({i, j});
+    if (ap == nullptr)
+        return problem.cost(i, j);
+    return ap->get_rc({i, j});
 }
