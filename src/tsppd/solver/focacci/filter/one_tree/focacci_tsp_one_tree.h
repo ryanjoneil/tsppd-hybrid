@@ -55,6 +55,7 @@ namespace TSPPD {
             );
 
             double bound();
+            double improve();
             bool has_edge(int from, int to);
             int marginal_cost(int from, int to);
 
@@ -88,6 +89,11 @@ namespace TSPPD {
             const int start_index;
             const int end_index;
 
+            unsigned int iteration = 1;
+            double w = 0;
+            double t1, ti;
+            bool done = false;
+            
             const double EPSILON = 10e-7;
             const unsigned int MAX_ITERATIONS = 100;
         };

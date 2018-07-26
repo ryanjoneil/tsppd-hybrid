@@ -49,47 +49,49 @@ OneTree::OneTree(
 }
 
 double OneTree::bound() {
-    double w;
-    double last_w = 0;
-
-    double t1, ti;
-    double M = MAX_ITERATIONS;
-
-    // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
-    for (unsigned int m = 1; m <= MAX_ITERATIONS; ++m) {
-        bool is_tour = true;
-
-        // Compute optimal 1-tree.
-        edges = vector<set<int>>(next.size(), set<int>());
-        w = minimize_one_tree();
-
-        // Update step size
-        if (m == 1) {
-            t1 = w / (2.0 * next.size());
-            ti = t1;
-        } else {
-            ti = t1*(m - 1)*(2*M - 5)/(2*(M-1)) - t1*(m-2) + t1*(m-1)*(m-2)/(2*(M-1)*(M-2));
-        }
-
-        // Remove node potentials from tour.
-        for (auto pi : potentials)
-            w -= 2 * pi;
-
-        // Update node potentials.
-        for (int node = 0; node < next.size(); ++node) {
-            if (node != start_index && node != end_index && edges[node].size() != 2)
-                is_tour = false;
-            potentials[node] += (((int) edges[node].size()) - 2) * ti;
-        }
-
-        if (is_tour || abs(w - last_w) <= EPSILON)
+    for (; iteration <= MAX_ITERATIONS; ++iteration) {
+        improve();
+        if (done)
             break;
-        else
-            last_w = w;
+    }
+    return w;
+}
 
-        update_one_tree();
+double OneTree::improve() {
+    // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
+    bool is_tour = true;
+
+    // Compute optimal 1-tree.
+    edges = vector<set<int>>(next.size(), set<int>());
+    auto new_w = minimize_one_tree();
+
+    // Update step size
+    auto M = MAX_ITERATIONS;
+    auto m = iteration;
+    if (m == 1) {
+        t1 = new_w / (2.0 * next.size());
+        ti = t1;
+    } else {
+        ti = t1*(m - 1)*(2*M - 5)/(2*(M-1)) - t1*(m-2) + t1*(m-1)*(m-2)/(2*(M-1)*(M-2));
     }
 
+    // Remove node potentials from tour.
+    for (auto pi : potentials)
+        new_w -= 2 * pi;
+
+    // Update node potentials.
+    for (int node = 0; node < next.size(); ++node) {
+        if (node != start_index && node != end_index && edges[node].size() != 2)
+            is_tour = false;
+        potentials[node] += (((int) edges[node].size()) - 2) * ti;
+    }
+
+    if (is_tour || abs(new_w - w) <= EPSILON)
+        done = true;
+    else
+        update_one_tree();
+
+    w = new_w;
     return w;
 }
 
