@@ -42,6 +42,9 @@ ExecStatus FocacciTSPAdditiveFilter::propagate(Space& home, const ModEventDelta&
     if (status != ES_FIX)
         return status;
 
+    if (hk_done)
+        return ES_FIX;
+
     OneTree tree(next, problem, &ap);
     auto z = ap.get_z();
     auto w = tree.bound();
@@ -53,14 +56,17 @@ ExecStatus FocacciTSPAdditiveFilter::propagate(Space& home, const ModEventDelta&
     for (int from = 0; from < (int) next.size(); ++from) {
         for (auto to = next[from].min(); to <= next[from].max(); ++to) {
             // This only applies to nonbasic feasible arcs in the MST.
-            if (!(next[from].in(to) && !tree.has_edge(from, to)))
+            if (!next[from].in(to) || tree.has_edge(from, to))
                 continue;
 
-            if (z + ap.get_rc({from, to}) + w + tree.marginal_cost(from, to) > primal.max())
+            auto rc = ap.get_rc({from, to});
+            auto mc = tree.marginal_cost(from, to);
+            if (z + w + rc + mc > primal.max())
                 GECODE_ME_CHECK(next[from].nq(home, to));
         }
     }
 
+    hk_done = true;
     return ES_FIX;
 }
 

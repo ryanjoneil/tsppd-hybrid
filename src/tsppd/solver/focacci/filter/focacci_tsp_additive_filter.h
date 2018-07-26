@@ -48,6 +48,9 @@ namespace TSPPD {
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
+
+        protected:
+            bool hk_done = false;
         };
 
         void tsppd_additive(

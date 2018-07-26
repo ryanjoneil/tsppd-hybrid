@@ -96,7 +96,7 @@ namespace TSPPD {
             bool done = false;
 
             const double EPSILON = 10e-7;
-            const unsigned int MAX_ITERATIONS = 10;
+            const unsigned int MAX_ITERATIONS = 100;
         };
     }
 }
