@@ -56,6 +56,8 @@ namespace TSPPD {
 
             const int start_index;
             const int end_index;
+
+            bool hk_done = false;
         };
 
         void tsppd_heldkarp(
