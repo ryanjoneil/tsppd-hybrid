@@ -42,14 +42,20 @@ OneTree::OneTree(
     potentials(next.size(), 0),
     edges(next.size(), set<int>()),
     start_index(problem.index("+0")),
-    end_index(problem.index("-0")) {
+    end_index(problem.index("-0")),
+    iteration(1),
+    w(0) {
 
     weights = boost::get(boost::edge_weight, graph);
     initialize_one_tree();
 }
 
+bool OneTree::is_done() {
+    return done;
+}
+
 double OneTree::bound() {
-    for (; iteration <= MAX_ITERATIONS; ++iteration) {
+    while (true) {
         improve();
         if (done)
             break;
@@ -58,6 +64,11 @@ double OneTree::bound() {
 }
 
 double OneTree::improve() {
+    if (iteration >= MAX_ITERATIONS) {
+        done = true;
+        return w;
+    } 
+
     // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
     bool is_tour = true;
 
@@ -92,6 +103,7 @@ double OneTree::improve() {
         update_one_tree();
 
     w = new_w;
+    ++iteration;
     return w;
 }
 

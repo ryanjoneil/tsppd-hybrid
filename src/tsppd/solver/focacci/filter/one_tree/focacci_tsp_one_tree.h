@@ -54,6 +54,7 @@ namespace TSPPD {
                 TSPPD::AP::PrimalDualAPSolver* ap
             );
 
+            bool is_done();
             double bound();
             double improve();
             bool has_edge(int from, int to);
@@ -89,11 +90,11 @@ namespace TSPPD {
             const int start_index;
             const int end_index;
 
-            unsigned int iteration = 1;
-            double w = 0;
+            unsigned int iteration;
+            double w;
             double t1, ti;
             bool done = false;
-            
+
             const double EPSILON = 10e-7;
             const unsigned int MAX_ITERATIONS = 100;
         };
