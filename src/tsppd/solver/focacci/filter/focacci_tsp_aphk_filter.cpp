@@ -59,9 +59,8 @@ ExecStatus FocacciTSPAPHKFilter::propagate(Space& home, const ModEventDelta& med
             if (!next[from].in(to) || tree.has_edge(from, to))
                 continue;
 
-            auto rc = ap.get_rc({from, to});
             auto mc = tree.marginal_cost(from, to);
-            if (z + w + rc + mc > primal.max())
+            if (z + w + mc > primal.max())
                 GECODE_ME_CHECK(next[from].nq(home, to));
         }
     }
