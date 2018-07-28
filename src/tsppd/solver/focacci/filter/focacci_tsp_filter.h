@@ -23,6 +23,7 @@ namespace TSPPD {
             FOCACCI_FILTER_AP,
             FOCACCI_FILTER_APHK,
             FOCACCI_FILTER_HK,
+            FOCACCI_FILTER_HKAP,
             FOCACCI_FILTER_NONE
         };
     }

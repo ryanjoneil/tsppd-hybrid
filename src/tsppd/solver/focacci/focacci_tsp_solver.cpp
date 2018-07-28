@@ -185,10 +185,12 @@ void FocacciTSPSolver::initialize_option_filter() {
         filter_type = FOCACCI_FILTER_APHK;
     else if (options["filter"] == "hk")
         filter_type = FOCACCI_FILTER_HK;
+    else if (options["filter"] == "hkap")
+        filter_type = FOCACCI_FILTER_HKAP;
     else if (options["filter"] == "" || options["filter"] == "none")
         filter_type = FOCACCI_FILTER_NONE;
     else
-        throw TSPPDException("filter can be either ap, aphk, hk, or none");
+        throw TSPPDException("filter can be either ap, aphk, hk, hkap, or none");
 }
 
 void FocacciTSPSolver::initialize_option_gist() {

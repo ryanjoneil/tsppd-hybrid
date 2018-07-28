@@ -25,6 +25,7 @@
 #include <tsppd/solver/focacci/filter/focacci_tsp_aphk_filter.h>
 #include <tsppd/solver/focacci/filter/focacci_tsp_assignment_filter.h>
 #include <tsppd/solver/focacci/filter/focacci_tsp_heldkarp_filter.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_hkap_filter.h>
 
 using namespace Gecode;
 using namespace TSPPD::Data;
@@ -111,6 +112,8 @@ void FocacciTSPSpace::initialize_filter(const FocacciTSPFilterType filter_type) 
         tsppd_aphk(*this, next, length, problem);
     else if (filter_type == FOCACCI_FILTER_HK)
         tsppd_heldkarp(*this, next, length, problem);
+    else if (filter_type == FOCACCI_FILTER_HKAP)
+        tsppd_hkap(*this, next, length, problem);
 }
 
 vector<string> FocacciTSPSpace::solution() const {
