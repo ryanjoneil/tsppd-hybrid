@@ -179,16 +179,16 @@ void FocacciTSPSolver::initialize_option_dual_bound() {
 }
 
 void FocacciTSPSolver::initialize_option_filter() {
-    if (options["filter"] == "add") 
-        filter_type = FOCACCI_FILTER_ADD;
-    else if (options["filter"] == "ap")
+    if (options["filter"] == "ap")
         filter_type = FOCACCI_FILTER_AP;
+    else if (options["filter"] == "aphk")
+        filter_type = FOCACCI_FILTER_APHK;
     else if (options["filter"] == "hk")
         filter_type = FOCACCI_FILTER_HK;
     else if (options["filter"] == "" || options["filter"] == "none")
         filter_type = FOCACCI_FILTER_NONE;
     else
-        throw TSPPDException("filter can be either add, ap, hk, or none");    
+        throw TSPPDException("filter can be either ap, aphk, hk, or none");
 }
 
 void FocacciTSPSolver::initialize_option_gist() {

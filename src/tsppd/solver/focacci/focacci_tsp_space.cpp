@@ -22,7 +22,7 @@
 #include <tsppd/solver/focacci/brancher/focacci_tsp_regret_brancher.h>
 #include <tsppd/solver/focacci/brancher/focacci_tsp_sequential_closest_neighbor_brancher.h>
 #include <tsppd/solver/focacci/dual/focacci_closest_neighbor_dual.h>
-#include <tsppd/solver/focacci/filter/focacci_tsp_additive_filter.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_aphk_filter.h>
 #include <tsppd/solver/focacci/filter/focacci_tsp_assignment_filter.h>
 #include <tsppd/solver/focacci/filter/focacci_tsp_heldkarp_filter.h>
 
@@ -105,10 +105,10 @@ void FocacciTSPSpace::initialize_dual(const FocacciTSPDualType dual_type) {
 }
 
 void FocacciTSPSpace::initialize_filter(const FocacciTSPFilterType filter_type) {
-    if (filter_type == FOCACCI_FILTER_ADD)
-        tsppd_additive(*this, next, length, problem);
-    else if (filter_type == FOCACCI_FILTER_AP)
+    if (filter_type == FOCACCI_FILTER_AP)
         tsppd_assignment(*this, next, length, problem);
+    else if (filter_type == FOCACCI_FILTER_APHK)
+        tsppd_aphk(*this, next, length, problem);
     else if (filter_type == FOCACCI_FILTER_HK)
         tsppd_heldkarp(*this, next, length, problem);
 }

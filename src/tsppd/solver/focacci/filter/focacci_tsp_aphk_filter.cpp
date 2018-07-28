@@ -14,7 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/focacci/filter/focacci_tsp_additive_filter.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_aphk_filter.h>
 
 using namespace Gecode;
 using namespace TSPPD::AP;
@@ -22,22 +22,22 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-FocacciTSPAdditiveFilter::FocacciTSPAdditiveFilter(
+FocacciTSPAPHKFilter::FocacciTSPAPHKFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) :
     FocacciTSPAssignmentFilter(home, next, primal, problem) { }
 
-FocacciTSPAdditiveFilter::FocacciTSPAdditiveFilter(Space& home, FocacciTSPAdditiveFilter& p) :
+FocacciTSPAPHKFilter::FocacciTSPAPHKFilter(Space& home, FocacciTSPAPHKFilter& p) :
     FocacciTSPAssignmentFilter(home, p) { }
 
 
-Propagator* FocacciTSPAdditiveFilter::copy(Space& home) {
-    return new (home) FocacciTSPAdditiveFilter(home, *this);
+Propagator* FocacciTSPAPHKFilter::copy(Space& home) {
+    return new (home) FocacciTSPAPHKFilter(home, *this);
 }
 
-ExecStatus FocacciTSPAdditiveFilter::propagate(Space& home, const ModEventDelta& med) {
+ExecStatus FocacciTSPAPHKFilter::propagate(Space& home, const ModEventDelta& med) {
     auto status = FocacciTSPAssignmentFilter::propagate(home, med);
     if (status != ES_FIX)
         return status;
@@ -70,18 +70,18 @@ ExecStatus FocacciTSPAdditiveFilter::propagate(Space& home, const ModEventDelta&
     return ES_FIX;
 }
 
-ExecStatus FocacciTSPAdditiveFilter::post(
+ExecStatus FocacciTSPAPHKFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPAdditiveFilter(home, next, primal, problem);
+        (void) new (home) FocacciTSPAPHKFilter(home, next, primal, problem);
     return ES_OK;
 }
 
-void TSPPD::Solver::tsppd_additive(
+void TSPPD::Solver::tsppd_aphk(
     Home home,
     IntVarArray& next,
     IntVar& primal,
@@ -94,5 +94,5 @@ void TSPPD::Solver::tsppd_additive(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPAdditiveFilter::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPAPHKFilter::post(home, next_view, primal_view, problem));
 }

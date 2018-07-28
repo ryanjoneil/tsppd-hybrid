@@ -20,8 +20,8 @@
 namespace TSPPD {
     namespace Solver {
         enum FocacciTSPFilterType {
-            FOCACCI_FILTER_ADD,
             FOCACCI_FILTER_AP,
+            FOCACCI_FILTER_APHK,
             FOCACCI_FILTER_HK,
             FOCACCI_FILTER_NONE
         };

@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSP_ADDITIVE_FILTER_H
-#define TSPPD_SOLVER_FOCACCI_TSP_ADDITIVE_FILTER_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_APHK_FILTER_H
+#define TSPPD_SOLVER_FOCACCI_TSP_APHK_FILTER_H
 
 #include <vector>
 
@@ -28,16 +28,16 @@
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPAdditiveFilter : public FocacciTSPAssignmentFilter {
+        class FocacciTSPAPHKFilter : public FocacciTSPAssignmentFilter {
         public:
-            FocacciTSPAdditiveFilter(
+            FocacciTSPAPHKFilter(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
                 const TSPPD::Data::TSPPDProblem& problem
             );
 
-            FocacciTSPAdditiveFilter(Gecode::Space& home, FocacciTSPAdditiveFilter& p);
+            FocacciTSPAPHKFilter(Gecode::Space& home, FocacciTSPAPHKFilter& p);
 
             virtual Gecode::Propagator* copy(Gecode::Space& home);
             virtual Gecode::ExecStatus propagate(Gecode::Space& home, const Gecode::ModEventDelta& med);
@@ -53,7 +53,7 @@ namespace TSPPD {
             bool hk_done = false;
         };
 
-        void tsppd_additive(
+        void tsppd_aphk(
             Gecode::Home home,
             Gecode::IntVarArray& next,
             Gecode::IntVar& primal,
