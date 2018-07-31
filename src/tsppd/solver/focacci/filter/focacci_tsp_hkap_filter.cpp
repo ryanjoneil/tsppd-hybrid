@@ -46,7 +46,7 @@ ExecStatus FocacciTSPHKAPFilter::propagate(Space& home, const ModEventDelta& med
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem);
+    OneTree tree(next, problem, 0); // TODO
     auto w = tree.bound();
 
     PrimalDualAPSolver ap(next.size());

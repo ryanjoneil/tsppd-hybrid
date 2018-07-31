@@ -79,7 +79,7 @@ ExecStatus FocacciTSPHeldKarpFilter::propagate(Space& home, const ModEventDelta&
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem);
+    OneTree tree(next, problem, 0); // TODO
     auto w = tree.bound();
 
     // Objective filtering.

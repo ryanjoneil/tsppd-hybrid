@@ -29,14 +29,20 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-OneTree::OneTree(ViewArray<Int::IntView>& next, const TSPPDProblem& problem) : OneTree(next, problem, nullptr) { }
+OneTree::OneTree(
+    ViewArray<Int::IntView>& next,
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) :
+    OneTree(next, problem, max_iterations, nullptr) { }
 
 OneTree::OneTree(
     ViewArray<Int::IntView>& next,
     const TSPPDProblem& problem,
+    const unsigned int max_iterations,
     TSPPD::AP::PrimalDualAPSolver* ap) :
     next(next),
     problem(problem),
+    max_iterations(max_iterations > 0 ? max_iterations : FOCACCI_TSP_FILTER_ONE_TREE_MAX_ITERATIONS),
     ap(ap),
     graph(next.size() - 2),
     potentials(next.size(), 0),
@@ -64,10 +70,10 @@ double OneTree::bound() {
 }
 
 double OneTree::improve() {
-    if (iteration >= MAX_ITERATIONS) {
+    if (iteration >= max_iterations) {
         done = true;
         return w;
-    } 
+    }
 
     // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
     bool is_tour = true;
@@ -77,7 +83,7 @@ double OneTree::improve() {
     auto new_w = minimize_one_tree();
 
     // Update step size
-    auto M = MAX_ITERATIONS;
+    auto M = max_iterations;
     auto m = iteration;
     if (m == 1) {
         t1 = new_w / (2.0 * next.size());

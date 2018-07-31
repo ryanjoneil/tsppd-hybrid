@@ -45,7 +45,7 @@ ExecStatus FocacciTSPAPHKFilter::propagate(Space& home, const ModEventDelta& med
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem, &ap);
+    OneTree tree(next, problem, 0, &ap); // TODO
     auto z = ap.get_z();
     auto w = tree.bound();
 

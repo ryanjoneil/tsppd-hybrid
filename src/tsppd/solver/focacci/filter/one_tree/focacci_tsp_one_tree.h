@@ -14,8 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_FILTER_ONE_TREE_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_FILTER_ONE_TREE_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_FILTER_ONE_TREE_H
+#define TSPPD_SOLVER_FOCACCI_TSP_FILTER_ONE_TREE_H
 
 #include <set>
 #include <utility>
@@ -28,6 +28,8 @@
 
 #include <tsppd/ap/primal_dual_ap_solver.h>
 #include <tsppd/data/tsppd_problem.h>
+
+#define FOCACCI_TSP_FILTER_ONE_TREE_MAX_ITERATIONS 100
 
 namespace TSPPD {
     namespace Solver {
@@ -45,12 +47,14 @@ namespace TSPPD {
         public:
             OneTree(
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
-                const TSPPD::Data::TSPPDProblem& problem
+                const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations
             );
 
             OneTree(
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations,
                 TSPPD::AP::PrimalDualAPSolver* ap
             );
 
@@ -80,6 +84,7 @@ namespace TSPPD {
 
             Gecode::ViewArray<Gecode::Int::IntView> next;
             const TSPPD::Data::TSPPDProblem& problem;
+            const unsigned int max_iterations;
             TSPPD::AP::PrimalDualAPSolver* ap;
 
             OneTreeGraph graph;
@@ -96,7 +101,6 @@ namespace TSPPD {
             bool done = false;
 
             const double EPSILON = 10e-7;
-            const unsigned int MAX_ITERATIONS = 100;
         };
     }
 }
