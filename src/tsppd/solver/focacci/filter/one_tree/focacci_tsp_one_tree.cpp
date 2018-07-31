@@ -42,7 +42,7 @@ OneTree::OneTree(
     TSPPD::AP::PrimalDualAPSolver* ap) :
     next(next),
     problem(problem),
-    max_iterations(max_iterations > 0 ? max_iterations : FOCACCI_TSP_FILTER_ONE_TREE_MAX_ITERATIONS),
+    max_iterations(max_iterations),
     ap(ap),
     graph(next.size() - 2),
     potentials(next.size(), 0),

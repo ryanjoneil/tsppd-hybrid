@@ -46,7 +46,7 @@ namespace TSPPD {
             virtual void initialize_constraints();
             virtual void initialize_brancher(const FocacciTSPBrancherType brancher_type);
             virtual void initialize_dual(const FocacciTSPDualType dual_type);
-            virtual void initialize_filter(const FocacciTSPFilterType filter_type);
+            virtual void initialize_filter(const FocacciTSPFilterType filter_type, const unsigned int iter);
 
             virtual std::vector<std::string> solution() const;
 

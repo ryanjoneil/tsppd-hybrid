@@ -26,11 +26,13 @@ FocacciTSPAPHKFilter::FocacciTSPAPHKFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) :
-    FocacciTSPAssignmentFilter(home, next, primal, problem) { }
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) :
+    FocacciTSPAssignmentFilter(home, next, primal, problem), max_iterations(max_iterations) { }
 
 FocacciTSPAPHKFilter::FocacciTSPAPHKFilter(Space& home, FocacciTSPAPHKFilter& p) :
-    FocacciTSPAssignmentFilter(home, p) { }
+    FocacciTSPAssignmentFilter(home, p),
+    max_iterations(p.max_iterations) { }
 
 
 Propagator* FocacciTSPAPHKFilter::copy(Space& home) {
@@ -45,7 +47,7 @@ ExecStatus FocacciTSPAPHKFilter::propagate(Space& home, const ModEventDelta& med
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem, 0, &ap); // TODO
+    OneTree tree(next, problem, max_iterations, &ap);
     auto z = ap.get_z();
     auto w = tree.bound();
 
@@ -73,10 +75,11 @@ ExecStatus FocacciTSPAPHKFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPAPHKFilter(home, next, primal, problem);
+        (void) new (home) FocacciTSPAPHKFilter(home, next, primal, problem, max_iterations);
     return ES_OK;
 }
 
@@ -84,7 +87,8 @@ void TSPPD::Solver::tsppd_aphk(
     Home home,
     IntVarArray& next,
     IntVar& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     GECODE_POST;
 
@@ -93,5 +97,5 @@ void TSPPD::Solver::tsppd_aphk(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPAPHKFilter::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPAPHKFilter::post(home, next_view, primal_view, problem, max_iterations));
 }

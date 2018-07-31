@@ -34,7 +34,8 @@ namespace TSPPD {
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
-                const TSPPD::Data::TSPPDProblem& problem
+                const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations
             );
 
             FocacciTSPAPHKFilter(Gecode::Space& home, FocacciTSPAPHKFilter& p);
@@ -46,18 +47,21 @@ namespace TSPPD {
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
-                const TSPPD::Data::TSPPDProblem& problem
+                const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations
             );
 
         protected:
             bool hk_done = false;
+            const unsigned int max_iterations;
         };
 
         void tsppd_aphk(
             Gecode::Home home,
             Gecode::IntVarArray& next,
             Gecode::IntVar& primal,
-            const TSPPD::Data::TSPPDProblem& problem
+            const TSPPD::Data::TSPPDProblem& problem,
+            const unsigned int max_iterations
         );
     }
 }

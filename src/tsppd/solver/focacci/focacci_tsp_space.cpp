@@ -105,15 +105,15 @@ void FocacciTSPSpace::initialize_dual(const FocacciTSPDualType dual_type) {
         closest_neighbor_dual(*this, next, dual_bound, problem);
 }
 
-void FocacciTSPSpace::initialize_filter(const FocacciTSPFilterType filter_type) {
+void FocacciTSPSpace::initialize_filter(const FocacciTSPFilterType filter_type, const unsigned int iter) {
     if (filter_type == FOCACCI_FILTER_AP)
         tsppd_assignment(*this, next, length, problem);
     else if (filter_type == FOCACCI_FILTER_APHK)
-        tsppd_aphk(*this, next, length, problem);
+        tsppd_aphk(*this, next, length, problem, iter);
     else if (filter_type == FOCACCI_FILTER_HK)
-        tsppd_heldkarp(*this, next, length, problem);
+        tsppd_heldkarp(*this, next, length, problem, iter);
     else if (filter_type == FOCACCI_FILTER_HKAP)
-        tsppd_hkap(*this, next, length, problem);
+        tsppd_hkap(*this, next, length, problem, iter);
 }
 
 vector<string> FocacciTSPSpace::solution() const {

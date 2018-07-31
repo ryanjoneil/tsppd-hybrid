@@ -50,7 +50,7 @@ TSPPDSolution FocacciTSPSolver::solve() {
     space->initialize_constraints();
     space->initialize_dual(dual_type);
     space->initialize_brancher(brancher_type);
-    space->initialize_filter(filter_type);
+    space->initialize_filter(filter_type, hk_iter);
 
     vector<string> best_order = problem.nodes;
     auto best_cost = numeric_limits<int>::max();
@@ -137,6 +137,7 @@ void FocacciTSPSolver::initialize_tsp_options() {
     initialize_option_dual_bound();
     initialize_option_filter();
     initialize_option_gist();
+    initialize_option_hk_iter();
     initialize_option_search();
 }
 
@@ -195,6 +196,20 @@ void FocacciTSPSolver::initialize_option_filter() {
 
 void FocacciTSPSolver::initialize_option_gist() {
     gist = options.find("gist") != options.end();
+}
+
+void FocacciTSPSolver::initialize_option_hk_iter() {
+    hk_iter = 10;
+    auto hk_iter_pair = options.find("hk-iter");
+    if (hk_iter_pair != options.end()) {
+        try {
+            hk_iter = stoi(hk_iter_pair->second);
+         } catch (exception &e) {
+            throw TSPPDException("hk-iter limit must be an integer");
+         }
+        if (hk_iter < 1)
+            throw TSPPDException("hk-iter limit must be >= 1");
+    }
 }
 
 void FocacciTSPSolver::initialize_option_search() {

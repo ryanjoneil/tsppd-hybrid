@@ -29,11 +29,13 @@ FocacciTSPHeldKarpFilter::FocacciTSPHeldKarpFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) :
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) :
     Propagator(home),
     next(next),
     primal(primal),
     problem(problem),
+    max_iterations(max_iterations),
     start_index(problem.index("+0")),
     end_index(problem.index("-0")) {
 
@@ -46,6 +48,7 @@ FocacciTSPHeldKarpFilter::FocacciTSPHeldKarpFilter(Space& home, FocacciTSPHeldKa
     next(p.next),
     primal(p.primal),
     problem(p.problem),
+    max_iterations(p.max_iterations),
     start_index(p.start_index),
     end_index(p.end_index) {
 
@@ -79,7 +82,7 @@ ExecStatus FocacciTSPHeldKarpFilter::propagate(Space& home, const ModEventDelta&
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem, 0); // TODO
+    OneTree tree(next, problem, max_iterations);
     auto w = tree.bound();
 
     // Objective filtering.
@@ -106,10 +109,11 @@ ExecStatus FocacciTSPHeldKarpFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPHeldKarpFilter(home, next, primal, problem);
+        (void) new (home) FocacciTSPHeldKarpFilter(home, next, primal, problem, max_iterations);
     return ES_OK;
 }
 
@@ -117,7 +121,8 @@ void TSPPD::Solver::tsppd_heldkarp(
     Home home,
     IntVarArray& next,
     IntVar& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     GECODE_POST;
 
@@ -126,5 +131,5 @@ void TSPPD::Solver::tsppd_heldkarp(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPHeldKarpFilter::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPHeldKarpFilter::post(home, next_view, primal_view, problem, max_iterations));
 }

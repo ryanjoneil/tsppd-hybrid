@@ -28,8 +28,9 @@ FocacciTSPHKAPFilter::FocacciTSPHKAPFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) :
-    FocacciTSPHeldKarpFilter(home, next, primal, problem) { }
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) :
+    FocacciTSPHeldKarpFilter(home, next, primal, problem, max_iterations) { }
 
 FocacciTSPHKAPFilter::FocacciTSPHKAPFilter(Space& home, FocacciTSPHKAPFilter& p) :
     FocacciTSPHeldKarpFilter(home, p) { }
@@ -46,7 +47,7 @@ ExecStatus FocacciTSPHKAPFilter::propagate(Space& home, const ModEventDelta& med
     if (hk_done)
         return ES_FIX;
 
-    OneTree tree(next, problem, 0); // TODO
+    OneTree tree(next, problem, max_iterations);
     auto w = tree.bound();
 
     PrimalDualAPSolver ap(next.size());
@@ -104,10 +105,11 @@ ExecStatus FocacciTSPHKAPFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPHKAPFilter(home, next, primal, problem);
+        (void) new (home) FocacciTSPHKAPFilter(home, next, primal, problem, max_iterations);
     return ES_OK;
 }
 
@@ -115,7 +117,8 @@ void TSPPD::Solver::tsppd_hkap(
     Home home,
     IntVarArray& next,
     IntVar& primal,
-    const TSPPDProblem& problem) {
+    const TSPPDProblem& problem,
+    const unsigned int max_iterations) {
 
     GECODE_POST;
 
@@ -124,5 +127,5 @@ void TSPPD::Solver::tsppd_hkap(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPHKAPFilter::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPHKAPFilter::post(home, next_view, primal_view, problem, max_iterations));
 }

@@ -29,8 +29,6 @@
 #include <tsppd/ap/primal_dual_ap_solver.h>
 #include <tsppd/data/tsppd_problem.h>
 
-#define FOCACCI_TSP_FILTER_ONE_TREE_MAX_ITERATIONS 100
-
 namespace TSPPD {
     namespace Solver {
         typedef boost::adjacency_list<
