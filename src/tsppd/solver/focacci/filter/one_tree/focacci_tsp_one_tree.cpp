@@ -56,25 +56,29 @@ OneTree::OneTree(
     initialize_one_tree();
 }
 
-bool OneTree::is_done() {
-    return done;
-}
 
 double OneTree::bound() {
-    while (true) {
+    double best_w = 0;
+    vector<set<int>> best_edges;
+
+    while (!done) {
         improve();
+        
+        if (iteration == 1 || w > best_w) {
+            best_w = w;
+            best_edges = edges;
+        }
+
         if (done)
             break;
     }
+    
+    w = best_w;
+    edges = best_edges;
     return w;
 }
 
-double OneTree::improve() {
-    if (iteration >= max_iterations) {
-        done = true;
-        return w;
-    }
-
+void OneTree::improve() {
     // Find the max min 1-tree by updating node potentials based on violation of degree constraints.
     bool is_tour = true;
 
@@ -103,14 +107,12 @@ double OneTree::improve() {
         potentials[node] += (((int) edges[node].size()) - 2) * ti;
     }
 
-    if (is_tour || abs(new_w - w) <= EPSILON)
+    if (is_tour || iteration++ > max_iterations)
         done = true;
     else
         update_one_tree();
 
     w = new_w;
-    ++iteration;
-    return w;
 }
 
 bool OneTree::has_edge(int from, int to) {

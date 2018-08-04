@@ -56,14 +56,13 @@ namespace TSPPD {
                 TSPPD::AP::PrimalDualAPSolver* ap
             );
 
-            bool is_done();
             double bound();
-            double improve();
             bool has_edge(int from, int to);
             int marginal_cost(int from, int to);
 
         protected:
             void initialize_one_tree();
+            void improve();
             double minimize_one_tree();
             void update_one_tree();
 
@@ -97,8 +96,6 @@ namespace TSPPD {
             double w;
             double t1, ti;
             bool done = false;
-
-            const double EPSILON = 10e-7;
         };
     }
 }
