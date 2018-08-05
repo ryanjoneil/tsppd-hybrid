@@ -14,31 +14,17 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_SPACE_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_SPACE_H
-
-#include <vector>
-
-#include <gecode/set.hh>
-#include <gecode/minimodel.hh>
-
-#include <tsppd/data/tsppd_problem.h>
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_precede_propagator.h>
-#include <tsppd/solver/focacci/focacci_tsp_space.h>
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_FILTER_H
+#define TSPPD_SOLVER_FOCACCI_TSP_FILTER_H
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDSpace : public FocacciTSPSpace {
-        public:
-            FocacciTSPPDSpace(const TSPPD::Data::TSPPDProblem& problem);
-
-            // Search & optimization support
-            FocacciTSPPDSpace(FocacciTSPPDSpace& rs);
-            virtual Gecode::Space* copy();
-
-            virtual void initialize_constraints();
-            void initialize_precedence_propagators(const FocacciTSPPDPrecedePropagatorType precede_type);
-            void initialize_omc_constraints();
+        enum FocacciTSPFilterType {
+            FOCACCI_FILTER_AP,
+            FOCACCI_FILTER_APHK,
+            FOCACCI_FILTER_HK,
+            FOCACCI_FILTER_HKAP,
+            FOCACCI_FILTER_NONE
         };
     }
 }

@@ -23,6 +23,7 @@
 #include <tsppd/solver/focacci/focacci_tsp_space.h>
 #include <tsppd/solver/focacci/brancher/focacci_tsp_brancher.h>
 #include <tsppd/solver/focacci/dual/focacci_tsp_dual.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_filter.h>
 
 // CP TSP Solver based on:
 //
@@ -34,7 +35,9 @@
 //     brancher: branching scheme {cn, regret, seq-cn} (default=regret)
 //     dl:       discrepancy limit (lds only)
 //     dual:     dual bounder {none, cn} (default=none)
+//     filter:   reduced-cost variable domain filtering {add, ap, hk, none} (default=none)
 //     gist:     enables interactive search tool (implies search=bab)
+//     hk-iter:  max iterations for hk 1-tree bound (default=10)
 //     search:   search engine {bab, dfs, lds} (default=bab)
 namespace TSPPD {
     namespace Solver {
@@ -56,7 +59,9 @@ namespace TSPPD {
             void initialize_option_brancher();
             void initialize_option_discrepancy_limit();
             void initialize_option_dual_bound();
+            void initialize_option_filter();
             void initialize_option_gist();
+            void initialize_option_hk_iter();
             void initialize_option_search();
 
             virtual std::shared_ptr<FocacciTSPSpace> build_space();
@@ -66,7 +71,9 @@ namespace TSPPD {
             FocacciTSPSearchEngine search_engine;
 
             int discrepancy_limit;
+            FocacciTSPFilterType filter_type;
             bool gist;
+            unsigned int hk_iter;
        };
     }
 }

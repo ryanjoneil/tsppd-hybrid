@@ -14,62 +14,54 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
-#define TSPPD_SOLVER_FOCACCI_TSPPD_ASSIGNMENT_PROPAGATOR_H
+#ifndef TSPPD_SOLVER_FOCACCI_TSP_APHK_FILTER_H
+#define TSPPD_SOLVER_FOCACCI_TSP_APHK_FILTER_H
 
-#include <memory>
-#include <utility>
 #include <vector>
 
 #include <gecode/int.hh>
 #include <gecode/minimodel.hh>
 
-#include <gurobi_c++.h>
-
-#include <tsppd/ap/primal_dual_ap_solver.h>
 #include <tsppd/data/tsppd_problem.h>
+#include <tsppd/solver/focacci/filter/one_tree/focacci_tsp_one_tree.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_assignment_filter.h>
 
 namespace TSPPD {
     namespace Solver {
-        class FocacciTSPPDAssignmentPropagator : public Gecode::Propagator {
+        class FocacciTSPAPHKFilter : public FocacciTSPAssignmentFilter {
         public:
-            FocacciTSPPDAssignmentPropagator(
+            FocacciTSPAPHKFilter(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
-                const TSPPD::Data::TSPPDProblem& problem
+                const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations
             );
 
-            FocacciTSPPDAssignmentPropagator(Gecode::Space& home, FocacciTSPPDAssignmentPropagator& p);
+            FocacciTSPAPHKFilter(Gecode::Space& home, FocacciTSPAPHKFilter& p);
 
             virtual Gecode::Propagator* copy(Gecode::Space& home);
-            virtual size_t dispose(Gecode::Space& home);
-
-            virtual Gecode::PropCost cost(const Gecode::Space& home, const Gecode::ModEventDelta& med) const;
-            virtual void reschedule(Gecode::Space& home);
             virtual Gecode::ExecStatus propagate(Gecode::Space& home, const Gecode::ModEventDelta& med);
 
             static Gecode::ExecStatus post(
                 Gecode::Home home,
                 Gecode::ViewArray<Gecode::Int::IntView>& next,
                 Gecode::Int::IntView& primal,
-                const TSPPD::Data::TSPPDProblem& problem
+                const TSPPD::Data::TSPPDProblem& problem,
+                const unsigned int max_iterations
             );
 
         protected:
-            Gecode::ViewArray<Gecode::Int::IntView> next;
-            Gecode::Int::IntView primal;
-            const TSPPD::Data::TSPPDProblem& problem;
-
-            TSPPD::AP::PrimalDualAPSolver ap;
-            std::vector<std::pair<int, int>> unassigned;
+            bool hk_done = false;
+            const unsigned int max_iterations;
         };
 
-        void tsppd_assignment(
+        void tsppd_aphk(
             Gecode::Home home,
             Gecode::IntVarArray& next,
             Gecode::IntVar& primal,
-            const TSPPD::Data::TSPPDProblem& problem
+            const TSPPD::Data::TSPPDProblem& problem,
+            const unsigned int max_iterations
         );
     }
 }

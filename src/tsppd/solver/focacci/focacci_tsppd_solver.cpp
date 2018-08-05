@@ -44,14 +44,6 @@ void FocacciTSPPDSolver::initialize_tsppd_options() {
     else
         throw TSPPDException("precede can be either set, cost, or all");
 
-    // Assignment Problem reduced cost fixing
-    if (options["ap"] == "" || options["ap"] == "off")
-        ap = false;
-    else if (options["ap"] == "on")
-        ap = true;
-    else
-        throw TSPPDException("ap can be either on or off");
-
     // Order Matching Constraint propagation
     if (options["omc"] == "" || options["omc"] == "off")
         omc = false;
@@ -64,9 +56,9 @@ void FocacciTSPPDSolver::initialize_tsppd_options() {
 shared_ptr<FocacciTSPSpace> FocacciTSPPDSolver::build_space() {
     auto space = make_shared<FocacciTSPPDSpace>(problem);
     space->initialize_precedence_propagators(precede_type);
-    if (ap)
-        space->initialize_assignment_propagator();
+
     if (omc)
         space->initialize_omc_constraints();
+
     return space;
 }

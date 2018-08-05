@@ -14,7 +14,7 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <tsppd/solver/focacci/propagator/focacci_tsppd_assignment_propagator.h>
+#include <tsppd/solver/focacci/filter/focacci_tsp_assignment_filter.h>
 
 using namespace Gecode;
 using namespace TSPPD::AP;
@@ -22,7 +22,7 @@ using namespace TSPPD::Data;
 using namespace TSPPD::Solver;
 using namespace std;
 
-FocacciTSPPDAssignmentPropagator::FocacciTSPPDAssignmentPropagator(
+FocacciTSPAssignmentFilter::FocacciTSPAssignmentFilter(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
@@ -39,30 +39,22 @@ FocacciTSPPDAssignmentPropagator::FocacciTSPPDAssignmentPropagator(
         for (int to = 0; to < next.size(); ++to) {
             ap.set_obj({from, to}, problem.cost(from, to));
 
-            // Filter out assigned nodes due to precedence structure.
-            if (from == to)
-                // !( i i )
+            if (!next[from].in(to))
                 ap.set_bounds({from, to}, 0, 0);
 
-            else if (to == 0 && from == (int) problem.successor_index(0))
-                // ( -0 +0 )
+            else if (next[from].assigned() && next[from].val() == to)
                 ap.set_bounds({from, to}, 1, 1);
-
-            else if (problem.has_predecessor(from) && (int) problem.predecessor_index(from) == to)
-                // !( -i +i )
-                ap.set_bounds({from, to}, 0, 0);
 
             else
                 unassigned.push_back({from, to});
-            }
+        }
     }
 
     next.subscribe(home, *this, Int::PC_INT_DOM);
-
     home.notice(*this, AP_DISPOSE);
 }
 
-FocacciTSPPDAssignmentPropagator::FocacciTSPPDAssignmentPropagator(Space& home, FocacciTSPPDAssignmentPropagator& p) :
+FocacciTSPAssignmentFilter::FocacciTSPAssignmentFilter(Space& home, FocacciTSPAssignmentFilter& p) :
     Propagator(home, p),
     next(p.next),
     primal(p.primal),
@@ -74,11 +66,11 @@ FocacciTSPPDAssignmentPropagator::FocacciTSPPDAssignmentPropagator(Space& home, 
     primal.update(home, p.primal);
 }
 
-Propagator* FocacciTSPPDAssignmentPropagator::copy(Space& home) {
-    return new (home) FocacciTSPPDAssignmentPropagator(home, *this);
+Propagator* FocacciTSPAssignmentFilter::copy(Space& home) {
+    return new (home) FocacciTSPAssignmentFilter(home, *this);
 }
 
-size_t FocacciTSPPDAssignmentPropagator::dispose(Space& home) {
+size_t FocacciTSPAssignmentFilter::dispose(Space& home) {
     home.ignore(*this, AP_DISPOSE);
     next.cancel(home, *this, Int::PC_INT_DOM);
     ap.~PrimalDualAPSolver();
@@ -87,15 +79,15 @@ size_t FocacciTSPPDAssignmentPropagator::dispose(Space& home) {
     return sizeof(*this);
 }
 
-PropCost FocacciTSPPDAssignmentPropagator::cost(const Space& home, const ModEventDelta& med) const {
+PropCost FocacciTSPAssignmentFilter::cost(const Space& home, const ModEventDelta& med) const {
     return PropCost::quadratic(PropCost::HI, next.size());
 }
 
-void FocacciTSPPDAssignmentPropagator::reschedule(Space& home) {
+void FocacciTSPAssignmentFilter::reschedule(Space& home) {
     next.reschedule(home, *this, Int::PC_INT_DOM);
 }
 
-ExecStatus FocacciTSPPDAssignmentPropagator::propagate(Space& home, const ModEventDelta& med) {
+ExecStatus FocacciTSPAssignmentFilter::propagate(Space& home, const ModEventDelta& med) {
     if (primal.assigned() || next.assigned() || unassigned.empty())
         return home.ES_SUBSUMED(*this);
 
@@ -146,14 +138,14 @@ ExecStatus FocacciTSPPDAssignmentPropagator::propagate(Space& home, const ModEve
     return ES_FIX;
 }
 
-ExecStatus FocacciTSPPDAssignmentPropagator::post(
+ExecStatus FocacciTSPAssignmentFilter::post(
     Home home,
     ViewArray<Int::IntView>& next,
     Int::IntView& primal,
     const TSPPDProblem& problem) {
 
     if (!primal.assigned() && !next.assigned())
-        (void) new (home) FocacciTSPPDAssignmentPropagator(home, next, primal, problem);
+        (void) new (home) FocacciTSPAssignmentFilter(home, next, primal, problem);
     return ES_OK;
 }
 
@@ -170,5 +162,5 @@ void TSPPD::Solver::tsppd_assignment(
 
     Int::IntView primal_view(primal);
 
-    GECODE_ES_FAIL(FocacciTSPPDAssignmentPropagator::post(home, next_view, primal_view, problem));
+    GECODE_ES_FAIL(FocacciTSPAssignmentFilter::post(home, next_view, primal_view, problem));
 }
