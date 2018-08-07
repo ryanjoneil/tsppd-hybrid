@@ -139,7 +139,7 @@ void TSPPD::Solver::tsppd_precede_cost(
             continue;
         else if (problem.has_predecessor(index)) {
             auto pickup = problem.predecessor_index(index);
-            rel(home, node_cost[index] >= node_cost[pickup] + problem.cost(pickup, index));
+            rel(home, node_cost[index] >= node_cost[pickup]);
         }
 
         GECODE_ES_FAIL(FocacciTSPPDPrecedeCostPropagator::post(home, next_view, node_cost_view, index, problem));
