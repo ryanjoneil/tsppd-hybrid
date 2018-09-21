@@ -1,7 +1,7 @@
 # TSPPD Hybrid Optimization Code
 
 This source code accompanies the papers "Exact Methods for Solving Traveling
-Salesman Problems with Pickup and Delivery in Real Time" and "Integer Models 
+Salesman Problems with Pickup and Delivery in Real Time" and "Integer Models
 for the Traveling Salesman Problem with Pickup and Delivery".
 
 The `src/` directory contains C++14 source code for the various TSPPD models
@@ -48,12 +48,14 @@ Help is available by using the `-h` flag.
 tsppd command line interface:
   -h [ --help ]              produce help message
   -H [ --no-header ]         do not print csv header line
+  -a [ --asymmetric ]        asymmetric mode (.tsp only) -
+                             upper triangular matrix = lower * U(0.7,1.3)
   -s [ --solver ] arg        solver slug
   -i [ --input ] arg         input tsplib file
   -f [ --format ] arg        output format: {human|csv} (default=human)
   -r [ --random-seed ] arg   random seed (default=0)
   -n [ --random-size ] arg   randomly generated instance with n pairs
-  -w [ --save ] arg          save problem instance to (modifed) tsplib format 
+  -w [ --save ] arg          save problem instance to (modifed) tsplib format
                              file
   -o [ --solver-option ] arg solver option (e.g. foo=bar)
   -p [ --threads ] arg       threads (default=1)
