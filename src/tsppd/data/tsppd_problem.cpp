@@ -82,7 +82,7 @@ void TSPPDProblem::make_asymmetric(unsigned int seed) {
         for (unsigned int j = i + 1; j < nodes.size(); ++j) {
             double u = ((double) rand()) / (double) RAND_MAX;
             double v = (u * 0.6) + 0.7;
-            edge_weights[i].push_back((int) (edge_weights[j][i] * v));
+            edge_weights[i].push_back((int) round(edge_weights[j][i] * v));
         }
     asymmetric = true;
     name += "-a" + to_string(seed);
