@@ -37,7 +37,6 @@ namespace TSPPD {
                 const TSPPD::Data::TSPPDProblem& problem,
                 std::map<std::pair<unsigned int, unsigned int>, GRBVar> arcs
             );
-            virtual ~RulandSubtourEliminationCallback() { RulandTSPCallback::~RulandTSPCallback(); }
 
             void callback(
                 GRBCallback* model,

@@ -57,6 +57,7 @@ namespace TSPPD {
             );
 
             void validate() const;
+            void make_asymmetric(unsigned int seed);
 
             std::pair<double, double> coordinate(const std::string node) const;
             std::pair<double, double> coordinate(const unsigned int node_index) const;
@@ -123,6 +124,8 @@ namespace TSPPD {
             std::vector<bool> has_successor_vec;
             std::vector<unsigned int> predecessor_vec;
             std::vector<unsigned int> successor_vec;
+
+            bool asymmetric = false;
        };
     }
 }

@@ -58,6 +58,7 @@ int main(int argc, char** argv) {
     desc.add_options()
         ("help,h", "produce help message")
         ("no-header,H", "do not print csv header line")
+        ("asymmetric,a", "asymmetric mode (.tsp only) - upper triangular matrix = lower * U(0.7,1.3)")
         ("solver,s", po::value<string>(), "solver slug")
         ("input,i", po::value<string>(), "input tsplib file")
         ("format,f", po::value<string>(), "output format: {human|csv} (default=human)")
@@ -106,6 +107,13 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // Get a random seed.
+    unsigned int seed = 0;
+    if (varmap.count("random-seed") == 1) {
+        seed = varmap["random-seed"].as<unsigned int>();
+        srand(seed);
+    }
+
     // Choose a TSPPD solver.
     if (varmap.count("solver") != 1) {
         cerr << "solver required" << endl;
@@ -121,6 +129,8 @@ int main(int argc, char** argv) {
 
     } else if (varmap.count("input") == 1) {
         problem = TSPPD::IO::TSPProblemReader::read(varmap["input"].as<string>());
+        if (varmap.count("asymmetric"))
+            problem.make_asymmetric(seed);
 
     } else if (varmap.count("random-size") == 1) {
         // Size (number of pairs) must be > 0.
@@ -129,11 +139,6 @@ int main(int argc, char** argv) {
             cerr << "random-size must be > 0" << endl;
             return 1;
         }
-
-        // Get a random seed.
-        unsigned int seed = 0;
-        if (varmap.count("random-seed") == 1)
-            seed = varmap["random-seed"].as<unsigned int>();
 
         problem = TSPPD::Data::TSPPDProblemGenerator::generate(size, seed);
 

@@ -77,6 +77,17 @@ void TSPPDProblem::validate() const {
         throw TSPPDException("coordinate count must match dimension");
 }
 
+void TSPPDProblem::make_asymmetric(unsigned int seed) {
+    for (unsigned int i = 0; i < nodes.size(); ++i)
+        for (unsigned int j = i + 1; j < nodes.size(); ++j) {
+            double u = ((double) rand()) / (double) RAND_MAX;
+            double v = (u * 0.6) + 0.7;
+            edge_weights[i].push_back((int) (edge_weights[j][i] * v));
+        }
+    asymmetric = true;
+    name += "-a" + to_string(seed);
+}
+
 pair<double, double> TSPPDProblem::coordinate(const string node) const {
     return coordinate(index(node));
 }
@@ -97,7 +108,9 @@ int TSPPDProblem::cost(const unsigned int node_index_1, const unsigned int node_
     }
 
     if (edge_weight_type == EXPLICIT) {
-        return  edge_weights[max(node_index_1, node_index_2)][min(node_index_1, node_index_2)];
+        if (asymmetric)
+            return edge_weights[node_index_1][node_index_2];
+        return edge_weights[max(node_index_1, node_index_2)][min(node_index_1, node_index_2)];
     }
 
     throw TSPPDException("invalid edge weight type");
