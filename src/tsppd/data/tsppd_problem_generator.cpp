@@ -30,8 +30,6 @@ TSPPDProblem TSPPDProblemGenerator::generate(unsigned int size, unsigned int see
     string name = string("random-") + to_string(size) + "-" + to_string(seed);
     string comment = string("size=") + to_string(size) + " seed=" + to_string(seed);
 
-    srand(seed);
-
     vector<string> nodes;
     vector<pair<double, double>> coordinates;
     vector<pair<string, string>> pickup_delivery_pairs;

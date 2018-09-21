@@ -12,7 +12,7 @@ include(cotire)
 
 # Compiler flags
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -Wextra -Wno-c++98-compat -Wno-unused-parameter -pedantic-errors")
+    "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -Wextra -Wno-c++98-compat -Wno-unused-parameter -Wno-delete-non-virtual-dtor -pedantic-errors")
 
 # Where to look for header filess
 include_directories(src/)

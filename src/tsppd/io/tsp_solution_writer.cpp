@@ -45,7 +45,7 @@ TSPSolutionWriter::TSPSolutionWriter(
 
 void TSPSolutionWriter::write_header() {
     if (format == HUMAN) {
-        cout << "instance         size   solver        threads   clock     cpu       optimal   dual      primal    nodes     fails     depth     ";
+        cout << "instance             size   solver        threads   clock     cpu       optimal   dual      primal    nodes     fails     depth     ";
         for (auto opt : options)
             cout << setfill(' ') << setw(10) << left << opt.first;
         cout << endl;
@@ -108,7 +108,7 @@ void TSPSolutionWriter::write(const TSPPDSearchStatistics& stats, const bool for
         row.push_back(opt.second);
 
     if (format == HUMAN) {
-        cout << setfill(' ') << setw(17) << left << row[0]
+        cout << setfill(' ') << setw(21) << left << row[0]
              << setfill(' ') << setw(7) << left << row[1]
              << setfill(' ') << setw(14) << left << row[2];
         for (unsigned int i = 3; i < row.size(); ++i)
