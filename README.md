@@ -1,8 +1,10 @@
 # TSPPD Hybrid Optimization Code
 
-This source code accompanies the papers "Exact Methods for Solving Traveling
-Salesman Problems with Pickup and Delivery in Real Time" and "Integer Models
-for the Traveling Salesman Problem with Pickup and Delivery".
+This source code accompanies the following papers:
+
+* Exact Methods for Solving Traveling Salesman Problems with Pickup and Delivery in Real Time
+* Integer Models for the Traveling Salesman Problem with Pickup and Delivery
+* Decision Diagrams for Solving Traveling Salesman Problems with Pickup and Delivery in Real Time
 
 The `src/` directory contains C++14 source code for the various TSPPD models
 used in the paper. All source is licensed under the ZIB Academic License, and
