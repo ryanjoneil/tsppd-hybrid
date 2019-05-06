@@ -14,6 +14,8 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <iomanip>
+
 #include <tsppd/ap/ap_solver.h>
 
 using namespace TSPPD::AP;
