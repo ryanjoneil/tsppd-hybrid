@@ -12,20 +12,17 @@ include(cotire)
 
 # Compiler flags
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -Wextra -Wno-c++98-compat -Wno-unused-parameter -Wno-delete-non-virtual-dtor -pedantic-errors")
+    "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -Wextra -Wno-unused-parameter -Wno-delete-non-virtual-dtor -pedantic-errors")
 
 # Where to look for header filess
 include_directories(src/)
-if(APPLE)
-    include_directories(/usr/local/include/)
-    include_directories(/Library/gurobi800/mac64/include/)
-endif(APPLE)
 
-# Where to look for libraries
-if(APPLE)
-    link_directories(/usr/local/lib/)
-    link_directories(/Library/gurobi800/mac64/lib/)
-endif(APPLE)
+include_directories("$ENV{GECODE_HOME}")
+link_directories("$ENV{GECODE_HOME}")
+
+include_directories("$ENV{GUROBI_HOME}/include")
+link_directories("$ENV{GUROBI_HOME}/src/build")
+link_directories("$ENV{GUROBI_HOME}/lib")
 
 # Libraries we link against
 set(BOOST_LIBRARIES boost_program_options)
@@ -34,7 +31,7 @@ if(${GIST})
 else(${GIST})
     set(GECODE_LIBRARIES gecodefloat gecodeint gecodekernel gecodeminimodel gecodesearch gecodeset gecodesupport)
 endif(${GIST})
-set(GUROBI_LIBRARIES gurobi_c++ gurobi80 m)
+set(GUROBI_LIBRARIES gurobi_c++ gurobi81 m)
 set(ALL_LIBRARIES ${BOOST_LIBRARIES} ${GECODE_LIBRARIES} ${GUROBI_LIBRARIES})
 
 # This allows "make install" to put all the headers in the right place.

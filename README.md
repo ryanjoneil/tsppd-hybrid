@@ -14,9 +14,9 @@ your mileage may vary. See the file `tsppd/LICENSE`.
 Building `tsppd` requires `cmake`, `clang` or `g++`, and the following
 libraries:
 
-* Boost >= 1.6.0
-* Gecode 6.0.1
-* Gurobi 8.0.0
+* Boost >= 1.6.7
+* Gecode 6.2.0
+* Gurobi 8.1.1
 
 In order to build it, create a directory called build and use `cmake`.
 
